@@ -691,7 +691,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
           {receiptStyle === 'fastfood_combo' && (
-            <div className="receipt-layout-kfc font-receipt space-y-2 text-stone-900">
+            <div className="receipt-layout-fastfood font-receipt space-y-2 text-stone-900">
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5 pb-1">
                 <div className="text-2xl sm:text-3xl font-black tracking-tighter text-black uppercase">
