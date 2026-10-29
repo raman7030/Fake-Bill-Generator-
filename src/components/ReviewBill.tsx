@@ -425,6 +425,7 @@ export const ReviewBill: React.FC<ReviewBillProps> = ({
                   );
                 })}
               </div>
+            </div>
           </div>
         </div>
 
