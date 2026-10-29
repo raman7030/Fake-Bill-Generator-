@@ -73,11 +73,11 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
     let qrPayload = '';
     if (qrCodeType === 'upi') {
       // This app has no configured merchant payment account; encode a clearly marked demo payload.
-      qrPayload = `DEMO PAYMENT ONLY\\n${shop.name}\\n${orderDetails.orderId}\\n${taxSettings.currencyCode} ${calculation.grandTotal.toFixed(2)}`;
+      qrPayload = `DEMO PAYMENT ONLY\n${shop.name}\n${orderDetails.orderId}\n${taxSettings.currencyCode} ${calculation.grandTotal.toFixed(2)}`;
     } else if (qrCodeType === 'feedback') {
-      qrPayload = `DEMO FEEDBACK ONLY\\n${shop.name}\\n${orderDetails.orderId}`;
+      qrPayload = `DEMO FEEDBACK ONLY\n${shop.name}\n${orderDetails.orderId}`;
     } else {
-      qrPayload = `DEMO RECEIPT — NOT A REAL VERIFICATION URL\\n${shop.name}\\n${orderDetails.orderId}\\n${orderDetails.timestamp}`;
+      qrPayload = `DEMO RECEIPT — NOT A REAL VERIFICATION URL\n${shop.name}\n${orderDetails.orderId}\n${orderDetails.timestamp}`;
     }
 
     QRCode.toDataURL(qrPayload, {
@@ -913,7 +913,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
               <div className="text-[10px] font-bold flex justify-between">
                 <span>PAYMENT: {orderDetails.paymentMethod.toUpperCase()}</span>
-                <span>STATUS: PAID</span>
+                <span>STATUS: {orderDetails.paymentStatus}</span>
               </div>
 
               {/* Tracker QR */}
@@ -1030,7 +1030,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               </div>
 
               <div className="text-[10px] font-bold flex justify-between">
-                <span>PAID: {orderDetails.paymentMethod.toUpperCase()}</span>
+                <span>PAYMENT METHOD: {orderDetails.paymentMethod.toUpperCase()}</span>
                 <span>CHANGE: 0.00</span>
               </div>
 
@@ -1387,7 +1387,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
               <div className="text-[10px] font-bold flex justify-between">
                 <span>PAID: {orderDetails.paymentMethod.toUpperCase()}</span>
-                <span>STATUS: COMPLETED</span>
+                <span>STATUS: {orderDetails.paymentStatus}</span>
               </div>
 
               {/* Barcode */}
