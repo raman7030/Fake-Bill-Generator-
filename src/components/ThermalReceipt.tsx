@@ -1745,10 +1745,10 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 <span className="text-[10px] uppercase font-bold tracking-widest text-stone-400 block">
                   ORDER TOKEN
                 </span>
-                <span className="text-3xl font-black tracking-tight text-white block">
+                <span className="text-3xl font-black tracking-tight text-stone-900 block">
                   #{orderDetails.orderId.replace('#ORD-', '') || '42'}
                 </span>
-                <span className="text-[10px] text-stone-300 font-medium">
+                <span className="text-[10px] text-stone-600 font-medium">
                   {orderDetails.tableNo || 'TAKEAWAY EXPRESS'} • {orderDetails.timestamp}
                 </span>
               </div>
