@@ -114,6 +114,9 @@ export const MENU_CATEGORIES = [
   'Rice & Biryani',
   'Tandoor & Breads',
   'Street Food & Chaat',
+  'Snacks & Pakora',
+  'Hot Drinks',
+  'Fresh Juices',
   'Fast Food & Burgers',
   'Beverages & Desserts',
 ];
@@ -454,6 +457,58 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   { id: 'side-chole', name: 'Pindi Chole', category: 'Curries & Main Course', price: 150, description: 'Chickpeas simmered with tea-darkened spices and ginger.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&auto=format&fit=crop&q=80' },
   { id: 'side-makki-roti', name: 'Makki Di Roti', category: 'Tandoor & Breads', price: 35, description: 'Traditional Punjabi maize flatbread.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=80' },
   { id: 'side-bhatura', name: 'Bhatura', category: 'Tandoor & Breads', price: 35, description: 'Single fluffy deep-fried leavened bread.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&auto=format&fit=crop&q=80' },
+
+
+  // --- DESI BREADS & PARATHAS ---
+  { id: 'desi-paratha-plain', name: 'Plain Tawa Paratha', category: 'Tandoor & Breads', price: 35, description: 'Golden, crisp whole-wheat paratha cooked on a tawa.', isVeg: true },
+  { id: 'desi-paratha-aloo', name: 'Aloo Paratha', category: 'Tandoor & Breads', price: 70, description: 'Whole-wheat paratha stuffed with spiced potato.', isVeg: true, popular: true },
+  { id: 'desi-paratha-paneer', name: 'Paneer Paratha', category: 'Tandoor & Breads', price: 100, description: 'Stuffed paneer paratha served with pickle.', isVeg: true },
+  { id: 'desi-paratha-gobi', name: 'Gobi Paratha', category: 'Tandoor & Breads', price: 75, description: 'Homestyle paratha stuffed with seasoned cauliflower.', isVeg: true },
+  { id: 'desi-paratha-mix', name: 'Mix Veg Paratha', category: 'Tandoor & Breads', price: 85, description: 'Stuffed with a spiced seasonal vegetable mix.', isVeg: true },
+  { id: 'desi-paratha-lachha', name: 'Lachha Paratha', category: 'Tandoor & Breads', price: 55, description: 'Flaky, layered whole-wheat paratha.', isVeg: true },
+  { id: 'desi-paratha-methi', name: 'Methi Paratha', category: 'Tandoor & Breads', price: 50, description: 'Whole-wheat flatbread with fresh fenugreek.', isVeg: true },
+  { id: 'desi-roti-rumali', name: 'Rumali Roti', category: 'Tandoor & Breads', price: 30, description: 'Paper-thin soft handkerchief bread.', isVeg: true },
+  { id: 'desi-roti-tandoori', name: 'Tandoori Roti', category: 'Tandoor & Breads', price: 25, description: 'Whole-wheat roti baked in a clay tandoor.', isVeg: true, popular: true },
+  { id: 'desi-roti-butter', name: 'Butter Tandoori Roti', category: 'Tandoor & Breads', price: 35, description: 'Tandoori roti brushed with butter.', isVeg: true },
+  { id: 'desi-roti-tawa', name: 'Tawa Roti', category: 'Tandoor & Breads', price: 15, description: 'Soft whole-wheat roti cooked on a hot tawa.', isVeg: true },
+  { id: 'desi-roti-missi', name: 'Missi Roti', category: 'Tandoor & Breads', price: 40, description: 'Gram flour and wheat flatbread with Punjabi spices.', isVeg: true },
+  { id: 'desi-naan-plain', name: 'Plain Naan', category: 'Tandoor & Breads', price: 40, description: 'Soft leavened bread baked in a tandoor.', isVeg: true },
+  { id: 'desi-naan-butter', name: 'Butter Naan', category: 'Tandoor & Breads', price: 50, description: 'Classic tandoori naan finished with butter.', isVeg: true, popular: true },
+  { id: 'desi-naan-garlic', name: 'Garlic Naan', category: 'Tandoor & Breads', price: 65, description: 'Naan topped with garlic and coriander.', isVeg: true },
+  { id: 'desi-naan-cheese', name: 'Cheese Naan', category: 'Tandoor & Breads', price: 90, description: 'Tandoori naan filled with melted cheese.', isVeg: true },
+  { id: 'desi-kulcha-butter', name: 'Butter Kulcha', category: 'Tandoor & Breads', price: 45, description: 'Soft tandoori kulcha with a butter finish.', isVeg: true },
+  { id: 'desi-puri', name: 'Puri (2 pcs)', category: 'Tandoor & Breads', price: 35, description: 'Two puffed, deep-fried wheat breads.', isVeg: true },
+
+  // --- DESI SNACKS & STREET FOOD ---
+  { id: 'snack-samosa', name: 'Punjabi Samosa', category: 'Snacks & Pakora', price: 25, description: 'Crispy pastry filled with spiced potato and peas.', isVeg: true, popular: true },
+  { id: 'snack-samosa-plate', name: 'Samosa Plate (2 pcs)', category: 'Snacks & Pakora', price: 45, description: 'Two Punjabi samosas served with chutney.', isVeg: true },
+  { id: 'snack-bread-pakora', name: 'Bread Pakora', category: 'Snacks & Pakora', price: 35, description: 'Bread dipped in seasoned gram-flour batter and fried.', isVeg: true, popular: true },
+  { id: 'snack-paneer-pakora', name: 'Paneer Pakora', category: 'Snacks & Pakora', price: 120, description: 'Paneer pieces coated in besan batter and fried crisp.', isVeg: true },
+  { id: 'snack-onion-pakora', name: 'Onion Pakora', category: 'Snacks & Pakora', price: 70, description: 'Crispy onion fritters with Indian spices.', isVeg: true },
+  { id: 'snack-aloo-tikki', name: 'Aloo Tikki', category: 'Snacks & Pakora', price: 60, description: 'Pan-fried potato patties with chutney.', isVeg: true },
+  { id: 'snack-pakora-mix', name: 'Mix Veg Pakora', category: 'Snacks & Pakora', price: 90, description: 'Seasonal vegetable fritters served hot.', isVeg: true },
+  { id: 'snack-paneer-roll', name: 'Paneer Roll', category: 'Snacks & Pakora', price: 100, description: 'Spiced paneer wrapped in a soft flatbread.', isVeg: true },
+
+  // --- TEA & COFFEE ---
+  { id: 'drink-masala-chai', name: 'Masala Chai', category: 'Hot Drinks', price: 25, description: 'Indian milk tea brewed with aromatic spices.', isVeg: true, popular: true },
+  { id: 'drink-ginger-tea', name: 'Adrak Chai', category: 'Hot Drinks', price: 25, description: 'Hot milk tea infused with fresh ginger.', isVeg: true },
+  { id: 'drink-cutting-chai', name: 'Cutting Chai', category: 'Hot Drinks', price: 15, description: 'Small glass of strong Indian tea.', isVeg: true },
+  { id: 'drink-black-tea', name: 'Black Tea', category: 'Hot Drinks', price: 20, description: 'Freshly brewed tea without milk.', isVeg: true },
+  { id: 'drink-green-tea', name: 'Green Tea', category: 'Hot Drinks', price: 30, description: 'Light, freshly brewed green tea.', isVeg: true },
+  { id: 'drink-filter-coffee', name: 'Filter Coffee', category: 'Hot Drinks', price: 40, description: 'South Indian-style coffee with milk.', isVeg: true },
+  { id: 'drink-hot-coffee', name: 'Hot Coffee', category: 'Hot Drinks', price: 50, description: 'Freshly prepared hot milk coffee.', isVeg: true },
+  { id: 'drink-black-coffee', name: 'Black Coffee', category: 'Hot Drinks', price: 40, description: 'Bold brewed coffee served black.', isVeg: true },
+
+  // --- FRESH JUICES & COLD DRINKS ---
+  { id: 'juice-orange', name: 'Fresh Orange Juice', category: 'Fresh Juices', price: 90, description: 'Freshly squeezed orange juice.', isVeg: true },
+  { id: 'juice-mosambi', name: 'Mosambi Juice', category: 'Fresh Juices', price: 80, description: 'Fresh sweet-lime juice.', isVeg: true, popular: true },
+  { id: 'juice-watermelon', name: 'Watermelon Juice', category: 'Fresh Juices', price: 70, description: 'Refreshing seasonal watermelon juice.', isVeg: true },
+  { id: 'juice-pineapple', name: 'Pineapple Juice', category: 'Fresh Juices', price: 90, description: 'Fresh pineapple juice.', isVeg: true },
+  { id: 'juice-mixed-fruit', name: 'Mixed Fruit Juice', category: 'Fresh Juices', price: 100, description: 'Blend of seasonal fruits.', isVeg: true },
+  { id: 'juice-carrot', name: 'Carrot Juice', category: 'Fresh Juices', price: 80, description: 'Freshly prepared carrot juice.', isVeg: true },
+  { id: 'drink-sweet-lassi', name: 'Sweet Lassi', category: 'Beverages & Desserts', price: 60, description: 'Chilled sweet yogurt drink.', isVeg: true },
+  { id: 'drink-salted-lassi', name: 'Salted Lassi', category: 'Beverages & Desserts', price: 55, description: 'Traditional salted yogurt drink with roasted cumin.', isVeg: true },
+  { id: 'drink-nimbu-pani', name: 'Nimbu Pani', category: 'Beverages & Desserts', price: 35, description: 'Fresh lemon water with a hint of black salt.', isVeg: true },
 
 ];
 
