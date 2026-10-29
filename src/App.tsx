@@ -45,6 +45,7 @@ const STORAGE_KEY_BILLS = 'zestypos_saved_bills_v2';
 export default function App() {
   // Navigation View State
   const [currentView, setCurrentView] = useState<'menu' | 'review' | 'receipt' | 'history'>('menu');
+  const [menuToolsOpen, setMenuToolsOpen] = useState(false);
 
   // Google Maps Quota Warning State (Mandatory Tier 2 Quota Defense)
   const [quotaExceeded, setQuotaExceeded] = useState(false);
@@ -388,14 +389,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Global Shop Header Bar */}
-        <ShopHeaderBar
-          shop={shop}
-          onOpenSearch={() => setIsPlaceSearchOpen(true)}
-          onOpenEdit={() => setIsEditShopOpen(true)}
-          currencySymbol={taxSettings.currencySymbol}
-        />
-
         {/* Navigation View Switcher (Tabs) */}
         <div className="bg-white border-b border-stone-200/70 sticky top-14 sm:top-16 z-30 shadow-2xs">
           <div className="max-w-4xl mx-auto px-3 sm:px-6 flex items-center justify-between overflow-x-auto no-scrollbar">
@@ -447,6 +440,16 @@ export default function App() {
           </div>
         </div>
 
+        {/* Global Shop Header Bar */}
+        <ShopHeaderBar
+          shop={shop}
+          onOpenSearch={() => setIsPlaceSearchOpen(true)}
+          onOpenEdit={() => setIsEditShopOpen(true)}
+          menuToolsOpen={menuToolsOpen}
+          onToggleMenuTools={() => setMenuToolsOpen((open) => !open)}
+          currencySymbol={taxSettings.currencySymbol}
+        />
+
         {/* Main Content Area */}
         <main className="flex-1">
           {currentView === 'menu' && (
@@ -464,6 +467,8 @@ export default function App() {
                 onToggleMasterMenu={handleToggleMasterMenu}
                 onRemoveDish={handleRemoveDish}
                 onResetMenu={handleResetMenu}
+                menuToolsOpen={menuToolsOpen}
+                onCloseMenuTools={() => setMenuToolsOpen(false)}
               />
               <FloatingCartBanner
                 cart={cart}
