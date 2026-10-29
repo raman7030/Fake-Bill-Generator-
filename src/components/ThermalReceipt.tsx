@@ -469,6 +469,58 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           </div>
         </div>
 
+        {/* Tagline and promotional box controls */}
+        <div className="mt-3 border-t border-stone-100 pt-3 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-xs font-bold text-stone-800">Restaurant tagline / slogan</div>
+              <div className="text-[10px] text-stone-500">Show or hide the slogan printed under the restaurant name.</div>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={orderDetails.showTagline}
+              onClick={() => onUpdateOrderDetails({ showTagline: !orderDetails.showTagline })}
+              className={`rounded-full px-3 py-1.5 text-xs font-bold border ${orderDetails.showTagline ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-stone-100 border-stone-200 text-stone-600'}`}
+            >{orderDetails.showTagline ? 'Tagline: ON' : 'Tagline: OFF'}</button>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-xs font-bold text-stone-800">Promotional box</div>
+              <div className="text-[10px] text-stone-500">Optional editable message box on supported templates.</div>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={orderDetails.showPromotionalBoxes}
+              onClick={() => onUpdateOrderDetails({ showPromotionalBoxes: !orderDetails.showPromotionalBoxes })}
+              className={`rounded-full px-3 py-1.5 text-xs font-bold border ${orderDetails.showPromotionalBoxes ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-stone-100 border-stone-200 text-stone-600'}`}
+            >{orderDetails.showPromotionalBoxes ? 'Promotional box: ON' : 'Promotional box: OFF'}</button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label className="block text-[11px] font-semibold text-stone-600">
+              Box heading
+              <input
+                value={orderDetails.promotionalTitle}
+                onChange={(e) => onUpdateOrderDetails({ promotionalTitle: e.target.value })}
+                maxLength={80}
+                className="mt-1 w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs text-stone-900 outline-none focus:border-rose-400"
+                placeholder="Promotional heading"
+              />
+            </label>
+            <label className="block text-[11px] font-semibold text-stone-600">
+              Box message
+              <input
+                value={orderDetails.promotionalMessage}
+                onChange={(e) => onUpdateOrderDetails({ promotionalMessage: e.target.value })}
+                maxLength={180}
+                className="mt-1 w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs text-stone-900 outline-none focus:border-rose-400"
+                placeholder="Short promotional message"
+              />
+            </label>
+          </div>
+        </div>
+
         {/* Quick Share Buttons */}
         <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
           <div className="text-[11px] text-stone-500">
@@ -665,7 +717,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                     {taxSettings.taxIdLabel}: {taxSettings.taxIdValue}
                   </div>
                 )}
-                {shop.tagline && <div className="text-[9px] italic text-stone-500">"{shop.tagline}"</div>}
+                {orderDetails.showTagline && shop.tagline && <div className="text-[9px] italic text-stone-500">"{shop.tagline}"</div>}
               </div>
 
               {/* Bold Eat-In / Takeaway Banner */}
@@ -765,17 +817,12 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 </div>
               </div>
 
-              {/* Authentic Customer Feedback Survey Box */}
-              <div className="border-2 border-dashed border-stone-900 p-2 my-2 text-center space-y-1 bg-stone-50">
-                <div className="text-xs font-black uppercase tracking-wide">GREAT FOOD? TELL US!</div>
-                <div className="text-[10px] font-bold text-stone-800">VISIT: WWW.GUEST-FEEDBACK.COM</div>
-                <div className="text-xs font-mono font-black tracking-widest text-black bg-white p-1 border border-stone-300">
-                  DEMO CODE: NOT ISSUED
+              {orderDetails.showPromotionalBoxes && (
+                <div className="border border-stone-300 rounded-lg p-3 my-2 text-center space-y-1.5 bg-stone-100">
+                  <div className="text-xs font-black uppercase tracking-wide">{orderDetails.promotionalTitle || 'Promotion'}</div>
+                  <div className="text-[10px] text-stone-700">{orderDetails.promotionalMessage}</div>
                 </div>
-                <div className="text-[9px] font-bold text-stone-600 uppercase">
-                  ENTER CODE FOR 15% OFF YOUR NEXT MEAL AT {shop.name.toUpperCase()}!
-                </div>
-              </div>
+              )}
 
               {/* Barcode & QR */}
               {showQrCode && qrCodeDataUrl && (
@@ -987,23 +1034,12 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 })}
               </div>
 
-              {/* Loyalty Rewards Box for Current Shop */}
-              <div className="border-2 border-stone-900 p-2 my-1.5 bg-stone-50 space-y-1">
-                <div className="text-xs font-black uppercase text-center tracking-wider">
-                  {shop.name.toUpperCase()} REWARDS & TOKENS
+              {orderDetails.showPromotionalBoxes && (
+                <div className="border border-stone-300 rounded-lg p-3 my-1.5 bg-stone-100 text-center space-y-1.5">
+                  <div className="text-xs font-black uppercase tracking-wide">{orderDetails.promotionalTitle || 'Promotion'}</div>
+                  <div className="text-[10px] text-stone-700">{orderDetails.promotionalMessage}</div>
                 </div>
-                <div className="flex justify-between text-[10px] font-bold text-stone-800">
-                  <span>TOKENS EARNED TODAY:</span>
-                  <span>+{Math.max(5, Math.floor(calculation.grandTotal / 10))} TOKENS</span>
-                </div>
-                <div className="flex justify-between text-[10px] font-bold text-stone-800">
-                  <span>ESTIMATED TOTAL BALANCE:</span>
-                  <span>245 TOKENS</span>
-                </div>
-                <div className="text-[9px] text-center text-stone-600 uppercase font-bold">
-                  200 TOKENS = ₹50 DISCOUNT READY TO REDEEM!
-                </div>
-              </div>
+              )}
 
               <div className="text-[11px] space-y-1 font-bold">
                 <div className="flex justify-between">
@@ -1404,7 +1440,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 </h1>
                 <p className="text-[11px] sm:text-xs leading-snug px-1 text-stone-800 font-medium">{shop.address}</p>
                 <p className="text-[11px] sm:text-xs font-bold text-stone-900">Tel: {shop.phone}</p>
-                {shop.tagline && <p className="text-[10px] italic text-stone-600">"{shop.tagline}"</p>}
+                {orderDetails.showTagline && shop.tagline && <p className="text-[10px] italic text-stone-600">"{shop.tagline}"</p>}
                 <div className="text-[10px] font-bold text-stone-800 pt-0.5 space-y-0.5">
                   {taxSettings.taxIdValue && <div>{taxSettings.taxIdLabel}: {taxSettings.taxIdValue}</div>}
                   {shop.fssaiNumber && <div>FSSAI Lic No: {shop.fssaiNumber}</div>}
