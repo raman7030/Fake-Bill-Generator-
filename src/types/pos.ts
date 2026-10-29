@@ -98,6 +98,10 @@ export interface OrderDetails {
   showQrCode: boolean;
   qrCodeType: QrCodeType;
   footerNote: string;
+  showTagline: boolean;
+  showPromotionalBoxes: boolean;
+  promotionalTitle: string;
+  promotionalMessage: string;
 }
 
 export interface BillCalculation {
