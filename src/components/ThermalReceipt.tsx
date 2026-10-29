@@ -72,17 +72,12 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
     let qrPayload = '';
     if (qrCodeType === 'upi') {
-      qrPayload = `upi://pay?pa=billing@upi&pn=${encodeURIComponent(
-        shop.name
-      )}&am=${calculation.grandTotal}&cu=INR&tn=${encodeURIComponent(orderDetails.orderId)}`;
+      // This app has no configured merchant payment account; encode a clearly marked demo payload.
+      qrPayload = `DEMO PAYMENT ONLY\n${shop.name}\n${orderDetails.orderId}\n${taxSettings.currencyCode} ${calculation.grandTotal.toFixed(2)}`;
     } else if (qrCodeType === 'feedback') {
-      qrPayload = `https://feedback.pos.bill/rate?order=${encodeURIComponent(
-        orderDetails.orderId
-      )}&shop=${encodeURIComponent(shop.name)}`;
+      qrPayload = `DEMO FEEDBACK ONLY\n${shop.name}\n${orderDetails.orderId}`;
     } else {
-      qrPayload = `https://verify.pos.bill/invoice?id=${encodeURIComponent(
-        orderDetails.orderId
-      )}&amt=${calculation.grandTotal}&date=${encodeURIComponent(orderDetails.timestamp)}`;
+      qrPayload = `DEMO RECEIPT — NOT A REAL VERIFICATION URL\n${shop.name}\n${orderDetails.orderId}\n${orderDetails.timestamp}`;
     }
 
     QRCode.toDataURL(qrPayload, {
@@ -187,12 +182,17 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
     lines.push(divider);
     lines.push(`GRAND TOTAL:          ${taxSettings.currencySymbol}${calculation.grandTotal.toFixed(2)}`);
     lines.push(divider);
-    lines.push(`PAID VIA: ${orderDetails.paymentMethod.toUpperCase()}`);
+    lines.push(`PAYMENT STATUS: ${orderDetails.paymentStatus}`);
+    lines.push(`PAYMENT METHOD: ${orderDetails.paymentMethod.toUpperCase()}`);
+    lines.push('DEMO RECEIPT — NOT PROOF OF PAYMENT');
     lines.push(`*** THANK YOU! VISIT AGAIN ***`);
 
-    navigator.clipboard.writeText(lines.filter(Boolean).join('\n'));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    void navigator.clipboard.writeText(lines.filter(Boolean).join('\n')).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      window.alert('Clipboard access was blocked. Please copy the receipt text manually.');
+    });
   };
 
   const handleWhatsAppShare = () => {
@@ -281,6 +281,25 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
       desc: 'Formal boxed invoice layout with HSN and split CGST/SGST tax grid',
       icon: '📑',
     },
+
+    {
+      id: 'delivery_card',
+      name: 'Delivery • Premium Card',
+      desc: 'App-style order summary with delivery, fees and payment breakdown',
+      icon: '🛵',
+    },
+    {
+      id: 'delivery_minimal',
+      name: 'Delivery • Minimal',
+      desc: 'Clean editorial delivery receipt with bold totals and compact line items',
+      icon: '📦',
+    },
+    {
+      id: 'delivery_dark',
+      name: 'Delivery • Night',
+      desc: 'High-contrast dark header, order capsule and itemized service fees',
+      icon: '🌙',
+    },
   ];
 
   return (
@@ -346,7 +365,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               <span>Choose Premium Receipt Layout / Style:</span>
             </span>
             <span className="text-[11px] text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
-              12 Professional Layouts Available
+              15 Layouts · 3 Premium Delivery Styles
             </span>
           </div>
 
@@ -497,6 +516,134 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 : '-0.02em',
           }}
         >
+
+          {/* PREMIUM GENERIC DELIVERY TEMPLATES — original layouts, no third-party branding */}
+          {receiptStyle === 'delivery_card' && (
+            <div className="font-sans text-stone-900 -m-4 sm:-m-5">
+              <div className="bg-emerald-700 text-white px-5 py-5 rounded-t-xl">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.22em] text-emerald-100 font-bold">Order confirmed · Demo</div>
+                    <h2 className="text-xl font-black tracking-tight mt-1">{shop.name}</h2>
+                    <p className="text-[10px] text-emerald-50 mt-1 leading-relaxed">{shop.address}</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/15 border border-white/25 p-2 text-2xl">✦</div>
+                </div>
+                <div className="mt-4 inline-flex rounded-full bg-white text-emerald-800 px-3 py-1 text-[10px] font-extrabold tracking-wide">ORDER {orderDetails.orderId}</div>
+              </div>
+              <div className="bg-white px-5 py-4 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl bg-stone-50 border border-stone-100 p-3">
+                    <span className="block text-[9px] uppercase tracking-widest text-stone-500 font-bold">Placed at</span>
+                    <span className="mt-1 block text-xs font-bold">{orderDetails.timestamp}</span>
+                  </div>
+                  <div className="rounded-xl bg-stone-50 border border-stone-100 p-3">
+                    <span className="block text-[9px] uppercase tracking-widest text-stone-500 font-bold">Fulfilment</span>
+                    <span className="mt-1 block text-xs font-bold">{orderDetails.tableNo || 'Pickup / Delivery'}</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between border-b border-stone-200 pb-2 mb-1">
+                    <h3 className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-stone-500">Your order</h3>
+                    <span className="text-[10px] text-stone-500">{cart.reduce((s, item) => s + item.quantity, 0)} items</span>
+                  </div>
+                  {cart.map((cartItem) => {
+                    const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                    return (
+                      <div key={cartItem.id} className="flex items-start justify-between gap-3 py-2.5 border-b border-dashed border-stone-200">
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold leading-snug">{cartItem.item.name}</div>
+                          <div className="text-[10px] text-stone-500 mt-0.5">Qty {cartItem.quantity} × {taxSettings.currencySymbol}{price.toFixed(2)}</div>
+                          {cartItem.notes && <div className="text-[10px] text-stone-500 italic mt-1">{cartItem.notes}</div>}
+                        </div>
+                        <div className="text-xs font-extrabold tabular-nums whitespace-nowrap">{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="rounded-xl bg-stone-50 border border-stone-200 p-3 space-y-2 text-[11px]">
+                  <div className="flex justify-between"><span className="text-stone-600">Item subtotal</span><span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span></div>
+                  {calculation.discountAmount > 0 && <div className="flex justify-between text-emerald-700"><span>Discount</span><span>−{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span></div>}
+                  {taxSettings.enabled && <div className="flex justify-between"><span className="text-stone-600">{taxSettings.taxLabel} ({taxSettings.taxRate}%)</span><span>{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>}
+                  {calculation.serviceChargeAmount > 0 && <div className="flex justify-between"><span className="text-stone-600">Service / delivery fee</span><span>{taxSettings.currencySymbol}{calculation.serviceChargeAmount.toFixed(2)}</span></div>}
+                  {orderDetails.roundOff && calculation.roundOffDelta !== 0 && <div className="flex justify-between"><span className="text-stone-600">Rounding</span><span>{calculation.roundOffDelta >= 0 ? '+' : '−'}{taxSettings.currencySymbol}{Math.abs(calculation.roundOffDelta).toFixed(2)}</span></div>}
+                  <div className="border-t border-stone-300 pt-3 mt-1 flex justify-between items-baseline"><span className="font-extrabold text-xs">Total</span><span className="font-black text-xl tracking-tight">{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-[10px] text-stone-500"><span>Payment method</span><span>{orderDetails.paymentMethod}</span></div>
+                  <div className="flex justify-between text-[10px] font-bold"><span>Payment status</span><span>{orderDetails.paymentStatus}</span></div>
+                </div>
+                <div className="text-center border-t border-stone-200 pt-3">
+                  <div className="text-xs font-extrabold">{orderDetails.footerNote || 'Thanks for ordering'}</div>
+                  <div className="text-[9px] text-stone-400 mt-1 uppercase tracking-[0.18em]">Illustrative delivery receipt</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {receiptStyle === 'delivery_minimal' && (
+            <div className="font-sans text-stone-900 -m-4 sm:-m-5">
+              <div className="px-5 pt-5 pb-4 border-b-2 border-stone-900">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[9px] tracking-[0.25em] uppercase font-black text-stone-500">Order note / demo</div>
+                  <div className="text-[10px] font-bold border border-stone-300 rounded-full px-2 py-1">{orderDetails.orderId}</div>
+                </div>
+                <h2 className="text-2xl font-black tracking-[-0.06em] leading-tight mt-4">{shop.name}</h2>
+                <p className="text-[10px] text-stone-500 mt-1">{shop.address}</p>
+                <div className="grid grid-cols-2 gap-3 mt-4 text-[10px]">
+                  <div><span className="block text-stone-400 uppercase tracking-wider">Order date</span><span className="font-bold mt-1 block">{orderDetails.timestamp}</span></div>
+                  <div><span className="block text-stone-400 uppercase tracking-wider">Guest</span><span className="font-bold mt-1 block">{orderDetails.customerName || 'Walk-in customer'}</span></div>
+                </div>
+              </div>
+              <div className="px-5 py-4">
+                <div className="text-[9px] uppercase tracking-[0.2em] font-black text-stone-400 mb-3">Items</div>
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  return (
+                    <div key={cartItem.id} className="flex justify-between gap-3 py-2 border-b border-stone-100">
+                      <div className="text-xs min-w-0"><span className="font-black mr-2">{String(cartItem.quantity).padStart(2, '0')}</span><span className="font-semibold">{cartItem.item.name}</span>{cartItem.notes && <div className="text-[10px] text-stone-500 pl-7 mt-1">{cartItem.notes}</div>}</div>
+                      <div className="font-bold text-xs whitespace-nowrap">{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</div>
+                    </div>
+                  );
+                })}
+                <div className="space-y-2 mt-4 text-[11px]">
+                  <div className="flex justify-between"><span className="text-stone-500">Subtotal</span><span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span></div>
+                  {calculation.discountAmount > 0 && <div className="flex justify-between"><span className="text-stone-500">Offer / discount</span><span>−{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span></div>}
+                  {taxSettings.enabled && <div className="flex justify-between"><span className="text-stone-500">{taxSettings.taxLabel}</span><span>{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>}
+                  {calculation.serviceChargeAmount > 0 && <div className="flex justify-between"><span className="text-stone-500">Delivery / service</span><span>{taxSettings.currencySymbol}{calculation.serviceChargeAmount.toFixed(2)}</span></div>}
+                </div>
+                <div className="mt-4 pt-3 border-t-2 border-stone-900">
+                  <div className="flex justify-between items-end"><span className="text-[10px] font-black uppercase tracking-widest">Amount due</span><span className="text-2xl font-black tracking-tight">{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span></div>
+                  {orderDetails.roundOff && calculation.roundOffDelta !== 0 && <div className="text-right text-[10px] text-stone-500 mt-1">Includes rounding {calculation.roundOffDelta >= 0 ? '+' : '−'}{taxSettings.currencySymbol}{Math.abs(calculation.roundOffDelta).toFixed(2)}</div>}
+                </div>
+                <div className="mt-5 flex justify-between items-center border-t border-stone-200 pt-3 text-[10px]"><span className="uppercase tracking-wider font-bold text-stone-500">Paid / pending</span><span className="font-black">{orderDetails.paymentStatus} · {orderDetails.paymentMethod}</span></div>
+                <div className="text-center pt-4 text-[10px] text-stone-400">THANK YOU · MADE FOR DEMONSTRATION</div>
+              </div>
+            </div>
+          )}
+
+          {receiptStyle === 'delivery_dark' && (
+            <div className="font-sans text-stone-100 bg-[#151a17] -m-4 sm:-m-5">
+              <div className="px-5 py-5 bg-[#202b25] border-b border-emerald-300/20 rounded-t-xl">
+                <div className="flex justify-between items-start gap-3">
+                  <div><div className="text-[9px] uppercase tracking-[0.25em] text-emerald-300 font-black">Digital order receipt · demo</div><h2 className="text-xl font-black mt-2 leading-tight">{shop.name}</h2><p className="text-[10px] text-stone-400 mt-1">{shop.address}</p></div>
+                  <span className="text-xl">◈</span>
+                </div>
+                <div className="mt-4 flex items-center justify-between border border-white/10 rounded-xl bg-black/20 p-3"><span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Order ID</span><span className="font-mono font-bold text-xs">{orderDetails.orderId}</span></div>
+              </div>
+              <div className="px-5 py-4 space-y-4">
+                <div className="flex justify-between gap-3 text-[10px] text-stone-400"><span>{orderDetails.timestamp}</span><span>{orderDetails.tableNo || 'Delivery order'}</span></div>
+                <div><h3 className="text-[9px] uppercase tracking-[0.22em] text-emerald-300 font-black mb-2">Order details</h3>
+                  {cart.map((cartItem) => { const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price; return <div key={cartItem.id} className="flex justify-between gap-3 py-2 border-b border-white/10"><div className="min-w-0"><div className="text-xs font-semibold">{cartItem.quantity} × {cartItem.item.name}</div>{cartItem.notes && <div className="text-[10px] text-stone-400 mt-1">{cartItem.notes}</div>}</div><span className="text-xs font-bold whitespace-nowrap">{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</span></div>; })}
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3 space-y-2 text-[11px]"><div className="flex justify-between"><span className="text-stone-400">Subtotal</span><span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span></div>{calculation.discountAmount > 0 && <div className="flex justify-between text-emerald-300"><span>Discount</span><span>−{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span></div>}{taxSettings.enabled && <div className="flex justify-between"><span className="text-stone-400">{taxSettings.taxLabel} ({taxSettings.taxRate}%)</span><span>{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>}{calculation.serviceChargeAmount > 0 && <div className="flex justify-between"><span className="text-stone-400">Delivery / service</span><span>{taxSettings.currencySymbol}{calculation.serviceChargeAmount.toFixed(2)}</span></div>}<div className="border-t border-white/15 pt-3 flex justify-between items-baseline"><span className="font-bold">TOTAL</span><span className="text-2xl font-black text-white">{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span></div><div className="flex justify-between text-[10px] text-stone-400"><span>{orderDetails.paymentMethod}</span><span className="text-emerald-300 font-bold">{orderDetails.paymentStatus}</span></div></div>
+                <div className="border-t border-white/10 pt-3 text-center"><div className="text-xs font-bold">{orderDetails.footerNote || 'Thank you for your order'}</div><div className="text-[9px] uppercase tracking-[0.2em] text-stone-500 mt-2">Sample only · not a proof of payment</div></div>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-center text-xs font-bold text-amber-900" role="note">
+            DEMO / SAMPLE RECEIPT — NOT A VALID TAX INVOICE OR PROOF OF PAYMENT
+          </div>
+
           {/* ========================================================= */}
           {/* TEMPLATE 1: FASTFOOD COMBO STYLE (Bold Franchise Layout)  */}
           {/* Always displays actual shop.name, never third-party brand  */}
@@ -612,8 +759,8 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   <span className="uppercase">{orderDetails.paymentMethod}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>AUTH CODE:</span>
-                  <span>AUTH{Math.floor(100000 + Math.random() * 900000)}</span>
+                  <span>DEMO AUTH CODE:</span>
+                  <span>NOT ISSUED</span>
                 </div>
               </div>
 
@@ -622,7 +769,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 <div className="text-xs font-black uppercase tracking-wide">GREAT FOOD? TELL US!</div>
                 <div className="text-[10px] font-bold text-stone-800">VISIT: WWW.GUEST-FEEDBACK.COM</div>
                 <div className="text-xs font-mono font-black tracking-widest text-black bg-white p-1 border border-stone-300">
-                  SURVEY CODE: {Math.floor(1000 + Math.random() * 9000)}-{Math.floor(1000 + Math.random() * 9000)}-{Math.floor(1000 + Math.random() * 9000)}
+                  DEMO CODE: NOT ISSUED
                 </div>
                 <div className="text-[9px] font-bold text-stone-600 uppercase">
                   ENTER CODE FOR 15% OFF YOUR NEXT MEAL AT {shop.name.toUpperCase()}!
@@ -656,7 +803,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   <span>{shop.name}</span>
                 </div>
                 <div className="text-[10px] font-bold uppercase text-stone-800">
-                  STORE #{Math.floor(1000 + Math.random() * 9000)} • TEL: {shop.phone}
+                  DEMO STORE • TEL: {shop.phone}
                 </div>
                 <div className="text-[10px] text-stone-600 px-2 leading-tight">{shop.address}</div>
                 {taxSettings.taxIdValue && (
@@ -766,7 +913,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
               <div className="text-[10px] font-bold flex justify-between">
                 <span>PAYMENT: {orderDetails.paymentMethod.toUpperCase()}</span>
-                <span>STATUS: PAID</span>
+                <span>STATUS: {orderDetails.paymentStatus}</span>
               </div>
 
               {/* Tracker QR */}
@@ -883,13 +1030,13 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               </div>
 
               <div className="text-[10px] font-bold flex justify-between">
-                <span>PAID: {orderDetails.paymentMethod.toUpperCase()}</span>
+                <span>PAYMENT METHOD: {orderDetails.paymentMethod.toUpperCase()}</span>
                 <span>CHANGE: 0.00</span>
               </div>
 
               <div className="text-center text-[10px] font-bold border-t border-dashed border-stone-400 pt-1 space-y-0.5">
                 <div>TELL US HOW WE DID! VISIT WWW.MYFEEDBACK.PAGE</div>
-                <div className="text-[9px] text-stone-600 font-mono">TRANSACTION ID: #TXN-{Math.floor(100000 + Math.random() * 900000)}</div>
+                <div className="text-[9px] text-stone-600 font-mono">DEMO TRANSACTION ID: NOT ISSUED</div>
               </div>
 
               {showQrCode && qrCodeDataUrl && (
@@ -1147,11 +1294,11 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               <div className="flex items-center justify-between border border-stone-900 p-2 my-2 bg-stone-50">
                 <div className="text-[10px] font-mono space-y-0.5">
                   <span className="font-bold block">PAID VIA: {orderDetails.paymentMethod.toUpperCase()}</span>
-                  <span className="text-stone-500">THANK YOU / ありがとうございました</span>
+                  <span className="text-stone-500">DEMO RECEIPT / NOT A PAYMENT RECORD</span>
                 </div>
-                <div className="w-10 h-10 border-2 border-rose-600 rounded text-rose-600 flex flex-col items-center justify-center font-black text-[9px] uppercase leading-none">
-                  <span>領収</span>
-                  <span>PAID</span>
+                <div className="w-10 h-10 border-2 border-amber-600 rounded text-amber-700 flex flex-col items-center justify-center font-black text-[8px] uppercase leading-none">
+                  <span>DEMO</span>
+                  <span>ONLY</span>
                 </div>
               </div>
 
@@ -1240,7 +1387,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
               <div className="text-[10px] font-bold flex justify-between">
                 <span>PAID: {orderDetails.paymentMethod.toUpperCase()}</span>
-                <span>STATUS: COMPLETED</span>
+                <span>STATUS: {orderDetails.paymentStatus}</span>
               </div>
 
               {/* Barcode */}

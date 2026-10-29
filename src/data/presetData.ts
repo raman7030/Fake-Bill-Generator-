@@ -451,7 +451,10 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
 ];
 
-export const INITIAL_SAVED_BILLS: SavedBill[] = [
+export const INITIAL_SAVED_BILLS: SavedBill[] = [];
+
+/* Demo history examples retained as commented legacy fixture only.
+export const LEGACY_INITIAL_SAVED_BILLS: SavedBill[] = [
   {
     id: 'hist-1',
     orderId: '#ORD-83921',
@@ -569,3 +572,4 @@ export const INITIAL_SAVED_BILLS: SavedBill[] = [
     createdAt: Date.now() - 1000 * 60 * 120,
   },
 ];
+*/

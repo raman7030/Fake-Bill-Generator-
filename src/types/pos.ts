@@ -12,7 +12,10 @@ export type ReceiptStyle =
   | 'modern_bistro'      // Clean contemporary sans-serif bistro receipt
   | 'retro_dotmatrix'    // 90s vintage dot matrix pin printer style with VT323 font
   | 'compact_express'    // High-speed takeaway counter ticket with large token badge
-  | 'gst_tax_invoice';   // Formal boxed GST Tax Invoice with seller/buyer details
+  | 'gst_tax_invoice'    // Formal boxed GST Tax Invoice with seller/buyer details
+  | 'delivery_card'      // Premium delivery-app-inspired order summary
+  | 'delivery_minimal'   // Minimal delivery receipt
+  | 'delivery_dark';     // Dark-header delivery receipt
 
 export type QrCodeType = 'upi' | 'verify' | 'feedback';
 

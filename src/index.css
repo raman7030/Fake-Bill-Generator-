@@ -68,3 +68,50 @@
     color: #000000 !important;
   }
 }
+
+
+/* Premium receipt studio polish */
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+html {
+  min-height: 100%;
+  background: #fafaf9;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  overscroll-behavior-y: contain;
+}
+button, input, select, textarea {
+  font: inherit;
+}
+button {
+  touch-action: manipulation;
+}
+#root {
+  min-height: 100vh;
+}
+#thermal-receipt-printable {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 420px) {
+  #thermal-receipt-printable {
+    max-width: calc(100vw - 24px);
+  }
+}
+@media print {
+  #root > * {
+    display: none !important;
+  }
+  #thermal-receipt-printable {
+    display: block !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+}
