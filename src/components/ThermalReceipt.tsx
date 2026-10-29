@@ -281,6 +281,25 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
       desc: 'Formal boxed invoice layout with HSN and split CGST/SGST tax grid',
       icon: '📑',
     },
+
+    {
+      id: 'delivery_card',
+      name: 'Delivery • Premium Card',
+      desc: 'App-style order summary with delivery, fees and payment breakdown',
+      icon: '🛵',
+    },
+    {
+      id: 'delivery_minimal',
+      name: 'Delivery • Minimal',
+      desc: 'Clean editorial delivery receipt with bold totals and compact line items',
+      icon: '📦',
+    },
+    {
+      id: 'delivery_dark',
+      name: 'Delivery • Night',
+      desc: 'High-contrast dark header, order capsule and itemized service fees',
+      icon: '🌙',
+    },
   ];
 
   return (
