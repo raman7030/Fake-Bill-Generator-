@@ -390,7 +390,7 @@ export default function App() {
         )}
 
         {/* Navigation View Switcher (Tabs) */}
-        <div className="bg-white border-b border-stone-200/70 sticky top-14 sm:top-16 z-30 shadow-2xs">
+        <div className="bg-white border-b border-stone-200/70 sticky top-0 z-40 shadow-2xs">
           <div className="max-w-4xl mx-auto px-3 sm:px-6 flex items-center justify-between overflow-x-auto no-scrollbar">
             <div className="flex gap-1 py-1.5 whitespace-nowrap">
               <button
