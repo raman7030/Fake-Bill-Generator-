@@ -163,12 +163,12 @@ button {
 
 /* Each receipt has its own visual language. Keep these scoped to the selected
    layout so styling never leaks into another template or the POS controls. */
-.receipt-layout-kfc { border-top: 5px solid #b91c1c; }
-.receipt-layout-kfc > div:first-child {
+.receipt-layout-fastfood { border-top: 5px solid #b91c1c; }
+.receipt-layout-fastfood > div:first-child {
   background: #b91c1c; color: #fff; padding: 10px 8px; border-radius: 2px;
 }
-.receipt-layout-kfc > div:first-child * { color: #fff !important; }
-.receipt-layout-kfc > div:nth-child(2) { border-top: 2px solid #b91c1c; border-bottom: 2px solid #b91c1c; padding: 7px 0; }
+.receipt-layout-fastfood > div:first-child * { color: #fff !important; }
+.receipt-layout-fastfood > div:nth-child(2) { border-top: 2px solid #b91c1c; border-bottom: 2px solid #b91c1c; padding: 7px 0; }
 
 .receipt-layout-pizzeria { border-left: 4px solid #2563eb; padding-left: 10px; }
 .receipt-layout-pizzeria > div:first-child { border-bottom: 3px solid #2563eb; padding-bottom: 9px; }
