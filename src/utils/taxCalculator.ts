@@ -17,7 +17,10 @@ export function calculateBill(
   let discountAmount = 0;
   if (discount.enabled && discount.value > 0) {
     if (discount.type === 'percentage') {
-      discountAmount = (subtotal * discount.value) / 100;
+      // A percentage discount cannot exceed the item subtotal, even if a user
+      // manually enters a value above 100 in the editable input.
+      const discountRate = Math.min(100, Math.max(0, discount.value));
+      discountAmount = Math.min(subtotal, (subtotal * discountRate) / 100);
     } else {
       discountAmount = Math.min(discount.value, subtotal);
     }
