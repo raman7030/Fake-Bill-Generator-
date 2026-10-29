@@ -20,9 +20,9 @@ export const ShopHeaderBar: React.FC<ShopHeaderBarProps> = ({
 }) => {
   return (
     <header className="bg-white border-b border-stone-200/90 shadow-2xs sticky top-0 z-40">
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex flex-nowrap items-center justify-between gap-2 sm:gap-3">
         {/* Left: Brand Identity & Active Venue */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <button type="button" onClick={onOpenSearch} aria-label="Change restaurant" title="Search and change restaurant" className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center font-black shadow-md shadow-rose-500/20 shrink-0 hover:brightness-105 active:scale-95 transition">
             <Store className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
@@ -65,12 +65,12 @@ export const ShopHeaderBar: React.FC<ShopHeaderBarProps> = ({
           <button
             type="button"
             onClick={onToggleMenuTools}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${menuToolsOpen ? 'bg-stone-900 text-white border-stone-900' : 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-200'}`}
+            className={`flex items-center justify-center gap-1.5 p-2.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition-all border shrink-0 ${menuToolsOpen ? 'bg-stone-900 text-white border-stone-900' : 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-200'}`}
             aria-expanded={menuToolsOpen}
             title="Open menu options"
           >
             <SlidersHorizontal className="w-4 h-4" />
-            <span>Menu Options</span>
+            <span className="hidden sm:inline">Menu Options</span>
           </button>
         </div>
       </div>
