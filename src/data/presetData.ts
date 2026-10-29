@@ -121,17 +121,17 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   // --- PUNJABI DHABA SPECIALS ---
   {
     id: 'punj-1',
-    name: 'Amritsari Chur Chur Kulcha with Chole',
+    name: 'Amritsari Chur Chur Kulcha',
     category: 'Punjab Specials',
     price: 180,
-    description: 'Crispy layered tandoori kulcha stuffed with spiced potato and paneer, served with authentic Pindi Chana and imli pyaz chutney.',
+    description: 'Crispy layered tandoori kulcha stuffed with spiced potato and paneer.',
     isVeg: true,
     popular: true,
     image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&auto=format&fit=crop&q=80',
   },
   {
     id: 'punj-2',
-    name: 'Sarson Da Saag with 2 Makki Di Roti',
+    name: 'Sarson Da Saag',
     category: 'Punjab Specials',
     price: 240,
     description: 'Slow-simmered winter mustard greens cooked in copper handi with dollop of fresh churned white makhan and organic gur (jaggery).',
@@ -285,7 +285,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   // --- STREET FOOD & CHAAT ---
   {
     id: 'street-1',
-    name: 'Special Bombay Pav Bhaji (Extra Butter)',
+    name: 'Pav Bhaji',
     category: 'Street Food & Chaat',
     price: 160,
     description: 'Mashed spiced vegetable curry cooked on flat iron tawa with generous dollops of Amul butter, served with 2 toasted pavs.',
@@ -315,10 +315,10 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 'street-4',
-    name: 'Chole Bhature Special Combo',
+    name: 'Chole',
     category: 'Street Food & Chaat',
     price: 160,
-    description: 'Two fluffy balloon fried bhatures served with dark spiced kabuli chana, pickled onions, and stuffed green chilli.',
+    description: 'Chickpeas simmered in a dark, tangy North Indian masala gravy.',
     isVeg: true,
     popular: true,
     image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&auto=format&fit=crop&q=80',
@@ -449,6 +449,11 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     popular: false,
     image: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=300&auto=format&fit=crop&q=80',
   },
+
+  { id: 'side-chole', name: 'Pindi Chole', category: 'Curries & Main Course', price: 150, description: 'Chickpeas simmered with tea-darkened spices and ginger.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&auto=format&fit=crop&q=80' },
+  { id: 'side-makki-roti', name: 'Makki Di Roti', category: 'Tandoor & Breads', price: 35, description: 'Traditional Punjabi maize flatbread.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=80' },
+  { id: 'side-bhatura', name: 'Bhatura', category: 'Tandoor & Breads', price: 35, description: 'Single fluffy deep-fried leavened bread.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&auto=format&fit=crop&q=80' },
+
 ];
 
 export const INITIAL_SAVED_BILLS: SavedBill[] = [];
