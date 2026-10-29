@@ -769,7 +769,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 <div className="text-xs font-black uppercase tracking-wide">GREAT FOOD? TELL US!</div>
                 <div className="text-[10px] font-bold text-stone-800">VISIT: WWW.GUEST-FEEDBACK.COM</div>
                 <div className="text-xs font-mono font-black tracking-widest text-black bg-white p-1 border border-stone-300">
-                  SURVEY CODE: {Math.floor(1000 + Math.random() * 9000)}-{Math.floor(1000 + Math.random() * 9000)}-{Math.floor(1000 + Math.random() * 9000)}
+                  DEMO CODE: NOT ISSUED
                 </div>
                 <div className="text-[9px] font-bold text-stone-600 uppercase">
                   ENTER CODE FOR 15% OFF YOUR NEXT MEAL AT {shop.name.toUpperCase()}!
@@ -803,7 +803,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   <span>{shop.name}</span>
                 </div>
                 <div className="text-[10px] font-bold uppercase text-stone-800">
-                  STORE #{Math.floor(1000 + Math.random() * 9000)} • TEL: {shop.phone}
+                  DEMO STORE • TEL: {shop.phone}
                 </div>
                 <div className="text-[10px] text-stone-600 px-2 leading-tight">{shop.address}</div>
                 {taxSettings.taxIdValue && (
