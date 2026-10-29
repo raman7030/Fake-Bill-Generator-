@@ -51,7 +51,9 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 }) => {
   const receiptRef = useRef<HTMLDivElement>(null);
   const paperWidth = orderDetails.paperWidth || '80mm';
-  const receiptStyle = orderDetails.receiptStyle || 'classic_thermal';
+  const storedReceiptStyle = orderDetails.receiptStyle || 'classic_thermal';
+  // Normalize older saved receipts that used brand-referencing internal identifiers.
+  const receiptStyle = ({ kfc_style: 'fastfood_combo', dominos_style: 'pizzeria_style', subway_style: 'fresh_deli', starbucks_cafe: 'cafe_roastery' } as Record<string, ReceiptStyle>)[storedReceiptStyle] || storedReceiptStyle;
   const showQrCode = orderDetails.showQrCode ?? true;
   const qrCodeType = orderDetails.qrCodeType || 'upi';
 
@@ -242,25 +244,25 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
   const receiptStylesList: { id: ReceiptStyle; name: string; desc: string; icon: string }[] = [
     {
-      id: 'kfc_style',
+      id: 'fastfood_combo',
       name: 'Fastfood Combo',
       desc: 'Bold franchise layout with Eat-In banner, meal sides & survey code',
       icon: '🍟',
     },
     {
-      id: 'dominos_style',
+      id: 'pizzeria_style',
       name: 'Pizzeria & Oven',
       desc: 'Pizza bakehouse layout with Kitchen Tracker ID & box count summary',
       icon: '🍕',
     },
     {
-      id: 'subway_style',
+      id: 'fresh_deli',
       name: 'Fresh Deli Subs',
       desc: 'Deli sandwich artisan layout with bread modifiers & rewards tokens',
       icon: '🥪',
     },
     {
-      id: 'starbucks_cafe',
+      id: 'cafe_roastery',
       name: 'Cafe & Roastery',
       desc: 'Boutique coffeehouse format with Barista name & loyalty stars',
       icon: '☕',
@@ -544,13 +546,13 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
             fontFamily:
               receiptStyle === 'retro_dotmatrix'
                 ? '"VT323", monospace'
-                : receiptStyle === 'modern_bistro' || receiptStyle === 'starbucks_cafe' || receiptStyle === 'asian_minimal' || receiptStyle === 'delivery_card' || receiptStyle === 'delivery_minimal' || receiptStyle === 'delivery_dark'
+                : receiptStyle === 'modern_bistro' || receiptStyle === 'cafe_roastery' || receiptStyle === 'asian_minimal' || receiptStyle === 'delivery_card' || receiptStyle === 'delivery_minimal' || receiptStyle === 'delivery_dark'
                 ? '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif'
                 : receiptStyle === 'fine_dining'
                 ? 'Georgia, Cambria, "Times New Roman", serif'
                 : '"Roboto Mono", "Space Mono", "Courier New", Courier, monospace',
             letterSpacing:
-              receiptStyle === 'modern_bistro' || receiptStyle === 'starbucks_cafe' || receiptStyle === 'asian_minimal' || receiptStyle === 'delivery_card' || receiptStyle === 'delivery_minimal' || receiptStyle === 'delivery_dark'
+              receiptStyle === 'modern_bistro' || receiptStyle === 'cafe_roastery' || receiptStyle === 'asian_minimal' || receiptStyle === 'delivery_card' || receiptStyle === 'delivery_minimal' || receiptStyle === 'delivery_dark'
                 ? 'normal'
                 : '0',
             fontVariantNumeric: 'tabular-nums lining-nums',
@@ -688,7 +690,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 1: FASTFOOD COMBO STYLE (Bold Franchise Layout)  */}
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
-          {receiptStyle === 'kfc_style' && (
+          {receiptStyle === 'fastfood_combo' && (
             <div className="receipt-layout-kfc font-receipt space-y-2 text-stone-900">
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5 pb-1">
@@ -829,7 +831,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 2: PIZZERIA & BAKEHOUSE (Live Tracker & Boxes)   */}
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
-          {receiptStyle === 'dominos_style' && (
+          {receiptStyle === 'pizzeria_style' && (
             <div className="receipt-layout-pizzeria font-receipt space-y-2 text-stone-900">
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5">
@@ -966,7 +968,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 3: FRESH DELI SANDWICH (Artisan Crew & Rewards)  */}
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
-          {receiptStyle === 'subway_style' && (
+          {receiptStyle === 'fresh_deli' && (
             <div className="receipt-layout-deli font-receipt space-y-2 text-stone-900">
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5">
@@ -1071,7 +1073,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 4: ARTISAN CAFE & ROASTERY (Barista & Stars)     */}
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
-          {receiptStyle === 'starbucks_cafe' && (
+          {receiptStyle === 'cafe_roastery' && (
             <div className="receipt-layout-cafe space-y-2.5 text-stone-900 font-sans">
               <div className="text-center space-y-0.5">
                 <div className="text-lg font-black uppercase tracking-wider text-stone-950 flex items-center justify-center gap-1.5">
