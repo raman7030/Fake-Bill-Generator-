@@ -1,5 +1,5 @@
 import React from 'react';
-import { Store, MapPin, Phone, Star, Edit, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Store, MapPin, Phone, Star, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { ShopInfo } from '../types/pos';
 
 interface ShopHeaderBarProps {
