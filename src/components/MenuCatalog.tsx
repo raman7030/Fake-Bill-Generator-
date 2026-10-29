@@ -1,22 +1,36 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Minus, PlusCircle, Sparkles, Flame, Check } from 'lucide-react';
-import { MenuItem, CartItem } from '../types/pos';
+import { Search, Plus, Minus, PlusCircle, Sparkles, Flame, Check, UtensilsCrossed, Layers, Trash2, RotateCcw } from 'lucide-react';
+import { MenuItem, CartItem, ShopInfo } from '../types/pos';
 import { MENU_CATEGORIES } from '../data/presetData';
 
 interface MenuCatalogProps {
   items: MenuItem[];
   cart: CartItem[];
   currencySymbol: string;
+  currentShop: ShopInfo;
+  activeMenuSourceLabel: string;
+  isMasterMenuLoaded: boolean;
   onUpdateQuantity: (item: MenuItem, delta: number) => void;
   onOpenAddCustom: () => void;
+  onOpenMenuSelector: () => void;
+  onToggleMasterMenu: () => void;
+  onRemoveDish?: (dishId: string) => void;
+  onResetMenu?: () => void;
 }
 
 export const MenuCatalog: React.FC<MenuCatalogProps> = ({
   items,
   cart,
   currencySymbol,
+  currentShop,
+  activeMenuSourceLabel,
+  isMasterMenuLoaded,
   onUpdateQuantity,
   onOpenAddCustom,
+  onOpenMenuSelector,
+  onToggleMasterMenu,
+  onRemoveDish,
+  onResetMenu,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -52,6 +66,73 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
 
   return (
     <div className="w-full pb-28 md:pb-20">
+      {/* Restaurant Public Menu Info Banner */}
+      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-white px-3 sm:px-4 py-2.5 shadow-sm border-b border-stone-800">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-amber-400/20 text-amber-400 flex items-center justify-center shrink-0">
+              <UtensilsCrossed className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs sm:text-sm font-bold truncate">
+                  {activeMenuSourceLabel || 'All Punjab & Famous Indian Dishes'}
+                </span>
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  {items.length} Dishes
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-300 truncate">
+                Serving {currentShop?.name || 'Restaurant'} • Punjab Delicacies & Pan-Indian Icons
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <button
+              onClick={onOpenAddCustom}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+              title="Add a new custom dish to menu"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Add Dish</span>
+            </button>
+
+            <button
+              onClick={onOpenMenuSelector}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+            >
+              <UtensilsCrossed className="w-3.5 h-3.5" />
+              <span>Select Menu Style</span>
+            </button>
+
+            <button
+              onClick={onToggleMasterMenu}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer border ${
+                isMasterMenuLoaded
+                  ? 'bg-amber-400 hover:bg-amber-300 text-stone-900 border-amber-300'
+                  : 'bg-white/10 hover:bg-white/20 text-stone-200 border-white/20'
+              }`}
+              title="Toggle between filtered menu and complete master menu"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>{isMasterMenuLoaded ? 'All Dishes Active' : 'Show All Dishes'}</span>
+            </button>
+
+            {onResetMenu && (
+              <button
+                onClick={onResetMenu}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white transition-all cursor-pointer border border-white/10"
+                title="Reset menu to default complete dishes catalog"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Reset</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Search and Action Bar */}
       <div className="sticky top-0 z-30 bg-stone-50/95 backdrop-blur-md pt-3 pb-2 border-b border-stone-200/80 px-3 sm:px-4 space-y-2.5">
         <div className="flex items-center gap-2 max-w-5xl mx-auto">
@@ -62,28 +143,27 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search dishes (e.g. Biryani, Paneer, Naan, Burger)..."
+              placeholder="Search dishes (e.g. Butter Chicken, Cream Chicken, Biryani, Kulcha, Dosa, Waffle, Lassi)..."
               className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-200 bg-white text-xs sm:text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-hidden transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2.5 text-xs text-stone-400 hover:text-stone-600 px-1"
+                className="absolute right-3 top-2.5 text-xs text-stone-400 hover:text-stone-600 px-1 cursor-pointer"
               >
                 Clear
               </button>
             )}
           </div>
 
-          {/* Add Custom Item Button */}
+          {/* Add Dish Button */}
           <button
             onClick={onOpenAddCustom}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all shrink-0 active:scale-95"
-            title="Add unlisted custom item"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all shrink-0 active:scale-95 cursor-pointer"
+            title="Add a new dish to the menu catalog"
           >
             <PlusCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Custom Item</span>
-            <span className="sm:hidden">Custom</span>
+            <span>Add Dish</span>
           </button>
         </div>
 
@@ -97,7 +177,7 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer ${
                     isSelected
                       ? 'bg-stone-900 text-white shadow-xs'
                       : 'bg-white text-stone-600 border border-stone-200 hover:border-stone-300 hover:bg-stone-100/50'
@@ -110,10 +190,10 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
             })}
           </div>
 
-          {/* Veg Only Toggle Button (Zomato/Swiggy standard) */}
+          {/* Veg Only Toggle Button */}
           <button
             onClick={() => setVegOnly(!vegOnly)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 shadow-2xs ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 shadow-2xs cursor-pointer ${
               vegOnly
                 ? 'bg-emerald-50 border-emerald-500 text-emerald-800 ring-1 ring-emerald-500'
                 : 'bg-white border-stone-200 text-stone-600 hover:border-stone-300'
@@ -134,17 +214,26 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
         {filteredItems.length === 0 ? (
           <div className="text-center py-16 px-4 bg-white rounded-2xl border border-dashed border-stone-300">
             <Sparkles className="w-10 h-10 text-stone-300 mx-auto mb-2" />
-            <h3 className="text-base font-bold text-stone-700">No matching dishes found</h3>
+            <h3 className="text-base font-bold text-stone-700">No matching dishes found in this category</h3>
             <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto mb-4">
-              Try modifying your search or click "Add Custom Item" to insert an unlisted dish with custom price and name.
+              Try searching a different item or switch category to "All" to view all Punjab dishes and famous dishes of India.
             </p>
-            <button
-              onClick={onOpenAddCustom}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white text-xs font-bold rounded-xl hover:bg-stone-800 transition-colors"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Add Custom Dish</span>
-            </button>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={onToggleMasterMenu}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white text-xs font-bold rounded-xl hover:bg-stone-800 transition-colors cursor-pointer"
+              >
+                <Layers className="w-4 h-4" />
+                <span>Load All Dishes Catalog</span>
+              </button>
+              <button
+                onClick={onOpenAddCustom}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 text-white text-xs font-bold rounded-xl hover:bg-rose-700 transition-colors cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span>Add Custom Dish</span>
+              </button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -154,7 +243,7 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-2xl p-3.5 sm:p-4 border transition-all flex gap-3.5 group hover:shadow-md ${
+                  className={`bg-white rounded-2xl p-3.5 sm:p-4 border transition-all flex gap-3.5 group hover:shadow-md relative ${
                     qty > 0 ? 'border-rose-300 ring-1 ring-rose-300/50 bg-rose-50/10' : 'border-stone-200/90'
                   }`}
                 >
@@ -162,33 +251,52 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
                       {/* Dietary Symbol & Badges */}
-                      <div className="flex items-center gap-2 mb-1.5">
-                        {item.isVeg ? (
-                          <span
-                            className="w-3.5 h-3.5 border-2 border-emerald-600 rounded-xs flex items-center justify-center shrink-0"
-                            title="Pure Vegetarian"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                          </span>
-                        ) : (
-                          <span
-                            className="w-3.5 h-3.5 border-2 border-rose-600 rounded-xs flex items-center justify-center shrink-0"
-                            title="Non-Vegetarian"
-                          >
-                            <span className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[6px] border-b-rose-600" />
-                          </span>
-                        )}
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {item.isVeg ? (
+                            <span
+                              className="w-3.5 h-3.5 border-2 border-emerald-600 rounded-xs flex items-center justify-center shrink-0"
+                              title="Pure Vegetarian"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                            </span>
+                          ) : (
+                            <span
+                              className="w-3.5 h-3.5 border-2 border-rose-600 rounded-xs flex items-center justify-center shrink-0"
+                              title="Non-Vegetarian"
+                            >
+                              <span className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[6px] border-b-rose-600" />
+                            </span>
+                          )}
 
-                        {item.popular && (
-                          <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-sm flex items-center gap-0.5">
-                            <Flame className="w-2.5 h-2.5 fill-amber-500 text-amber-500" /> Bestseller
-                          </span>
-                        )}
+                          {item.popular && (
+                            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-sm flex items-center gap-0.5">
+                              <Flame className="w-2.5 h-2.5 fill-amber-500 text-amber-500" /> Bestseller
+                            </span>
+                          )}
 
-                        <span className="text-[10px] text-stone-400 font-medium truncate">{item.category}</span>
+                          <span className="text-[10px] text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded-sm font-medium truncate">
+                            {item.category}
+                          </span>
+                        </div>
+
+                        {/* Remove Dish Option */}
+                        {onRemoveDish && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onRemoveDish(item.id);
+                            }}
+                            className="p-1 rounded-md text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+                            title={`Remove "${item.name}" from active menu`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
 
-                      {/* Name */}
+                      {/* Name (Clean culinary name, zero branding) */}
                       <h4 className="text-sm sm:text-base font-bold text-stone-900 group-hover:text-rose-600 transition-colors leading-snug">
                         {item.name}
                       </h4>
@@ -243,7 +351,7 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
                       {qty === 0 ? (
                         <button
                           onClick={() => onUpdateQuantity(item, 1)}
-                          className="w-full py-1.5 px-3 bg-white text-rose-600 border border-rose-300 hover:border-rose-500 rounded-lg text-xs font-extrabold uppercase shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1 active:scale-95"
+                          className="w-full py-1.5 px-3 bg-white text-rose-600 border border-rose-300 hover:border-rose-500 rounded-lg text-xs font-extrabold uppercase shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1 active:scale-95 cursor-pointer"
                         >
                           <span>ADD</span>
                           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -252,14 +360,14 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
                         <div className="w-full py-1 px-1 bg-rose-600 text-white rounded-lg text-xs font-bold shadow-md flex items-center justify-between border border-rose-700 animate-in zoom-in-95 duration-150">
                           <button
                             onClick={() => onUpdateQuantity(item, -1)}
-                            className="w-6 h-6 flex items-center justify-center hover:bg-rose-700 rounded-md active:scale-90 transition-colors"
+                            className="w-6 h-6 flex items-center justify-center hover:bg-rose-700 rounded-md active:scale-90 transition-colors cursor-pointer"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
                           <span className="font-extrabold px-1 text-sm">{qty}</span>
                           <button
                             onClick={() => onUpdateQuantity(item, 1)}
-                            className="w-6 h-6 flex items-center justify-center hover:bg-rose-700 rounded-md active:scale-90 transition-colors"
+                            className="w-6 h-6 flex items-center justify-center hover:bg-rose-700 rounded-md active:scale-90 transition-colors cursor-pointer"
                           >
                             <Plus className="w-3.5 h-3.5" />
                           </button>

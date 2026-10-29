@@ -108,11 +108,12 @@ export const PRESET_SHOPS: ShopInfo[] = [
 export const MENU_CATEGORIES = [
   'All',
   'Bestsellers',
-  'Punjabi Dhaba Specials',
-  'Fast Food & Burgers',
-  'Street Food & Chaat',
+  'Punjab Specials',
+  'Famous Dishes of India',
   'Curries & Main Course',
   'Tandoor & Breads',
+  'Street Food & Chaat',
+  'Fast Food & Burgers',
   'Beverages & Desserts',
 ];
 
@@ -121,7 +122,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'punj-1',
     name: 'Amritsari Chur Chur Kulcha with Chole',
-    category: 'Punjabi Dhaba Specials',
+    category: 'Punjab Specials',
     price: 180,
     description: 'Crispy layered tandoori kulcha stuffed with spiced potato and paneer, served with authentic Pindi Chana and imli pyaz chutney.',
     isVeg: true,
@@ -131,7 +132,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'punj-2',
     name: 'Sarson Da Saag with 2 Makki Di Roti',
-    category: 'Punjabi Dhaba Specials',
+    category: 'Punjab Specials',
     price: 240,
     description: 'Slow-simmered winter mustard greens cooked in copper handi with dollop of fresh churned white makhan and organic gur (jaggery).',
     isVeg: true,
@@ -141,7 +142,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'punj-3',
     name: 'Dal Tadka (Double Punjabi Chhonk)',
-    category: 'Punjabi Dhaba Specials',
+    category: 'Punjab Specials',
     price: 190,
     description: 'Yellow arhar dal tempered twice in desi ghee with garlic cloves, cumin seeds, roasted heeng, and dry red chilies.',
     isVeg: true,
@@ -151,7 +152,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'punj-4',
     name: 'Paneer Bhurji (Desi Ghee Cooked)',
-    category: 'Punjabi Dhaba Specials',
+    category: 'Punjab Specials',
     price: 260,
     description: 'Crumbled fresh malai paneer tossed with tomatoes, onions, ginger juliennes and special kitchen king masala in pure cow ghee.',
     isVeg: true,
@@ -161,7 +162,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'punj-5',
     name: 'Punjabi Kadhi Pakora with Methi',
-    category: 'Punjabi Dhaba Specials',
+    category: 'Punjab Specials',
     price: 170,
     description: 'Tangy churned sour dahi-besan curry filled with soft onion pakoras and fragrant fenugreek leaves tadka.',
     isVeg: true,
@@ -171,7 +172,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'punj-6',
     name: 'Dhaba Murgh Tikka Masala',
-    category: 'Punjabi Dhaba Specials',
+    category: 'Punjab Specials',
     price: 380,
     description: 'Smoky charcoal grilled chicken tikka simmered in a coarse onion-capsicum dhaba style robust gravy.',
     isVeg: false,
@@ -181,7 +182,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'punj-7',
     name: 'Murthal Tandoori Stuffed Paratha (Aloo-Pyaz)',
-    category: 'Punjabi Dhaba Specials',
+    category: 'Punjab Specials',
     price: 90,
     description: 'Giant clay oven roasted wheat paratha filled with zesty spiced mashed potatoes, served with white butter cube.',
     isVeg: true,
@@ -191,7 +192,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'punj-8',
     name: 'Patiala Shahi Lassi (Giant Brass Glass)',
-    category: 'Punjabi Dhaba Specials',
+    category: 'Punjab Specials',
     price: 95,
     description: 'Traditional thick sweetened churned yogurt crowned with rich thick cream layer (malai) and saffron syrup.',
     isVeg: true,

@@ -28,6 +28,9 @@ export interface ShopInfo {
   placeId?: string;
   rating?: number;
   userRatingsTotal?: number;
+  city?: 'Chandigarh' | 'Ludhiana' | 'Delhi' | 'Amritsar' | string;
+  cuisine?: string;
+  restaurantKey?: string;
 }
 
 export interface MenuItem {
@@ -39,6 +42,8 @@ export interface MenuItem {
   isVeg: boolean;
   image?: string;
   popular?: boolean;
+  restaurantOrigin?: string; // e.g. "Pal Dhaba (Chandigarh)"
+  areaBadge?: string;        // e.g. "Chandigarh Iconic" or "Ludhiana Legend"
 }
 
 export interface CartItem {

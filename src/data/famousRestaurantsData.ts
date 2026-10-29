@@ -1,0 +1,927 @@
+import { MenuItem, ShopInfo } from '../types/pos';
+import { INITIAL_MENU_ITEMS } from './presetData';
+
+export interface FamousRestaurantProfile {
+  shop: ShopInfo;
+  dishes: MenuItem[];
+  famousFor: string;
+  historyBadge: string;
+}
+
+// =========================================================================
+// 1. ALL DISHES AVAILABLE TO EAT IN PUNJAB (GENERIC NAMES, NO BRANDING)
+// =========================================================================
+
+export const PUNJABI_ALL_DISHES: MenuItem[] = [
+  {
+    id: 'pb-saag-makki',
+    name: 'Sarson Da Saag & Makki Di Roti',
+    category: 'Punjab Specials',
+    price: 240,
+    description: 'Slow-simmered winter mustard greens cooked in copper handi with dollop of fresh churned white makhan and organic gur (jaggery).',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-amritsari-kulcha',
+    name: 'Amritsari Chur-Chur Kulcha with Pindi Chole',
+    category: 'Punjab Specials',
+    price: 180,
+    description: 'Crispy layered tandoori kulcha stuffed with spiced potato and paneer, crushed with desi ghee and served with pindi chana and imli pyaz chutney.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-butter-chicken',
+    name: 'Special Butter Chicken Handi',
+    category: 'Curries & Main Course',
+    price: 390,
+    description: 'Tender tandoori chicken roasted on charcoal and slow-cooked in velvety rich tomato, churned butter and whole Punjabi spices gravy.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-cream-chicken',
+    name: 'Velvety Malai Cream Chicken',
+    category: 'Punjab Specials',
+    price: 410,
+    description: 'Tender chicken braised in rich dairy cream, white butter, cracked black pepper and green cardamom, served with rumali roti.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-dal-makhani',
+    name: 'Dal Makhani Handi (Overnight Cooked)',
+    category: 'Curries & Main Course',
+    price: 260,
+    description: 'Black urad lentils simmered overnight on live tandoor charcoal with white butter, kasuri methi and dairy cream.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-mutton-curry',
+    name: 'Desi Mutton Curry Handi',
+    category: 'Punjab Specials',
+    price: 440,
+    description: 'Traditional slow-braised tender goat meat in authentic dhaba style copper handi gravy infused with black cardamom and mace.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1545247181-516773ca83e3?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-mutton-rara',
+    name: 'Mutton Rara with Minced Keema Gravy',
+    category: 'Punjab Specials',
+    price: 460,
+    description: 'Juicy bone-in mutton pieces cooked in slow-roasted spiced mutton mince (keema) gravy with cloves and whole red chilies.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1545247181-516773ca83e3?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-tandoori-murgh',
+    name: 'Tandoori Murgh (Charcoal Roasted Full)',
+    category: 'Punjab Specials',
+    price: 420,
+    description: 'Whole spring chicken marinated 24 hours in hung curd and crushed Amritsari spices, roasted crisp in clay charcoal pit.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-amritsari-fish',
+    name: 'Amritsari Crispy Ajwain Fish Fry',
+    category: 'Punjab Specials',
+    price: 360,
+    description: 'Fresh river sole fillets marinated in pounded ajwain seeds, ginger-garlic paste and mustard oil, fried in spiced gram flour batter.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-bheja-fry',
+    name: 'Tawa Bheja Fry (Brain Curry)',
+    category: 'Punjab Specials',
+    price: 360,
+    description: 'Fresh sheep brain delicately tossed on high iron tawa with ginger juliennes, chopped green chillies and freshly ground garam masala.',
+    isVeg: false,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-keema-naan',
+    name: 'Tandoori Keema Naan with Mutton Gravy',
+    category: 'Tandoor & Breads',
+    price: 190,
+    description: 'Crispy leavened bread stuffed with spiced minced meat, baked in clay tandoor and served with a bowl of mutton rogan josh gravy.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-paneer-butter-masala',
+    name: 'Malai Paneer Butter Masala',
+    category: 'Curries & Main Course',
+    price: 290,
+    description: 'Fresh soft cottage cheese cubes simmered in a velvety tomato-butter gravy finished with fresh dairy cream and dried fenugreek.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-shahi-paneer',
+    name: 'Shahi Paneer (Cashew Saffron Gravy)',
+    category: 'Curries & Main Course',
+    price: 290,
+    description: 'Fresh malai paneer triangles simmered in a velvety golden cashew-tomato gravy laced with saffron and green cardamom.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-kadhai-paneer',
+    name: 'Kadhai Paneer with Crushed Coriander',
+    category: 'Curries & Main Course',
+    price: 280,
+    description: 'Paneer cubes, bell peppers and onions stir-cooked with freshly pounded coriander seeds and roasted dry red chilies.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-kadhi-pakora',
+    name: 'Punjabi Kadhi Pakora with Methi Tadka',
+    category: 'Punjab Specials',
+    price: 180,
+    description: 'Tangy churned yogurt and besan curry filled with soft onion-spinach pakoras, tempered with methi seeds, heeng and whole red chilies.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-rajma-chawal',
+    name: 'Desi Ghee Rajma Chawal Handi',
+    category: 'Punjab Specials',
+    price: 180,
+    description: 'Melted red kidney beans simmered in thick onion-tomato gravy served over steamed aromatic basmati rice, mint chutney and spiced onions.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-dal-tadka',
+    name: 'Dal Tadka (Double Desi Ghee Chhonk)',
+    category: 'Curries & Main Course',
+    price: 190,
+    description: 'Yellow arhar dal tempered twice in desi ghee with garlic cloves, cumin seeds, roasted heeng, and dry red chilies.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-baingan-bharta',
+    name: 'Baingan Da Bharta (Smoky Clay Oven Roasted)',
+    category: 'Punjab Specials',
+    price: 210,
+    description: 'Eggplant charcoal roasted till smoky, mashed and sautéed with green peas, ginger, garlic, tomatoes and pure mustard oil.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-paneer-bhurji',
+    name: 'Paneer Bhurji (Desi Ghee Cooked)',
+    category: 'Punjab Specials',
+    price: 260,
+    description: 'Crumbled fresh malai paneer tossed with tomatoes, onions, ginger juliennes and special kitchen king masala in pure cow ghee.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-paratha-aloo',
+    name: 'Tandoori Aloo Pyaz Paratha with Desi Makhan',
+    category: 'Tandoor & Breads',
+    price: 90,
+    description: 'Crisp clay oven roasted wheat paratha filled with spiced mashed potatoes and green chilies, served with fresh churned white butter.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-paratha-paneer',
+    name: 'Tandoori Paneer Paratha with White Butter',
+    category: 'Tandoor & Breads',
+    price: 110,
+    description: 'Multi-layered tandoori paratha loaded with freshly grated spiced paneer and coriander, topped with rich homemade butter.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-paratha-gobi',
+    name: 'Tandoori Gobi Paratha with Curd & Pickle',
+    category: 'Tandoor & Breads',
+    price: 95,
+    description: 'Clay-tandoor flatbread stuffed with finely grated spiced cauliflower and ajwain, served with fresh churned dahi and mango pickle.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-missi-roti',
+    name: 'Missi Roti with Desi Makhan (2 Pcs)',
+    category: 'Tandoor & Breads',
+    price: 70,
+    description: 'Gram flour and whole wheat flatbread scented with kasuri methi, ajwain and onions, baked in tandoor with melting butter.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-garlic-naan',
+    name: 'Butter Garlic Naan',
+    category: 'Tandoor & Breads',
+    price: 65,
+    description: 'Clay oven baked leavened bread brushed with melted butter, minced garlic and fresh coriander leaves.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-rumali-roti',
+    name: 'Handkerchief Rumali Roti',
+    category: 'Tandoor & Breads',
+    price: 35,
+    description: 'Paper thin, soft handkerchief-style Indian bread tossed on inverted hot domed wok (ulta tawa).',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-laccha-paratha',
+    name: 'Tandoori Lachha Paratha',
+    category: 'Tandoor & Breads',
+    price: 60,
+    description: 'Crisp multi-layered whole wheat spiral flatbread brushed generously with Amul butter.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-nutri-kulcha',
+    name: 'Amritsari Nutri Kulcha Combo',
+    category: 'Punjab Specials',
+    price: 150,
+    description: 'Soya granules and chunks tossed in tangy tomato-onion dhaba gravy with imli chutney, served with 2 warm toasted kulchas.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-paneer-pakora',
+    name: 'Crispy Stuffed Malai Paneer Pakora (6 Pcs)',
+    category: 'Street Food & Chaat',
+    price: 160,
+    description: 'Thick slabs of soft cottage cheese stuffed with mint-coriander chutney, dipped in spiced ajwain-besan batter and fried golden.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-soya-chaap',
+    name: 'Tandoori Soya Malai Chaap',
+    category: 'Punjab Specials',
+    price: 240,
+    description: 'Soya chaap marinated in hung curd, cashew cream, cheese and mild spices, roasted over charcoal and tossed with butter.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-afghani-chicken',
+    name: 'Tandoori Afghani Murgh',
+    category: 'Punjab Specials',
+    price: 430,
+    description: 'Chicken pieces steeped in cashew paste, melon seed cream, cheese and white pepper, char-grilled with mild smoky flavor.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-chicken-tikka',
+    name: 'Charcoal Roasted Chicken Tikka (8 Pcs)',
+    category: 'Punjab Specials',
+    price: 340,
+    description: 'Boneless tender chicken chunks marinated in mustard oil, kashmiri deggi mirch and ginger-garlic, skewered in tandoor.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-paneer-tikka',
+    name: 'Tandoori Paneer Tikka Shashlik',
+    category: 'Punjab Specials',
+    price: 280,
+    description: 'Char-grilled cottage cheese cubes with crunchy capsicum, onion and tomato cubes, seasoned with chaat masala and lemon.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-patiala-lassi',
+    name: 'Patiala Shahi Sweet Lassi (Giant Brass Glass)',
+    category: 'Beverages & Desserts',
+    price: 95,
+    description: 'Traditional thick sweetened churned yogurt crowned with rich thick cream layer (malai), pistachios and saffron syrup.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-masala-chaas',
+    name: 'Spiced Salted Buttermilk (Masala Chaas)',
+    category: 'Beverages & Desserts',
+    price: 60,
+    description: 'Cool churned buttermilk infused with roasted cumin powder, black salt, crushed mint leaves and fresh ginger.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-besan-pinni',
+    name: 'Desi Ghee Besan Pinni (Traditional Box)',
+    category: 'Beverages & Desserts',
+    price: 240,
+    description: 'The pride of Punjab: slow-roasted coarse gram flour in pure cow desi ghee with edible gondh, melon seeds, almonds and green cardamom.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-dhodha-sweet',
+    name: 'Traditional Rich Dhodha Barfi (500g)',
+    category: 'Beverages & Desserts',
+    price: 260,
+    description: 'Heritage Punjabi sweet concocted by slow reduction of whole buffalo milk, sprouted wheat germ, desi ghee, cashews and almonds.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-gulab-jamun-rabri',
+    name: 'Hot Gulab Jamun with Malai Rabri',
+    category: 'Beverages & Desserts',
+    price: 120,
+    description: 'Melt-in-mouth milk solid spheres dipped in rose syrup, paired with slow-thickened sweetened rabri.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-kulfi-falooda',
+    name: 'Pista Malai Kulfi Falooda',
+    category: 'Beverages & Desserts',
+    price: 120,
+    description: 'Dense pistachio kulfi served over silky cornstarch falooda noodles, rose syrup and soaked sabja seeds.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-jalebi-rabri',
+    name: 'Crispy Desi Ghee Jalebi with Thick Rabri',
+    category: 'Beverages & Desserts',
+    price: 130,
+    description: 'Live fried spiral jalebis soaked in saffron sugar syrup, accompanied by a bowl of creamy thickened rabri.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pb-gajar-halwa',
+    name: 'Gajar Da Halwa (Khoya & Desi Ghee)',
+    category: 'Beverages & Desserts',
+    price: 150,
+    description: 'Fresh red carrots grated and simmered for hours in full cream milk, pure ghee, mawa (khoya) and roasted cashews.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
+  },
+];
+
+// =========================================================================
+// 2. FAMOUS DISHES OF INDIA (PAN-INDIAN ICONIC REGIONAL DELICACIES)
+// =========================================================================
+
+export const FAMOUS_INDIAN_DISHES: MenuItem[] = [
+  {
+    id: 'ind-hyd-biryani',
+    name: 'Hyderabadi Chicken Dum Biryani',
+    category: 'Famous Dishes of India',
+    price: 340,
+    description: 'Royal Nizam recipe: Long-grain aromatic basmati rice layered with marinated chicken, saffron, mint and brown onions, sealed with dough and slow-cooked on dum. Served with Mirchi Ka Salan & Raita.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-hyd-mutton-biryani',
+    name: 'Hyderabadi Mutton Dum Biryani (Kachchi Dum)',
+    category: 'Famous Dishes of India',
+    price: 450,
+    description: 'Authentic royal Nizami handi with succulent goat meat marinated in spiced yogurt and slow cooked between layers of saffron-infused basmati rice.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-kashmiri-rogan-josh',
+    name: 'Kashmiri Mutton Rogan Josh',
+    category: 'Famous Dishes of India',
+    price: 430,
+    description: 'Iconic Kashmiri delicacy of tender lamb braised in an aromatic gravy scented with fennel seeds, dried ginger powder (saunth) and genuine Kashmiri red chilies.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1545247181-516773ca83e3?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-galouti-kebab',
+    name: 'Lucknowi Galouti Kebab with Ulte Tawe Ka Paratha',
+    category: 'Famous Dishes of India',
+    price: 360,
+    description: 'Nawabi melt-in-the-mouth smoked minced lamb kebabs infused with 32 rare Awadhi spices, served with soft saffron paratha and mint relish.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-mumbai-pav-bhaji',
+    name: 'Special Bombay Pav Bhaji (Extra Butter)',
+    category: 'Famous Dishes of India',
+    price: 160,
+    description: 'Mashed spiced vegetable curry cooked on flat iron tawa with generous dollops of Amul butter, served with 2 warm toasted pav buns and chopped onions.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-mumbai-vada-pav',
+    name: 'Mumbai Special Vada Pav (2 Pcs)',
+    category: 'Famous Dishes of India',
+    price: 80,
+    description: 'Golden spiced potato fritter encased in a soft pav bun slathered with fiery dry garlic coconut chutney and sweet-tangy tamarind chutney.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-kolkata-kathi-roll',
+    name: 'Kolkata Kathi Chicken Roll',
+    category: 'Famous Dishes of India',
+    price: 160,
+    description: 'Char-grilled chicken skewers wrapped in a flaky egg-coated layered paratha with sliced rings of onion, green chillies and lemon juice.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-dal-baati-churma',
+    name: 'Rajasthani Dal Baati Churma Thali',
+    category: 'Famous Dishes of India',
+    price: 290,
+    description: 'Crisp baked whole wheat dough balls dipped in pure desi ghee, served with panchmel dal (5-lentil blend), garlic chutney and sweet crushed churma.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-rajasthani-laal-maas',
+    name: 'Rajasthani Laal Maas (Mathania Mirch Curry)',
+    category: 'Famous Dishes of India',
+    price: 460,
+    description: 'Fiery royal Rajasthani mutton curry braised in mustard oil with hot Mathania red chilies, garlic paste and curd.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1545247181-516773ca83e3?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-masala-dosa',
+    name: 'South Indian Crispy Masala Dosa',
+    category: 'Famous Dishes of India',
+    price: 150,
+    description: 'Paper-thin golden fermented rice & lentil crepe filled with mustard-tempered potato masala, served with piping hot sambar, coconut chutney and tomato chutney.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-mysore-masala-dosa',
+    name: 'Mysore Butter Masala Dosa',
+    category: 'Famous Dishes of India',
+    price: 170,
+    description: 'Crispy dosa smeared inside with spicy red garlic-chilli chutney and stuffed with spiced potato mash, roasted crisp with butter.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-idli-vada',
+    name: 'Steamed Idli & Medu Vada Sambar Combo',
+    category: 'Famous Dishes of India',
+    price: 120,
+    description: 'Two fluffy steamed rice cakes (idlis) and one crunchy lentil doughnut (medu vada) served with fresh coconut chutney and vegetable sambar.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-malabar-parotta',
+    name: 'Kerala Malabar Chicken Curry with Flaky Parotta',
+    category: 'Famous Dishes of India',
+    price: 320,
+    description: 'Slow-cooked chicken in roasted coconut milk and curry leaf gravy, served with 2 layered spiral Malabar parottas.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-chettinad-chicken',
+    name: 'Chettinad Black Pepper Chicken Curry',
+    category: 'Famous Dishes of India',
+    price: 350,
+    description: 'Spicy Tamil Nadu culinary masterpiece cooked with freshly roasted whole star anise, kalpasi (stone flower), black peppercorns and curry leaves.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1545247181-516773ca83e3?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-goan-prawn',
+    name: 'Goan Prawn Curry with Steamed Rice',
+    category: 'Famous Dishes of India',
+    price: 390,
+    description: 'Juicy coastal prawns simmered in tangy kokum, fresh grated coconut and mild Kashmiri chili gravy, served with fragrant steamed rice.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-dahi-bhalla',
+    name: 'Dahi Bhalla & Papdi Chaat Combo',
+    category: 'Famous Dishes of India',
+    price: 120,
+    description: 'Soft lentil dumplings and crisp papdis bathed in chilled whipped sweet yogurt, sonth tamarind chutney, spicy green coriander relish and roasted cumin.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-raj-kachori',
+    name: 'Royal Raj Kachori Chaat',
+    category: 'Famous Dishes of India',
+    price: 150,
+    description: 'Crisp giant hollow kachori stuffed with boiled potatoes, sprouted moong, soaked dahi bhalla, topped with sweet yogurt, chutneys and nylon sev.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-indori-poha',
+    name: 'Indori Poha with Crispy Sev & Jeeravan',
+    category: 'Famous Dishes of India',
+    price: 80,
+    description: 'Steamed flattened rice tempered with mustard seeds, fennel seeds, turmeric and green chilies, finished with fresh pomegranate and spicy ratlami sev.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-filter-coffee',
+    name: 'South Indian Traditional Filter Coffee',
+    category: 'Famous Dishes of India',
+    price: 65,
+    description: 'Fresh chicory-coffee decoction brewed in brass filter, frothed with boiled whole milk and served in traditional brass dabara and tumbler.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-kashmiri-kahwa',
+    name: 'Kashmiri Kahwa Green Tea (Saffron & Almonds)',
+    category: 'Famous Dishes of India',
+    price: 85,
+    description: 'Traditional green tea infused with whole cinnamon, green cardamom, Kashmiri saffron strands and garnished with slivered almonds.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-mishti-doi',
+    name: 'Bengali Mishti Doi (Earthen Clay Pot)',
+    category: 'Famous Dishes of India',
+    price: 90,
+    description: 'Classic Bengal dessert: fermented sweet caramelized milk curd set in a porous terracotta handi with hint of green cardamom.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1546173159-315724a31696?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-rasgulla',
+    name: 'Spongy Kolkata Rasgulla (2 Pcs)',
+    category: 'Famous Dishes of India',
+    price: 80,
+    description: 'Delicate, spongy spheres made from fresh cow milk chhena poached gently in clear cardamom-infused sugar syrup.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ind-shahi-tukda',
+    name: 'Lucknowi Shahi Tukda with Pistachio Rabri',
+    category: 'Famous Dishes of India',
+    price: 130,
+    description: 'Ghee-fried bread triangles soaked in saffron cardamom syrup and smothered in thick creamy malai rabri and crushed pistachios.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
+  },
+];
+
+// =========================================================================
+// 3. FAST FOOD, BAKERY & WESTERN DELIGHTS (NO RESTAURANT BRANDING)
+// =========================================================================
+
+export const FASTFOOD_AND_BAKERY_DISHES: MenuItem[] = [
+  {
+    id: 'ff-fried-chicken',
+    name: 'Crispy Golden Fried Chicken Bucket (4 Pcs)',
+    category: 'Fast Food & Burgers',
+    price: 320,
+    description: 'Double hand-breaded chicken pieces spiced with secret 11 herbs and fried golden crisp outside, juicy and tender inside.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-zinger-burger',
+    name: 'Crispy Chicken Zinger Crunch Burger',
+    category: 'Fast Food & Burgers',
+    price: 210,
+    description: 'Succulent double-breaded crispy chicken breast fillet with fresh iceberg lettuce, jalapeños and spicy creamy mayo.',
+    isVeg: false,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-veg-burger',
+    name: 'Crispy Veg Cheese Burst Burger',
+    category: 'Fast Food & Burgers',
+    price: 150,
+    description: 'Golden crumb-fried potato-corn patty with molten cheddar cheese slice, fresh lettuce, and tangy Thousand Island dressing.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-farmhouse-pizza',
+    name: 'Farmhouse Supreme Pizza (10-Inch)',
+    category: 'Fast Food & Burgers',
+    price: 340,
+    description: 'Hand-tossed crust with herb marinara sauce, mozzarella cheese, crisp capsicum, diced red onions, mushrooms and black olives.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-garlic-bread',
+    name: 'Cheesy Garlic Breadsticks with Marinara',
+    category: 'Fast Food & Burgers',
+    price: 140,
+    description: 'Freshly baked buttery breadsticks infused with garlic butter and melted mozzarella, served with tangy tomato herb dip.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1573821663912-569905455b1a?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-peri-fries',
+    name: 'Loaded Peri-Peri Seasoned French Fries',
+    category: 'Fast Food & Burgers',
+    price: 130,
+    description: 'Crispy skin-on potato fries dusted with piquant peri peri seasoning and served with creamy garlic dip.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-paneer-sub',
+    name: 'Grilled Paneer Tikka Sub Sandwich',
+    category: 'Fast Food & Burgers',
+    price: 180,
+    description: 'Fresh baked sub bread stuffed with spiced cottage cheese cubes, crisp lettuce, cucumbers, bell peppers and mint chipotle sauce.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-waffle-chocolate',
+    name: 'Belgian Chocolate & Berry Waffle',
+    category: 'Beverages & Desserts',
+    price: 190,
+    description: 'Crisp golden malted Belgian waffle drenched in warm dark chocolate fudge, fresh berries and chocolate chips.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-red-velvet-cake',
+    name: 'Classic Red Velvet Cake Slice',
+    category: 'Beverages & Desserts',
+    price: 160,
+    description: 'Rich cocoa red sponge layered with velvety cream cheese frosting and dusted with red velvet crumbs.',
+    isVeg: true,
+    popular: false,
+    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'ff-kitkat-shake',
+    name: 'Nutella & KitKat Thick Shake',
+    category: 'Beverages & Desserts',
+    price: 170,
+    description: 'Creamy milkshake blended with Nutella, crushed KitKat wafer bars, vanilla ice cream and whipped cream.',
+    isVeg: true,
+    popular: true,
+    image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=300&auto=format&fit=crop&q=80',
+  },
+];
+
+// =========================================================================
+// 4. COMBINE INTO MASTER CATALOG (ALL DISHES OF PUNJAB + FAMOUS DISHES OF INDIA)
+// =========================================================================
+
+// Combine all items with deduplication
+const buildMasterCatalog = (): MenuItem[] => {
+  const map = new Map<string, MenuItem>();
+
+  // Add all Punjab dishes
+  PUNJABI_ALL_DISHES.forEach((item) => map.set(item.id, item));
+
+  // Add all Famous Indian dishes
+  FAMOUS_INDIAN_DISHES.forEach((item) => map.set(item.id, item));
+
+  // Add fast food & bakery dishes
+  FASTFOOD_AND_BAKERY_DISHES.forEach((item) => map.set(item.id, item));
+
+  // Also include any presets
+  INITIAL_MENU_ITEMS.forEach((item) => {
+    if (!map.has(item.id)) {
+      map.set(item.id, item);
+    }
+  });
+
+  return Array.from(map.values());
+};
+
+export const MASTER_ALL_MENU_ITEMS: MenuItem[] = buildMasterCatalog();
+
+// =========================================================================
+// 5. REGIONAL DINING STYLE PROFILES (FOR RESTAURANT SELECTION MODAL)
+// =========================================================================
+
+export const REGIONAL_DINING_PROFILES: FamousRestaurantProfile[] = [
+  {
+    shop: {
+      name: 'Punjabi Grand Dhaba & Rasoi',
+      address: 'Main Highway Bypass, GT Road, Punjab - 141001',
+      phone: '+91 98140 12345',
+      taxId: '03AABCP1234D1Z5',
+      tagline: 'Authentic Desi Ghee Curries, Charcoal Tandoor & Makki Roti',
+      fssaiNumber: '10318000000123',
+      source: 'preset',
+      city: 'Punjab',
+      cuisine: 'Traditional Punjabi & Mughlai',
+      rating: 4.8,
+      userRatingsTotal: 6420,
+      restaurantKey: 'punjabi_dhaba',
+    },
+    famousFor: 'Sarson Saag, Butter Chicken, Dal Makhani, Tandoori Parathas & Patiala Lassi',
+    historyBadge: 'Heritage Punjabi Dhaba',
+    dishes: PUNJABI_ALL_DISHES.slice(0, 16),
+  },
+  {
+    shop: {
+      name: 'Royal Darbar & Biryani House',
+      address: 'Historic Heritage Quarter, Old Fort Area, Delhi - 110006',
+      phone: '+91 11 2327 9900',
+      taxId: '07AABCR9900F1Z2',
+      tagline: 'Famous Hyderabadi Dum Biryani, Awadhi Kebabs & Kashmiri Rogan Josh',
+      fssaiNumber: '10719000000456',
+      source: 'preset',
+      city: 'Delhi',
+      cuisine: 'Pan-Indian Cuisines & Biryanis',
+      rating: 4.9,
+      userRatingsTotal: 9810,
+      restaurantKey: 'royal_darbar',
+    },
+    famousFor: 'Hyderabadi Dum Biryani, Galouti Kebabs, Rogan Josh & Shahi Tukda',
+    historyBadge: 'Royal Indian Cuisine',
+    dishes: FAMOUS_INDIAN_DISHES.slice(0, 16),
+  },
+  {
+    shop: {
+      name: 'Grand Halwai & Sweets Corner',
+      address: 'Clock Tower Chowk, Central Bazaar, Amritsar, Punjab - 143001',
+      phone: '+91 183 255 4433',
+      taxId: '03AABCG5544H1Z1',
+      tagline: 'Pure Desi Ghee Besan Pinni, Chole Bhature & Matka Kulfi',
+      fssaiNumber: '10317000000789',
+      source: 'preset',
+      city: 'Amritsar',
+      cuisine: 'Sweets, Chaat & Street Delicacies',
+      rating: 4.7,
+      userRatingsTotal: 5200,
+      restaurantKey: 'grand_halwai',
+    },
+    famousFor: 'Besan Pinni, Amritsari Kulcha, Golgappe, Raj Kachori & Jalebi Rabri',
+    historyBadge: 'Legendary Sweetmakers',
+    dishes: [
+      ...PUNJABI_ALL_DISHES.filter((d) => d.category.includes('Chaat') || d.category.includes('Desserts')),
+      ...FAMOUS_INDIAN_DISHES.filter((d) => d.category.includes('Chaat') || d.category.includes('Desserts')),
+    ],
+  },
+  {
+    shop: {
+      name: 'City Roast Cafe & Gourmet Bistro',
+      address: 'Sector 35-C, Inner Boulevard, Chandigarh - 160036',
+      phone: '+91 172 260 8822',
+      taxId: '04AABCC8822J1Z8',
+      tagline: 'Specialty Coffee, Crispy Zinger Burgers, Subs & Belgian Waffles',
+      fssaiNumber: '10419000000999',
+      source: 'preset',
+      city: 'Chandigarh',
+      cuisine: 'Fast Food, Cafe & Desserts',
+      rating: 4.7,
+      userRatingsTotal: 3890,
+      restaurantKey: 'roast_cafe',
+    },
+    famousFor: 'Fried Chicken Buckets, Zinger Burgers, Waffles, Thick Shakes & Subs',
+    historyBadge: 'Modern Cafe & Fastfood',
+    dishes: FASTFOOD_AND_BAKERY_DISHES,
+  },
+];
+
+// Compatibility exports
+export const CHANDIGARH_RESTAURANTS: FamousRestaurantProfile[] = REGIONAL_DINING_PROFILES;
+export const LUDHIANA_RESTAURANTS: FamousRestaurantProfile[] = REGIONAL_DINING_PROFILES;
+export const ALL_FAMOUS_RESTAURANTS: FamousRestaurantProfile[] = REGIONAL_DINING_PROFILES;
+
+// =========================================================================
+// 6. RESOLVE PUBLIC MENU FOR ANY RESTAURANT
+// =========================================================================
+
+export interface ResolvedRestaurantMenu {
+  menu: MenuItem[];
+  sourceLabel: string;
+  isExactMatch: boolean;
+  matchedProfile?: FamousRestaurantProfile;
+  areaTag: string;
+}
+
+export function getPublicMenuForRestaurant(shop: ShopInfo): ResolvedRestaurantMenu {
+  const normName = (shop.name || '').toLowerCase().trim();
+
+  // If bakery/cafe, suggest fastfood & desserts
+  if (normName.includes('cafe') || normName.includes('baker') || normName.includes('coffee') || normName.includes('burger')) {
+    return {
+      menu: FASTFOOD_AND_BAKERY_DISHES,
+      sourceLabel: `Cafe & Fast Food Menu (${shop.name})`,
+      isExactMatch: false,
+      areaTag: 'Cafe & Fastfood',
+    };
+  }
+
+  // If sweet shop / halwai / chaat
+  if (normName.includes('sweet') || normName.includes('halwai') || normName.includes('chaat')) {
+    const sweetAndChaat = MASTER_ALL_MENU_ITEMS.filter((i) =>
+      i.category.includes('Chaat') || i.category.includes('Desserts') || i.category.includes('Beverages')
+    );
+    return {
+      menu: sweetAndChaat.length > 0 ? sweetAndChaat : MASTER_ALL_MENU_ITEMS,
+      sourceLabel: `Sweets & Chaat Delicacies (${shop.name})`,
+      isExactMatch: false,
+      areaTag: 'Sweets & Chaat',
+    };
+  }
+
+  // Default: Return the complete comprehensive catalog of dishes
+  return {
+    menu: MASTER_ALL_MENU_ITEMS,
+    sourceLabel: `All Punjab & Famous Indian Dishes (${MASTER_ALL_MENU_ITEMS.length})`,
+    isExactMatch: false,
+    areaTag: 'All Menu',
+  };
+}

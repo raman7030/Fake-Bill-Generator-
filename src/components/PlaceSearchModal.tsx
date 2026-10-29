@@ -3,6 +3,7 @@ import { Search, MapPin, Phone, Star, Building2, PlusCircle, Check, Sparkles, X,
 import { usePlacesAutocomplete, AutocompleteResultItem } from '../hooks/usePlacesAutocomplete';
 import { ShopInfo } from '../types/pos';
 import { PRESET_SHOPS } from '../data/presetData';
+import { ALL_FAMOUS_RESTAURANTS } from '../data/famousRestaurantsData';
 
 interface PlaceSearchModalProps {
   isOpen: boolean;
@@ -276,57 +277,102 @@ export const PlaceSearchModal: React.FC<PlaceSearchModalProps> = ({
           )}
 
           {activeTab === 'presets' && (
-            <div className="space-y-3">
-              <div className="text-[11px] uppercase font-bold tracking-wider text-stone-400 px-1">
-                Select a Tested Demo Venue
+            <div className="space-y-4">
+              {/* Section 1: Chandigarh & Ludhiana Famous */}
+              <div>
+                <div className="text-[11px] uppercase font-bold tracking-wider text-rose-600 px-1 mb-2 flex items-center justify-between">
+                  <span>Chandigarh & Ludhiana Famous Food Institutions</span>
+                  <span className="text-[10px] font-semibold text-stone-500">Auto-loads Public Menu</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {ALL_FAMOUS_RESTAURANTS.map((prof) => {
+                    const shop = prof.shop;
+                    const isCurrent = currentShop.name === shop.name || currentShop.restaurantKey === shop.restaurantKey;
+                    return (
+                      <button
+                        key={shop.name}
+                        onClick={() => {
+                          onSelectShop(shop);
+                          onClose();
+                        }}
+                        className={`text-left p-3 rounded-xl border transition-all flex items-start gap-3 cursor-pointer ${
+                          isCurrent
+                            ? 'border-rose-500 bg-rose-50/40 shadow-xs ring-1 ring-rose-500'
+                            : 'border-stone-200 hover:border-rose-300 hover:bg-stone-50'
+                        }`}
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center shrink-0 font-bold text-xs">
+                          {shop.city === 'Chandigarh' ? 'CHD' : 'LDH'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 truncate">
+                              <h4 className="text-xs sm:text-sm font-bold text-stone-900 truncate">{shop.name}</h4>
+                              <span className="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.2 rounded-sm font-medium">
+                                {shop.city}
+                              </span>
+                            </div>
+                            {isCurrent && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full shrink-0">
+                                <Check className="w-3 h-3" /> Active
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-rose-600 font-semibold mt-0.5 truncate">{prof.famousFor}</p>
+                          <p className="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5 truncate">
+                            <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
+                            <span>{shop.address}</span>
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="grid grid-cols-1 gap-2.5">
-                {PRESET_SHOPS.map((shop) => {
-                  const isCurrent = currentShop.name === shop.name;
-                  return (
-                    <button
-                      key={shop.name}
-                      onClick={() => {
-                        onSelectShop(shop);
-                        onClose();
-                      }}
-                      className={`text-left p-3.5 rounded-xl border transition-all flex items-start gap-3.5 ${
-                        isCurrent
-                          ? 'border-rose-500 bg-rose-50/40 shadow-xs ring-1 ring-rose-500'
-                          : 'border-stone-200 hover:border-rose-300 hover:bg-stone-50'
-                      }`}
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center shrink-0 text-stone-700 font-bold">
-                        {shop.name.charAt(0)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <h4 className="text-sm font-bold text-stone-900 truncate">{shop.name}</h4>
-                          {isCurrent && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full shrink-0">
-                              <Check className="w-3 h-3" /> Active
-                            </span>
-                          )}
+
+              {/* Section 2: Highway Dhabas & Regional Venues */}
+              <div>
+                <div className="text-[11px] uppercase font-bold tracking-wider text-stone-400 px-1 mb-2">
+                  Highway Dhabas & Regional Venues
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {PRESET_SHOPS.map((shop) => {
+                    const isCurrent = currentShop.name === shop.name;
+                    return (
+                      <button
+                        key={shop.name}
+                        onClick={() => {
+                          onSelectShop(shop);
+                          onClose();
+                        }}
+                        className={`text-left p-3 rounded-xl border transition-all flex items-start gap-3 cursor-pointer ${
+                          isCurrent
+                            ? 'border-rose-500 bg-rose-50/40 shadow-xs ring-1 ring-rose-500'
+                            : 'border-stone-200 hover:border-rose-300 hover:bg-stone-50'
+                        }`}
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center shrink-0 text-stone-700 font-bold text-xs">
+                          {shop.name.charAt(0)}
                         </div>
-                        <p className="text-xs text-rose-600/90 font-medium mt-0.5 truncate">{shop.tagline}</p>
-                        <p className="text-[11px] text-stone-500 flex items-center gap-1 mt-1 truncate">
-                          <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
-                          <span>{shop.address}</span>
-                        </p>
-                        <div className="flex items-center gap-4 mt-2 text-[11px] text-stone-600">
-                          <span className="flex items-center gap-1">
-                            <Phone className="w-3 h-3 text-stone-400" /> {shop.phone}
-                          </span>
-                          {shop.rating && (
-                            <span className="flex items-center gap-1 text-amber-600 font-semibold">
-                              <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {shop.rating}
-                            </span>
-                          )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className="text-xs sm:text-sm font-bold text-stone-900 truncate">{shop.name}</h4>
+                            {isCurrent && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full shrink-0">
+                                <Check className="w-3 h-3" /> Active
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-stone-500 font-medium mt-0.5 truncate">{shop.tagline}</p>
+                          <p className="text-[10px] text-stone-400 flex items-center gap-1 mt-0.5 truncate">
+                            <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
+                            <span>{shop.address}</span>
+                          </p>
                         </div>
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

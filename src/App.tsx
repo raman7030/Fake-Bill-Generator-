@@ -31,6 +31,12 @@ import { PastBillsView } from './components/PastBillsView';
 import { PlaceSearchModal } from './components/PlaceSearchModal';
 import { AddCustomItemModal } from './components/AddCustomItemModal';
 import { EditShopModal } from './components/EditShopModal';
+import { MenuSelectorModal } from './components/MenuSelectorModal';
+import {
+  getPublicMenuForRestaurant,
+  MASTER_ALL_MENU_ITEMS,
+  FamousRestaurantProfile,
+} from './data/famousRestaurantsData';
 
 const GOOGLE_MAPS_API_KEY =
   import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCBC0NXeISq-dnDOPq3CFNXZskZIPaGkPg';
@@ -49,8 +55,12 @@ export default function App() {
   const [isPlaceSearchOpen, setIsPlaceSearchOpen] = useState(false);
   const [isEditShopOpen, setIsEditShopOpen] = useState(false);
 
-  // Menu items list
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(INITIAL_MENU_ITEMS);
+  // Menu items list and public menu source tracking
+  const initialResolvedMenu = getPublicMenuForRestaurant(PRESET_SHOPS[0]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialResolvedMenu.menu);
+  const [activeMenuSourceLabel, setActiveMenuSourceLabel] = useState<string>(initialResolvedMenu.sourceLabel);
+  const [isMasterMenuLoaded, setIsMasterMenuLoaded] = useState<boolean>(false);
+  const [isMenuSelectorOpen, setIsMenuSelectorOpen] = useState(false);
   const [isAddCustomOpen, setIsAddCustomOpen] = useState(false);
 
   // Saved Bills History state (persisted in localStorage)
@@ -226,24 +236,77 @@ export default function App() {
     ]);
   };
 
-  // Add custom dish from Modal
+  // Add custom dish from Modal to menu and optionally to cart
   const handleAddCustomItem = (newItem: MenuItem, qty: number) => {
-    setMenuItems((prev) => [newItem, ...prev]);
-    setCart((prev) => [
-      ...prev,
-      {
-        id: `cart-${Date.now()}`,
-        item: newItem,
-        quantity: qty,
-      },
-    ]);
+    setMenuItems((prev) => {
+      if (prev.some((d) => d.id === newItem.id)) return prev;
+      return [newItem, ...prev];
+    });
+    if (qty > 0) {
+      setCart((prev) => [
+        ...prev,
+        {
+          id: `cart-${Date.now()}`,
+          item: newItem,
+          quantity: qty,
+        },
+      ]);
+    }
   };
 
-  // Update shop details
+  // Remove dish directly from active menu
+  const handleRemoveDish = (dishId: string) => {
+    setMenuItems((prev) => prev.filter((d) => d.id !== dishId));
+  };
+
+  // Reset menu back to complete master catalog
+  const handleResetMenu = () => {
+    setMenuItems(MASTER_ALL_MENU_ITEMS);
+    setActiveMenuSourceLabel(`All Punjab & Famous Indian Dishes (${MASTER_ALL_MENU_ITEMS.length})`);
+    setIsMasterMenuLoaded(true);
+  };
+
+  // Update shop details and automatically load its public menu / area delicacies
   const handleSelectShop = (newShop: ShopInfo) => {
     setShop(newShop);
     if (newShop.taxId) {
       setTaxSettings((prev) => ({ ...prev, taxIdValue: newShop.taxId }));
+    }
+
+    // Auto-load public menu of selected restaurant or area delicacies!
+    const resolved = getPublicMenuForRestaurant(newShop);
+    setMenuItems(resolved.menu);
+    setActiveMenuSourceLabel(resolved.sourceLabel);
+    setIsMasterMenuLoaded(false);
+  };
+
+  // Select a specific famous restaurant profile
+  const handleSelectRestaurantProfile = (
+    profile: FamousRestaurantProfile,
+    updateShopInfo: boolean
+  ) => {
+    if (updateShopInfo) {
+      setShop(profile.shop);
+      if (profile.shop.taxId) {
+        setTaxSettings((prev) => ({ ...prev, taxIdValue: profile.shop.taxId }));
+      }
+    }
+    setMenuItems(profile.dishes);
+    setActiveMenuSourceLabel(`Public Verified Menu: ${profile.shop.name}`);
+    setIsMasterMenuLoaded(false);
+  };
+
+  // Toggle between active restaurant-specific menu and full master menu
+  const handleToggleMasterMenu = () => {
+    if (isMasterMenuLoaded) {
+      const resolved = getPublicMenuForRestaurant(shop);
+      setMenuItems(resolved.menu);
+      setActiveMenuSourceLabel(resolved.sourceLabel);
+      setIsMasterMenuLoaded(false);
+    } else {
+      setMenuItems(MASTER_ALL_MENU_ITEMS);
+      setActiveMenuSourceLabel(`All Punjab & Famous Indian Dishes (${MASTER_ALL_MENU_ITEMS.length})`);
+      setIsMasterMenuLoaded(true);
     }
   };
 
@@ -409,8 +472,15 @@ export default function App() {
                 items={menuItems}
                 cart={cart}
                 currencySymbol={taxSettings.currencySymbol}
+                currentShop={shop}
+                activeMenuSourceLabel={activeMenuSourceLabel}
+                isMasterMenuLoaded={isMasterMenuLoaded}
                 onUpdateQuantity={handleUpdateQuantity}
                 onOpenAddCustom={() => setIsAddCustomOpen(true)}
+                onOpenMenuSelector={() => setIsMenuSelectorOpen(true)}
+                onToggleMasterMenu={handleToggleMasterMenu}
+                onRemoveDish={handleRemoveDish}
+                onResetMenu={handleResetMenu}
               />
               <FloatingCartBanner
                 cart={cart}
@@ -491,6 +561,20 @@ export default function App() {
           onClose={() => setIsAddCustomOpen(false)}
           currencySymbol={taxSettings.currencySymbol}
           onAddItem={handleAddCustomItem}
+        />
+
+        {/* Restaurant Public Menu Selector Modal */}
+        <MenuSelectorModal
+          isOpen={isMenuSelectorOpen}
+          onClose={() => setIsMenuSelectorOpen(false)}
+          currentShop={shop}
+          activeMenuSourceLabel={activeMenuSourceLabel}
+          onSelectRestaurantProfile={handleSelectRestaurantProfile}
+          onLoadMasterCatalog={() => {
+            setMenuItems(MASTER_ALL_MENU_ITEMS);
+            setActiveMenuSourceLabel(`Full Master Catalog (${MASTER_ALL_MENU_ITEMS.length} Dishes)`);
+            setIsMasterMenuLoaded(true);
+          }}
         />
       </div>
     </APIProvider>

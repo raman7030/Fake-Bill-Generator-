@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Utensils } from 'lucide-react';
+import { X, Plus, Utensils, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { MenuItem } from '../types/pos';
 import { MENU_CATEGORIES } from '../data/presetData';
 
@@ -7,7 +7,7 @@ interface AddCustomItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   currencySymbol: string;
-  onAddItem: (item: MenuItem, quantity: number) => void;
+  onAddItem: (item: MenuItem, quantity: number, addToCartOnly?: boolean) => void;
 }
 
 export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
@@ -19,9 +19,11 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
   const [name, setName] = useState('');
   const [price, setPrice] = useState<number | ''>('');
   const [quantity, setQuantity] = useState(1);
-  const [category, setCategory] = useState('Main Course');
+  const [category, setCategory] = useState('Punjab Specials');
   const [isVeg, setIsVeg] = useState(true);
   const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [actionType, setActionType] = useState<'menu_and_cart' | 'menu_only'>('menu_and_cart');
 
   if (!isOpen) return null;
 
@@ -30,26 +32,33 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
     if (!name.trim() || price === '' || Number(price) <= 0) return;
 
     const newItem: MenuItem = {
-      id: `custom-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: `dish-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       name: name.trim(),
-      category: category || 'Custom Items',
+      category: category || 'Punjab Specials',
       price: Number(price),
       isVeg,
-      description: description.trim() || 'Custom bill item added by counter staff',
+      description: description.trim() || 'Freshly prepared specialty dish',
       popular: false,
+      image: imageUrl.trim() || (isVeg
+        ? 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80'
+        : 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&auto=format&fit=crop&q=80'),
     };
 
-    onAddItem(newItem, quantity);
+    const addQty = actionType === 'menu_and_cart' ? quantity : 0;
+    onAddItem(newItem, addQty, false);
+
+    // Reset fields
     setName('');
     setPrice('');
     setQuantity(1);
     setDescription('');
+    setImageUrl('');
     onClose();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-stone-200 overflow-hidden">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
         <div className="px-5 py-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/70">
           <div className="flex items-center gap-2.5">
@@ -57,23 +66,23 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
               <Utensils className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-stone-900">Add Custom Item / Special Dish</h3>
-              <p className="text-[11px] text-stone-500">Add an unlisted item directly to the current bill</p>
+              <h3 className="text-sm font-bold text-stone-900">Add New Dish to Menu</h3>
+              <p className="text-[11px] text-stone-500">Create a dish with custom price and add to catalog</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full hover:bg-stone-200/70 flex items-center justify-center text-stone-500 transition-colors"
+            className="w-8 h-8 rounded-full hover:bg-stone-200/70 flex items-center justify-center text-stone-500 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-3.5 overflow-y-auto">
           <div>
             <label className="block text-xs font-bold text-stone-700 mb-1">
-              Item / Dish Name <span className="text-rose-500">*</span>
+              Dish / Item Name <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
@@ -81,7 +90,7 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Special Chef Thali, Extra Raita, Mineral Water"
+              placeholder="e.g. Paneer Lababdar, Garlic Chicken Tikka, Malpua Rabri"
               className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-hidden"
             />
           </div>
@@ -89,7 +98,7 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">
-                Unit Price ({currencySymbol}) <span className="text-rose-500">*</span>
+                Price ({currencySymbol}) <span className="text-rose-500">*</span>
               </label>
               <input
                 type="number"
@@ -102,42 +111,32 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
                 className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm font-bold focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-hidden"
               />
             </div>
+
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Quantity</label>
-              <div className="flex items-center border border-stone-200 rounded-lg overflow-hidden bg-white">
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="px-3 py-2 hover:bg-stone-100 text-stone-700 font-bold transition-colors"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-full text-center text-sm font-bold outline-hidden py-2"
-                />
-                <button
-                  type="button"
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="px-3 py-2 hover:bg-stone-100 text-stone-700 font-bold transition-colors"
-                >
-                  +
-                </button>
-              </div>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-2.5 py-2 rounded-lg border border-stone-200 text-xs font-medium focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-hidden bg-white"
+              >
+                {MENU_CATEGORIES.filter((c) => c !== 'All' && c !== 'Bestsellers').map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+                <option value="Custom Specials">Custom Specials</option>
+              </select>
             </div>
           </div>
 
-          {/* Veg / Non-Veg Toggle */}
+          {/* Dietary Classification Toggle */}
           <div>
             <label className="block text-xs font-bold text-stone-700 mb-1.5">Dietary Classification</label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setIsVeg(true)}
-                className={`py-2 px-3 rounded-lg border flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+                className={`py-2 px-3 rounded-lg border flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer ${
                   isVeg
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-1 ring-emerald-500'
                     : 'border-stone-200 text-stone-600 hover:bg-stone-50'
@@ -151,7 +150,7 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsVeg(false)}
-                className={`py-2 px-3 rounded-lg border flex items-center justify-center gap-2 text-xs font-bold transition-all ${
+                className={`py-2 px-3 rounded-lg border flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer ${
                   !isVeg
                     ? 'border-rose-500 bg-rose-50 text-rose-700 ring-1 ring-rose-500'
                     : 'border-stone-200 text-stone-600 hover:bg-stone-50'
@@ -166,46 +165,101 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-stone-200 text-xs font-medium focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-hidden bg-white"
-            >
-              {MENU_CATEGORIES.filter((c) => c !== 'All' && c !== 'Bestsellers').map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-              <option value="Custom Specials">Custom Specials</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Optional Note / Preparation Details</label>
+            <label className="block text-xs font-bold text-stone-700 mb-1">
+              Description / Special Preparation Notes
+            </label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Extra spicy, less oil, served with mint chutney"
+              placeholder="e.g. Cooked in pure desi ghee, served with green chutney & spiced onions"
               className="w-full px-3 py-2 rounded-lg border border-stone-200 text-xs focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-hidden"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-stone-700 mb-1">
+              Optional Image URL
+            </label>
+            <div className="relative">
+              <ImageIcon className="w-4 h-4 text-stone-400 absolute left-2.5 top-2.5" />
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://images.unsplash.com/..."
+                className="w-full pl-8 pr-3 py-2 rounded-lg border border-stone-200 text-xs focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-hidden"
+              />
+            </div>
+          </div>
+
+          {/* Action Destination */}
+          <div className="p-2.5 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+            <span className="text-[11px] font-bold text-stone-700 block">Addition Mode</span>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <label className="flex items-center gap-1.5 p-2 rounded-lg border bg-white cursor-pointer select-none">
+                <input
+                  type="radio"
+                  name="actionType"
+                  checked={actionType === 'menu_and_cart'}
+                  onChange={() => setActionType('menu_and_cart')}
+                  className="text-rose-600 focus:ring-rose-500"
+                />
+                <span className="font-semibold text-stone-800">Add to Menu & Cart</span>
+              </label>
+
+              <label className="flex items-center gap-1.5 p-2 rounded-lg border bg-white cursor-pointer select-none">
+                <input
+                  type="radio"
+                  name="actionType"
+                  checked={actionType === 'menu_only'}
+                  onChange={() => setActionType('menu_only')}
+                  className="text-rose-600 focus:ring-rose-500"
+                />
+                <span className="font-semibold text-stone-800">Menu Catalog Only</span>
+              </label>
+            </div>
+
+            {actionType === 'menu_and_cart' && (
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-xs text-stone-600">Quantity to add to cart:</span>
+                <div className="flex items-center border border-stone-200 rounded-lg overflow-hidden bg-white">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="px-2.5 py-1 hover:bg-stone-100 text-stone-700 font-bold transition-colors cursor-pointer"
+                  >
+                    -
+                  </button>
+                  <span className="px-3 text-xs font-bold">{quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="px-2.5 py-1 hover:bg-stone-100 text-stone-700 font-bold transition-colors cursor-pointer"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="pt-2 flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-stone-200 text-stone-700 text-xs font-semibold rounded-lg hover:bg-stone-100 transition-colors"
+              className="px-4 py-2 border border-stone-200 text-stone-700 text-xs font-semibold rounded-lg hover:bg-stone-100 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700 shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-5 py-2 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700 shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Add to Cart ({quantity}x)</span>
+              <span>
+                {actionType === 'menu_and_cart' ? `Add to Menu & Cart (${quantity}x)` : 'Add to Menu Catalog'}
+              </span>
             </button>
           </div>
         </form>
