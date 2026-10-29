@@ -1,11 +1,13 @@
 import React from 'react';
-import { Store, MapPin, Phone, Star, Edit, Search, Sparkles } from 'lucide-react';
+import { Store, MapPin, Phone, Star, Edit, Search, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { ShopInfo } from '../types/pos';
 
 interface ShopHeaderBarProps {
   shop: ShopInfo;
   onOpenSearch: () => void;
   onOpenEdit: () => void;
+  menuToolsOpen: boolean;
+  onToggleMenuTools: () => void;
   currencySymbol: string;
 }
 
@@ -13,29 +15,22 @@ export const ShopHeaderBar: React.FC<ShopHeaderBarProps> = ({
   shop,
   onOpenSearch,
   onOpenEdit,
+  menuToolsOpen,
+  onToggleMenuTools,
 }) => {
   return (
     <header className="bg-white border-b border-stone-200/90 shadow-2xs sticky top-0 z-40">
       <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-3">
         {/* Left: Brand Identity & Active Venue */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center font-black shadow-md shadow-rose-500/20 shrink-0">
+          <button type="button" onClick={onOpenSearch} aria-label="Change restaurant" title="Search and change restaurant" className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white flex items-center justify-center font-black shadow-md shadow-rose-500/20 shrink-0 hover:brightness-105 active:scale-95 transition">
             <Store className="w-5 h-5 sm:w-6 sm:h-6" />
-          </div>
+          </button>
 
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <h2 className="text-sm sm:text-base font-extrabold text-stone-900 truncate leading-tight">
+              <button type="button" onClick={onOpenEdit} className="text-left text-sm sm:text-base font-extrabold text-stone-900 truncate leading-tight hover:text-rose-700" title="Edit restaurant details">
                 {shop.name}
-              </h2>
-
-              {/* Quick Edit Icon Button directly next to name */}
-              <button
-                onClick={onOpenEdit}
-                className="p-1 rounded-md text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                title="Edit Restaurant Name & Details"
-              >
-                <Edit className="w-3.5 h-3.5" />
               </button>
 
               {shop.source === 'google_places' && (
@@ -65,25 +60,17 @@ export const ShopHeaderBar: React.FC<ShopHeaderBarProps> = ({
           </div>
         </div>
 
-        {/* Right: Edit & Switch Venue Buttons */}
+        {/* Top-right menu options beside restaurant identity */}
         <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={onOpenEdit}
-            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all active:scale-95 border border-rose-200/80 cursor-pointer"
-            title="Edit shop details, GSTIN, and phone"
+            type="button"
+            onClick={onToggleMenuTools}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${menuToolsOpen ? 'bg-stone-900 text-white border-stone-900' : 'bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-200'}`}
+            aria-expanded={menuToolsOpen}
+            title="Open menu options"
           >
-            <Edit className="w-3.5 h-3.5 text-rose-600" />
-            <span className="hidden sm:inline">Edit Restaurant</span>
-            <span className="sm:hidden">Edit</span>
-          </button>
-
-          <button
-            onClick={onOpenSearch}
-            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-xs font-bold transition-all active:scale-95 border border-stone-200/60 cursor-pointer"
-          >
-            <Search className="w-3.5 h-3.5 text-stone-500" />
-            <span className="hidden sm:inline">Change Venue</span>
-            <span className="sm:hidden">Change</span>
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Menu Options</span>
           </button>
         </div>
       </div>
