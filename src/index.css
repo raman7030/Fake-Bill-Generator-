@@ -159,3 +159,80 @@ button {
     max-width: 100% !important;
   }
 }
+
+
+/* Each receipt has its own visual language. Keep these scoped to the selected
+   layout so styling never leaks into another template or the POS controls. */
+.receipt-layout-kfc { border-top: 5px solid #b91c1c; }
+.receipt-layout-kfc > div:first-child {
+  background: #b91c1c; color: #fff; padding: 10px 8px; border-radius: 2px;
+}
+.receipt-layout-kfc > div:first-child * { color: #fff !important; }
+.receipt-layout-kfc > div:nth-child(2) { border-top: 2px solid #b91c1c; border-bottom: 2px solid #b91c1c; padding: 7px 0; }
+
+.receipt-layout-pizzeria { border-left: 4px solid #2563eb; padding-left: 10px; }
+.receipt-layout-pizzeria > div:first-child { border-bottom: 3px solid #2563eb; padding-bottom: 9px; }
+.receipt-layout-pizzeria > div:nth-child(2) { background: #eff6ff; border: 1px solid #bfdbfe; padding: 8px; }
+
+.receipt-layout-deli { border-top: 3px solid #15803d; }
+.receipt-layout-deli > div:first-child {
+  background: #f0fdf4; border-left: 5px solid #15803d; padding: 10px;
+}
+.receipt-layout-deli > div:nth-child(2) { border-bottom: 1px solid #86efac; padding-bottom: 8px; }
+
+.receipt-layout-cafe { border: 1px solid #cbd5c0; padding: 12px; background: #fffef8; }
+.receipt-layout-cafe > div:first-child {
+  background: #174b37; color: #fff; padding: 14px 8px; margin: -12px -12px 10px;
+}
+.receipt-layout-cafe > div:first-child * { color: #fff !important; }
+.receipt-layout-cafe > div:nth-child(2) { border: 1px solid #cbd5c0; border-radius: 2px; padding: 9px; }
+
+.receipt-layout-fine-dining { border: 3px double #a78b55; padding: 15px; background: #fffdf7; }
+.receipt-layout-fine-dining > div:first-child { border-bottom: 1px solid #a78b55 !important; padding-bottom: 14px; }
+.receipt-layout-fine-dining h1 { font-weight: 500 !important; letter-spacing: .04em !important; }
+.receipt-layout-fine-dining > div:last-child { border-top: 1px solid #a78b55; padding-top: 10px; }
+
+.receipt-layout-izakaya { border: 2px solid #262626; padding: 10px; }
+.receipt-layout-izakaya > div:first-child { background: #262626; color: #fff; padding: 10px; }
+.receipt-layout-izakaya > div:first-child * { color: #fff !important; }
+.receipt-layout-izakaya > div:nth-child(2) { border-bottom: 2px solid #b91c1c !important; padding-bottom: 7px; }
+
+.receipt-layout-retail { border-top: 6px solid #1e3a5f; }
+.receipt-layout-retail > div:first-child { background: #1e3a5f; color: #fff; padding: 10px; }
+.receipt-layout-retail > div:first-child * { color: #fff !important; }
+.receipt-layout-retail > div:nth-child(2) { border-top: 2px solid #1e3a5f; border-bottom: 2px solid #1e3a5f; padding: 6px 0; }
+
+.receipt-layout-classic { padding-top: 8px; }
+.receipt-layout-classic > div:first-child { border-bottom: 1px dashed #57534e; padding-bottom: 8px; }
+.receipt-layout-classic > div:nth-child(2) { border-bottom: 1px dashed #57534e; padding-bottom: 6px; }
+.receipt-layout-classic > div:last-child { border-top: 1px dashed #57534e; padding-top: 8px; }
+
+.receipt-layout-bistro { border-top: 4px solid #292524; padding-top: 10px; }
+.receipt-layout-bistro > div:first-child { padding-bottom: 14px; }
+.receipt-layout-bistro > div:nth-child(2) { background: #f5f5f4; border: 1px solid #e7e5e4; padding: 9px; }
+
+.receipt-layout-dotmatrix { border: 2px dashed #444; padding: 9px; background: #fff; }
+.receipt-layout-dotmatrix > div:first-child { border-bottom: 2px dashed #444; padding-bottom: 5px; }
+.receipt-layout-dotmatrix > div:nth-child(2) { letter-spacing: .035em; }
+
+.receipt-layout-express { border: 2px solid #d97706; padding: 8px; }
+.receipt-layout-express > div:first-child { background: #fef3c7; border: 2px dashed #d97706; border-radius: 4px; }
+.receipt-layout-express > div:nth-child(2) { border-bottom: 2px solid #d97706; padding-bottom: 7px; }
+
+.receipt-layout-tax-invoice { border-color: #1e3a5f !important; }
+.receipt-layout-tax-invoice > div:first-child { background: #eff6ff; border-bottom: 2px solid #1e3a5f !important; padding: 8px 4px; }
+.receipt-layout-tax-invoice > div:first-child * { color: #1e3a5f !important; }
+.receipt-layout-tax-invoice > div:nth-child(2) { border-bottom: 1px solid #1e3a5f !important; }
+
+.receipt-layout-delivery-card { border-top: 4px solid #047857; }
+.receipt-layout-delivery-minimal { border-top: 1px solid #111827; }
+.receipt-layout-delivery-minimal > div:first-child { border-bottom-width: 3px !important; }
+.receipt-layout-delivery-dark { border-top: 4px solid #34d399; }
+
+@media print {
+  .receipt-layout-cafe, .receipt-layout-fine-dining, .receipt-layout-izakaya,
+  .receipt-layout-retail, .receipt-layout-bistro, .receipt-layout-tax-invoice {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
