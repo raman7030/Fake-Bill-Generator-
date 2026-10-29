@@ -815,14 +815,14 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               </div>
 
               {/* Order Tracker ID Callout Banner */}
-              <div className="bg-stone-900 text-white p-2.5 rounded-lg text-center space-y-0.5 my-1.5">
-                <span className="text-[9px] uppercase font-bold tracking-widest text-stone-400 block">
-                  KITCHEN ORDER TRACKER®
+              <div className="bg-stone-100 text-stone-900 border border-stone-200 p-2.5 rounded-xl text-center space-y-0.5 my-1.5">
+                <span className="text-[9px] uppercase font-bold tracking-widest text-stone-500 block">
+                  ORDER REFERENCE · DEMO
                 </span>
-                <span className="text-base sm:text-lg font-black tracking-tight text-white block font-mono">
+                <span className="text-base sm:text-lg font-black tracking-tight text-stone-900 block font-mono">
                   #TRK-{orderDetails.orderId.replace(/[^0-9]/g, '') || '94821'}
                 </span>
-                <span className="text-[10px] text-stone-300 font-semibold block">
+                <span className="text-[10px] text-stone-600 font-semibold block">
                   {orderDetails.tableNo ? `DINE-IN • ${orderDetails.tableNo}` : 'HOT & FRESH CARRYOUT'}
                 </span>
               </div>
@@ -860,19 +860,14 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                         <span className="col-span-1 text-center">{cartItem.quantity}</span>
                         <span className="col-span-3 text-right font-black">{total.toFixed(2)}</span>
                       </div>
-                      <div className="pl-3 text-[9px] font-normal text-stone-600 space-y-0.5 mt-0.5">
-                        <div>&gt; PREP: FRESHLY BAKED & HERB SEASONED</div>
-                        <div>&gt; SPEC: CHEESE BURST & SPECIAL HERBS</div>
-                        {cartItem.notes && <div className="italic">&gt; NOTE: {cartItem.notes}</div>}
-                      </div>
+                      {cartItem.notes && (
+                        <div className="pl-3 text-[9px] font-normal italic text-stone-600 mt-0.5">
+                          Note: {cartItem.notes}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
-              </div>
-
-              {/* Total Box Count */}
-              <div className="bg-stone-100 p-1.5 rounded-md text-center text-[10px] font-bold text-stone-800 my-1">
-                TOTAL PACKS / BOXES: {cart.reduce((s, c) => s + c.quantity, 0)} ITEMS
               </div>
 
               <div className="text-center font-bold text-stone-800 select-none text-xs">
@@ -1090,27 +1085,12 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                         <span>{cartItem.quantity}x {cartItem.item.name}</span>
                         <span>{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</span>
                       </div>
-                      <div className="pl-3 text-[10px] text-stone-500 font-medium space-y-0.5">
-                        <div>* Freshly Brewed / Custom Temp</div>
-                        <div>* House Blend Extraction</div>
-                        {cartItem.notes && <div>* {cartItem.notes}</div>}
-                      </div>
+                      {cartItem.notes && (
+                        <div className="pl-3 text-[10px] text-stone-500 italic">{cartItem.notes}</div>
+                      )}
                     </div>
                   );
                 })}
-              </div>
-
-              {/* Coffeehouse Stars Loyalty Card */}
-              <div className="bg-stone-900 text-stone-100 p-2.5 rounded-xl space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase tracking-wider text-amber-300">★ {shop.name.toUpperCase()} REWARDS</span>
-                  <span className="text-[10px] bg-amber-500 text-stone-900 px-1.5 py-0.5 rounded font-black">VIP GUEST</span>
-                </div>
-                <div className="flex justify-between text-xs font-bold text-white">
-                  <span>Stars Earned Today:</span>
-                  <span className="text-amber-300">★ +{Math.max(2, Math.floor(calculation.grandTotal / 50))} Stars</span>
-                </div>
-                <p className="text-[9px] text-stone-400">Redeem complimentary beverage or dessert at 100 Stars!</p>
               </div>
 
               <div className="border-t border-stone-200 pt-2 space-y-1 text-xs font-semibold">
@@ -1648,7 +1628,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   </div>
                 )}
 
-                <div className="bg-stone-900 text-white p-3 rounded-xl flex items-baseline justify-between mt-2">
+                <div className="bg-stone-100 text-stone-900 border border-stone-200 p-3 rounded-xl flex items-baseline justify-between mt-2">
                   <div>
                     <span className="text-xs uppercase font-extrabold tracking-wider block text-stone-300">Total Payable</span>
                     <span className="text-[10px] text-stone-400">Settled via {orderDetails.paymentMethod}</span>
@@ -1761,7 +1741,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* ========================================================= */}
           {receiptStyle === 'compact_express' && (
             <div className="font-receipt space-y-2 text-stone-900">
-              <div className="bg-stone-900 text-white rounded-lg p-3 text-center">
+              <div className="bg-stone-100 text-stone-900 border border-stone-200 rounded-xl p-3 text-center">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-stone-400 block">
                   ORDER TOKEN
                 </span>
