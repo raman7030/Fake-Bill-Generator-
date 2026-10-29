@@ -134,6 +134,10 @@ export default function App() {
     showQrCode: true,
     qrCodeType: 'upi',
     footerNote: 'Thank you! Visit Again',
+    showTagline: true,
+    showPromotionalBoxes: false,
+    promotionalTitle: 'Thanks for visiting!',
+    promotionalMessage: 'We appreciate your visit. Come back soon.',
   });
 
   const handleUpdateOrderDetails = useCallback((updates: Partial<OrderDetails>) => {
