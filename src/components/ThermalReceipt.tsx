@@ -1661,12 +1661,12 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   <div className="flex justify-between gap-3 text-stone-600"><span>{taxSettings.taxLabel} ({taxSettings.taxRate}%)</span><span className="tabular-nums">+{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>
                 ) : null}
 
-                <div className="bg-stone-900 text-white rounded-xl px-4 py-3.5 mt-3 flex items-center justify-between gap-3">
+                <div className="bg-stone-100 text-stone-900 border border-stone-200 rounded-lg px-3 py-2.5 mt-3 flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="block text-[10px] uppercase font-bold tracking-widest text-stone-300">Total payable</span>
-                    <span className="block text-[10px] text-stone-300 mt-1">{orderDetails.paymentMethod} · {orderDetails.paymentStatus === 'PAID' ? 'Marked paid' : 'Payment pending'}</span>
+                    <span className="block text-[10px] uppercase font-bold tracking-widest text-stone-500">Total payable</span>
+                    <span className="block text-[10px] text-stone-600 mt-1">{orderDetails.paymentMethod} · {orderDetails.paymentStatus === 'PAID' ? 'Marked paid' : 'Payment pending'}</span>
                   </div>
-                  <span className="shrink-0 whitespace-nowrap text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums text-white">
+                  <span className="shrink-0 whitespace-nowrap text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums text-stone-900">
                     {taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}
                   </span>
                 </div>
