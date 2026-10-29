@@ -379,29 +379,52 @@ export const ReviewBill: React.FC<ReviewBillProps> = ({
             <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">
               Payment Method & Settlement
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {paymentModes.map((mode) => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {paymentModes.filter((mode) => mode.id === 'Cash').map((mode) => {
                 const isSelected = orderDetails.paymentMethod === mode.id;
                 return (
                   <button
                     key={mode.id}
                     type="button"
                     onClick={() => onUpdateOrderDetails({ paymentMethod: mode.id })}
-                    className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                    className={`min-h-[64px] p-3 rounded-xl border text-left transition-all flex flex-col justify-center ${
                       isSelected
                         ? 'border-rose-500 bg-rose-50/50 ring-1 ring-rose-500 shadow-xs'
                         : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-bold text-xs text-stone-900">{mode.label}</span>
                       {mode.icon}
                     </div>
-                    <span className="text-[10px] text-stone-500">{mode.sublabel}</span>
+                    <span className="text-[10px] text-stone-500 mt-1">{mode.sublabel}</span>
                   </button>
                 );
               })}
-            </div>
+              <div className="rounded-xl border border-stone-200 p-2 grid grid-cols-2 gap-2">
+                {paymentModes.filter((mode) => mode.id === 'UPI' || mode.id === 'Card').map((mode) => {
+                  const isSelected = orderDetails.paymentMethod === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => onUpdateOrderDetails({ paymentMethod: mode.id })}
+                      aria-pressed={isSelected}
+                      className={`min-h-[64px] p-2 rounded-lg border text-left transition-all flex flex-col justify-center ${
+                        isSelected
+                          ? 'border-rose-500 bg-rose-50/50 ring-1 ring-rose-500 shadow-xs'
+                          : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-bold text-xs text-stone-900">{mode.label}</span>
+                        {mode.icon}
+                      </div>
+                      <span className="text-[10px] text-stone-500 mt-1">{mode.sublabel}</span>
+                    </button>
+                  );
+                })}
+              </div>
           </div>
         </div>
 
