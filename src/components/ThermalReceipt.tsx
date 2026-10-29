@@ -1579,54 +1579,61 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           )}
 
           {/* ========================================================= */}
-          {/* TEMPLATE 9: MODERN BISTRO (Contemporary Elegant Cafe)     */}
-          {/* ========================================================= */}
+          {/* TEMPLATE 9: MODERN BISTRO — refined editorial receipt */}
           {receiptStyle === 'modern_bistro' && (
-            <div className="space-y-3 text-stone-900">
-              <div className="border-b border-stone-300 pb-3">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-stone-950">
-                    {shop.name}
-                  </h1>
-                  <span className="text-[10px] font-bold bg-stone-900 text-white px-2 py-0.5 rounded-sm">
-                    {orderDetails.tableNo || 'BISTRO'}
-                  </span>
+            <div className="space-y-3.5 text-stone-900 font-sans leading-snug">
+              <div className="border-b-2 border-stone-900 pb-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-tight break-words text-stone-950">
+                      {shop.name}
+                    </h1>
+                    {orderDetails.showTagline && shop.tagline && (
+                      <p className="mt-1 text-[11px] italic text-stone-500">{shop.tagline}</p>
+                    )}
+                  </div>
+                  {orderDetails.tableNo && (
+                    <span className="shrink-0 whitespace-nowrap rounded-md bg-stone-100 border border-stone-300 px-2.5 py-1 text-[10px] font-bold tracking-wide text-stone-700">
+                      {orderDetails.tableNo}
+                    </span>
+                  )}
                 </div>
-                <p className="text-[11px] text-stone-600 mt-1 leading-snug">{shop.address}</p>
-                <div className="flex items-center justify-between text-[11px] text-stone-700 font-medium mt-1">
-                  <span>Ph: {shop.phone}</span>
-                  {taxSettings.taxIdValue && <span>{taxSettings.taxIdLabel}: {taxSettings.taxIdValue}</span>}
-                </div>
-              </div>
-
-              <div className="bg-stone-100 p-2.5 rounded-lg flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-stone-400 block">Check No</span>
-                  <span className="font-extrabold text-stone-900">{orderDetails.orderId}</span>
-                </div>
-                <div className="text-center">
-                  <span className="text-[10px] uppercase font-bold text-stone-400 block">Server</span>
-                  <span className="font-semibold text-stone-800">{orderDetails.serverName || 'Host'}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-stone-400 block">Time</span>
-                  <span className="font-semibold text-stone-800">{orderDetails.timestamp}</span>
+                <p className="text-[11px] text-stone-600 mt-2 leading-relaxed break-words">{shop.address}</p>
+                <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 text-[10px] text-stone-600 mt-1.5">
+                  {shop.phone && <span>Ph: {shop.phone}</span>}
+                  {taxSettings.taxIdValue && <span className="break-all">{taxSettings.taxIdLabel}: {taxSettings.taxIdValue}</span>}
                 </div>
               </div>
 
-              <div className="space-y-2 py-1">
-                {cart.map((cartItem) => {
+              <div className="grid grid-cols-3 gap-2 rounded-lg bg-stone-100 border border-stone-200 px-3 py-2.5">
+                <div className="min-w-0">
+                  <span className="block text-[9px] uppercase tracking-wider font-bold text-stone-500">Check no.</span>
+                  <span className="block text-[11px] font-bold text-stone-900 break-words">{orderDetails.orderId}</span>
+                </div>
+                <div className="min-w-0 text-center">
+                  <span className="block text-[9px] uppercase tracking-wider font-bold text-stone-500">Server</span>
+                  <span className="block text-[11px] font-semibold text-stone-800 break-words">{orderDetails.serverName || '—'}</span>
+                </div>
+                <div className="min-w-0 text-right">
+                  <span className="block text-[9px] uppercase tracking-wider font-bold text-stone-500">Date / time</span>
+                  <span className="block text-[10px] font-semibold text-stone-800 break-words">{orderDetails.timestamp}</span>
+                </div>
+              </div>
+
+              <div className="space-y-0">
+                {cart.map((cartItem, index) => {
                   const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
                   const total = price * cartItem.quantity;
                   return (
-                    <div key={cartItem.id} className="flex items-start justify-between text-xs">
-                      <div className="flex-1 pr-3">
-                        <span className="font-bold text-stone-900">
-                          {cartItem.quantity}x {cartItem.item.name}
-                        </span>
-                        {cartItem.notes && <span className="block text-[10px] text-stone-500 italic">{cartItem.notes}</span>}
+                    <div key={cartItem.id} className={`flex items-start justify-between gap-3 py-2.5 ${index < cart.length - 1 ? 'border-b border-stone-200' : ''}`}>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold text-stone-900 leading-snug">
+                          <span className="text-stone-500 font-medium mr-1">{cartItem.quantity} ×</span>{cartItem.item.name}
+                        </div>
+                        {cartItem.notes && <div className="mt-1 text-[10px] text-stone-500 italic break-words">{cartItem.notes}</div>}
+                        <div className="mt-0.5 text-[10px] text-stone-500">{taxSettings.currencySymbol}{price.toFixed(2)} each</div>
                       </div>
-                      <div className="font-bold text-stone-900 shrink-0">
+                      <div className="shrink-0 whitespace-nowrap text-xs font-bold tabular-nums text-stone-900">
                         {taxSettings.currencySymbol}{total.toFixed(2)}
                       </div>
                     </div>
@@ -1634,60 +1641,60 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 })}
               </div>
 
-              <div className="border-t border-stone-200 pt-2.5 space-y-1.5 text-xs">
-                <div className="flex justify-between text-stone-600 font-medium">
+              <div className="border-t border-stone-300 pt-3 space-y-2 text-xs">
+                <div className="flex justify-between gap-3 text-stone-600">
                   <span>Subtotal</span>
-                  <span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span>
+                  <span className="tabular-nums">{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span>
                 </div>
                 {calculation.discountAmount > 0 && (
-                  <div className="flex justify-between text-emerald-700 font-semibold">
+                  <div className="flex justify-between gap-3 text-emerald-700 font-semibold">
                     <span>Discount</span>
-                    <span>-{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span>
+                    <span className="tabular-nums">−{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span>
                   </div>
                 )}
-                {taxSettings.enabled && taxSettings.splitCgstSgst && (
+                {taxSettings.enabled && taxSettings.splitCgstSgst ? (
                   <>
-                    <div className="flex justify-between text-stone-600 font-medium">
-                      <span>CGST ({(taxSettings.taxRate / 2).toFixed(1)}%)</span>
-                      <span>+{taxSettings.currencySymbol}{calculation.cgstAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-stone-600 font-medium">
-                      <span>SGST ({(taxSettings.taxRate / 2).toFixed(1)}%)</span>
-                      <span>+{taxSettings.currencySymbol}{calculation.sgstAmount.toFixed(2)}</span>
-                    </div>
+                    <div className="flex justify-between gap-3 text-stone-600"><span>CGST ({(taxSettings.taxRate / 2).toFixed(1)}%)</span><span className="tabular-nums">+{taxSettings.currencySymbol}{calculation.cgstAmount.toFixed(2)}</span></div>
+                    <div className="flex justify-between gap-3 text-stone-600"><span>SGST ({(taxSettings.taxRate / 2).toFixed(1)}%)</span><span className="tabular-nums">+{taxSettings.currencySymbol}{calculation.sgstAmount.toFixed(2)}</span></div>
                   </>
-                )}
-                {taxSettings.enabled && !taxSettings.splitCgstSgst && (
-                  <div className="flex justify-between text-stone-600 font-medium">
-                    <span>{taxSettings.taxLabel} ({taxSettings.taxRate}%):</span>
-                    <span>+{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span>
-                  </div>
-                )}
+                ) : taxSettings.enabled ? (
+                  <div className="flex justify-between gap-3 text-stone-600"><span>{taxSettings.taxLabel} ({taxSettings.taxRate}%)</span><span className="tabular-nums">+{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>
+                ) : null}
 
-                <div className="bg-stone-100 text-stone-900 border border-stone-200 p-3 rounded-xl flex items-baseline justify-between mt-2">
-                  <div>
-                    <span className="text-xs uppercase font-extrabold tracking-wider block text-stone-300">Total Payable</span>
-                    <span className="text-[10px] text-stone-400">Settled via {orderDetails.paymentMethod}</span>
+                <div className="bg-stone-900 text-white rounded-xl px-4 py-3.5 mt-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="block text-[10px] uppercase font-bold tracking-widest text-stone-300">Total payable</span>
+                    <span className="block text-[10px] text-stone-300 mt-1">{orderDetails.paymentMethod} · {orderDetails.paymentStatus === 'PAID' ? 'Marked paid' : 'Payment pending'}</span>
                   </div>
-                  <span className="text-xl font-black text-white">
+                  <span className="shrink-0 whitespace-nowrap text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums text-white">
                     {taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}
                   </span>
                 </div>
               </div>
 
-              {showQrCode && qrCodeDataUrl && (
-                <div className="flex items-center justify-between bg-stone-50 p-2.5 rounded-xl border border-stone-200 mt-2">
-                  <div className="text-left">
-                    <span className="text-xs font-bold text-stone-900 block">Digital Receipt</span>
-                    <span className="text-[10px] text-stone-500">Scan with your smartphone camera</span>
-                  </div>
-                  <img src={qrCodeDataUrl} alt="Bistro QR Code" className="w-16 h-16 object-contain" />
+              {orderDetails.showPromotionalBoxes && (
+                <div className="rounded-lg border border-stone-300 bg-stone-50 px-3 py-2.5 text-center">
+                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-stone-800">{orderDetails.promotionalTitle || 'A note from us'}</div>
+                  <div className="mt-1 text-[10px] text-stone-600">{orderDetails.promotionalMessage}</div>
                 </div>
               )}
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex items-center justify-between gap-3 border-t border-stone-200 pt-3">
+                  <div className="min-w-0">
+                    <span className="block text-xs font-bold text-stone-800">Digital receipt</span>
+                    <span className="block text-[10px] text-stone-500 mt-0.5">Sample QR · scan to view configured demo destination</span>
+                  </div>
+                  <img src={qrCodeDataUrl} alt="Sample receipt QR code" className="w-14 h-14 object-contain shrink-0" />
+                </div>
+              )}
+              <div className="border-t border-stone-200 pt-2 text-center text-[9px] text-stone-500">
+                {orderDetails.footerNote || 'Thank you for visiting'}
+                <div className="mt-1 uppercase tracking-wider">Sample receipt · not proof of payment</div>
+              </div>
             </div>
           )}
 
-          {/* ========================================================= */}
           {/* TEMPLATE 10: RETRO DOT-MATRIX (90s Impact Pin Printer)    */}
           {/* ========================================================= */}
           {receiptStyle === 'retro_dotmatrix' && (
