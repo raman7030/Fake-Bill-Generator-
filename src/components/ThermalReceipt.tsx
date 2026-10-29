@@ -72,17 +72,12 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
     let qrPayload = '';
     if (qrCodeType === 'upi') {
-      qrPayload = `upi://pay?pa=billing@upi&pn=${encodeURIComponent(
-        shop.name
-      )}&am=${calculation.grandTotal}&cu=INR&tn=${encodeURIComponent(orderDetails.orderId)}`;
+      // This app has no configured merchant payment account; encode a clearly marked demo payload.
+      qrPayload = `DEMO PAYMENT ONLY\\n${shop.name}\\n${orderDetails.orderId}\\n${taxSettings.currencyCode} ${calculation.grandTotal.toFixed(2)}`;
     } else if (qrCodeType === 'feedback') {
-      qrPayload = `https://feedback.pos.bill/rate?order=${encodeURIComponent(
-        orderDetails.orderId
-      )}&shop=${encodeURIComponent(shop.name)}`;
+      qrPayload = `DEMO FEEDBACK ONLY\\n${shop.name}\\n${orderDetails.orderId}`;
     } else {
-      qrPayload = `https://verify.pos.bill/invoice?id=${encodeURIComponent(
-        orderDetails.orderId
-      )}&amt=${calculation.grandTotal}&date=${encodeURIComponent(orderDetails.timestamp)}`;
+      qrPayload = `DEMO RECEIPT — NOT A REAL VERIFICATION URL\\n${shop.name}\\n${orderDetails.orderId}\\n${orderDetails.timestamp}`;
     }
 
     QRCode.toDataURL(qrPayload, {
@@ -187,12 +182,17 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
     lines.push(divider);
     lines.push(`GRAND TOTAL:          ${taxSettings.currencySymbol}${calculation.grandTotal.toFixed(2)}`);
     lines.push(divider);
-    lines.push(`PAID VIA: ${orderDetails.paymentMethod.toUpperCase()}`);
+    lines.push(`PAYMENT STATUS: ${orderDetails.paymentStatus}`);
+    lines.push(`PAYMENT METHOD: ${orderDetails.paymentMethod.toUpperCase()}`);
+    lines.push('DEMO RECEIPT — NOT PROOF OF PAYMENT');
     lines.push(`*** THANK YOU! VISIT AGAIN ***`);
 
-    navigator.clipboard.writeText(lines.filter(Boolean).join('\n'));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    void navigator.clipboard.writeText(lines.filter(Boolean).join('\n')).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      window.alert('Clipboard access was blocked. Please copy the receipt text manually.');
+    });
   };
 
   const handleWhatsAppShare = () => {
@@ -640,6 +640,10 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
             </div>
           )}
 
+          <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-center text-xs font-bold text-amber-900" role="note">
+            DEMO / SAMPLE RECEIPT — NOT A VALID TAX INVOICE OR PROOF OF PAYMENT
+          </div>
+
           {/* ========================================================= */}
           {/* TEMPLATE 1: FASTFOOD COMBO STYLE (Bold Franchise Layout)  */}
           {/* Always displays actual shop.name, never third-party brand  */}
@@ -755,8 +759,8 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   <span className="uppercase">{orderDetails.paymentMethod}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>AUTH CODE:</span>
-                  <span>AUTH{Math.floor(100000 + Math.random() * 900000)}</span>
+                  <span>DEMO AUTH CODE:</span>
+                  <span>NOT ISSUED</span>
                 </div>
               </div>
 
@@ -1032,7 +1036,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
               <div className="text-center text-[10px] font-bold border-t border-dashed border-stone-400 pt-1 space-y-0.5">
                 <div>TELL US HOW WE DID! VISIT WWW.MYFEEDBACK.PAGE</div>
-                <div className="text-[9px] text-stone-600 font-mono">TRANSACTION ID: #TXN-{Math.floor(100000 + Math.random() * 900000)}</div>
+                <div className="text-[9px] text-stone-600 font-mono">DEMO TRANSACTION ID: NOT ISSUED</div>
               </div>
 
               {showQrCode && qrCodeDataUrl && (
@@ -1290,11 +1294,11 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               <div className="flex items-center justify-between border border-stone-900 p-2 my-2 bg-stone-50">
                 <div className="text-[10px] font-mono space-y-0.5">
                   <span className="font-bold block">PAID VIA: {orderDetails.paymentMethod.toUpperCase()}</span>
-                  <span className="text-stone-500">THANK YOU / ありがとうございました</span>
+                  <span className="text-stone-500">DEMO RECEIPT / NOT A PAYMENT RECORD</span>
                 </div>
-                <div className="w-10 h-10 border-2 border-rose-600 rounded text-rose-600 flex flex-col items-center justify-center font-black text-[9px] uppercase leading-none">
-                  <span>領収</span>
-                  <span>PAID</span>
+                <div className="w-10 h-10 border-2 border-amber-600 rounded text-amber-700 flex flex-col items-center justify-center font-black text-[8px] uppercase leading-none">
+                  <span>DEMO</span>
+                  <span>ONLY</span>
                 </div>
               </div>
 
