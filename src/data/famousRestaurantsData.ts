@@ -15,7 +15,7 @@ export interface FamousRestaurantProfile {
 export const PUNJABI_ALL_DISHES: MenuItem[] = [
   {
     id: 'pb-saag-makki',
-    name: 'Sarson Da Saag & Makki Di Roti',
+    name: 'Sarson Da Saag',
     category: 'Punjab Specials',
     price: 240,
     description: 'Slow-simmered winter mustard greens cooked in copper handi with dollop of fresh churned white makhan and organic gur (jaggery).',
@@ -25,10 +25,10 @@ export const PUNJABI_ALL_DISHES: MenuItem[] = [
   },
   {
     id: 'pb-amritsari-kulcha',
-    name: 'Amritsari Chur-Chur Kulcha with Pindi Chole',
+    name: 'Amritsari Chur-Chur Kulcha',
     category: 'Punjab Specials',
     price: 180,
-    description: 'Crispy layered tandoori kulcha stuffed with spiced potato and paneer, crushed with desi ghee and served with pindi chana and imli pyaz chutney.',
+    description: 'Crispy layered tandoori kulcha stuffed with spiced potato and paneer.',
     isVeg: true,
     popular: true,
     image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&auto=format&fit=crop&q=80',
@@ -275,10 +275,10 @@ export const PUNJABI_ALL_DISHES: MenuItem[] = [
   },
   {
     id: 'pb-nutri-kulcha',
-    name: 'Amritsari Nutri Kulcha Combo',
+    name: 'Amritsari Nutri',
     category: 'Punjab Specials',
     price: 150,
-    description: 'Soya granules and chunks tossed in tangy tomato-onion dhaba gravy with imli chutney, served with 2 warm toasted kulchas.',
+    description: 'Soya chunks tossed in tangy tomato-onion dhaba gravy.',
     isVeg: true,
     popular: true,
     image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=300&auto=format&fit=crop&q=80',
@@ -413,6 +413,9 @@ export const PUNJABI_ALL_DISHES: MenuItem[] = [
     popular: true,
     image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80',
   },
+  { id: 'pb-pindi-chole-side', name: 'Pindi Chole', category: 'Curries & Main Course', price: 150, description: 'Chickpeas simmered with tea-darkened spices and ginger.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&auto=format&fit=crop&q=80' },
+  { id: 'pb-makki-roti-side', name: 'Makki Di Roti', category: 'Tandoor & Breads', price: 35, description: 'Traditional Punjabi maize flatbread.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=80' },
+  { id: 'pb-bhatura-side', name: 'Bhatura', category: 'Tandoor & Breads', price: 35, description: 'Single fluffy deep-fried leavened bread.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&auto=format&fit=crop&q=80' },
 ];
 
 // =========================================================================
@@ -650,6 +653,27 @@ export const FAMOUS_INDIAN_DISHES: MenuItem[] = [
     popular: false,
     image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=300&auto=format&fit=crop&q=80',
   },
+
+  { id: 'in-masala-dosa', name: 'Masala Dosa', category: 'Famous Dishes of India', price: 140, description: 'Crisp rice-lentil dosa filled with potato masala.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-idli', name: 'Steamed Idli', category: 'Famous Dishes of India', price: 70, description: 'Soft steamed rice and lentil cakes served with chutney.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-medhu-vada', name: 'Medu Vada', category: 'Famous Dishes of India', price: 80, description: 'Crisp savoury lentil fritters with curry leaves and pepper.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-poha', name: 'Kanda Poha', category: 'Famous Dishes of India', price: 70, description: 'Flattened rice with onion, mustard seeds, curry leaves and peanuts.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-upma', name: 'Vegetable Upma', category: 'Famous Dishes of India', price: 75, description: 'Savoury semolina with vegetables, mustard seeds and curry leaves.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-bhatura', name: 'Bhatura', category: 'Tandoor & Breads', price: 35, description: 'Single fluffy deep-fried leavened bread.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-makki-roti', name: 'Makki Di Roti', category: 'Tandoor & Breads', price: 35, description: 'Traditional Punjabi maize flatbread.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-plain-rice', name: 'Steamed Basmati Rice', category: 'Rice & Biryani', price: 100, description: 'Plain steamed basmati rice.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-jeera-rice', name: 'Jeera Rice', category: 'Rice & Biryani', price: 130, description: 'Basmati rice tempered with cumin seeds and ghee.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-chicken-tikka', name: 'Chicken Tikka', category: 'Tandoor & Breads', price: 280, description: 'Boneless chicken marinated with yogurt and spices, roasted in a tandoor.', isVeg: false, popular: true, image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-chicken-korma', name: 'Chicken Korma', category: 'Curries & Main Course', price: 320, description: 'Chicken simmered in a mild, aromatic yogurt and nut gravy.', isVeg: false, popular: false, image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-chana-masala', name: 'Chana Masala', category: 'Curries & Main Course', price: 170, description: 'Chickpeas cooked in onion, tomato and roasted spice gravy.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-aloo-gobi', name: 'Aloo Gobi', category: 'Curries & Main Course', price: 180, description: 'Potatoes and cauliflower tossed with turmeric, cumin and coriander.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-mix-veg', name: 'Mix Vegetable Curry', category: 'Curries & Main Course', price: 200, description: 'Seasonal vegetables cooked in a homestyle masala gravy.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-gobi-paratha', name: 'Gobi Paratha', category: 'Tandoor & Breads', price: 90, description: 'Whole-wheat flatbread stuffed with spiced cauliflower.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-paneer-paratha', name: 'Paneer Paratha', category: 'Tandoor & Breads', price: 110, description: 'Whole-wheat flatbread stuffed with crumbled spiced paneer.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-jalebi', name: 'Jalebi', category: 'Beverages & Desserts', price: 80, description: 'Crisp syrup-soaked spirals served warm.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-kheer', name: 'Rice Kheer', category: 'Beverages & Desserts', price: 100, description: 'Slow-cooked rice pudding with milk, cardamom and nuts.', isVeg: true, popular: false, image: 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&auto=format&fit=crop&q=80' },
+  { id: 'in-masala-chai', name: 'Masala Chai', category: 'Beverages & Desserts', price: 35, description: 'Indian milk tea simmered with ginger and aromatic spices.', isVeg: true, popular: true, image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&auto=format&fit=crop&q=80' },
+
 ];
 
 // =========================================================================
@@ -766,23 +790,20 @@ export const FASTFOOD_AND_BAKERY_DISHES: MenuItem[] = [
 // Combine all items with deduplication
 const buildMasterCatalog = (): MenuItem[] => {
   const map = new Map<string, MenuItem>();
-
-  // Add all Punjab dishes
-  PUNJABI_ALL_DISHES.forEach((item) => map.set(item.id, item));
-
-  // Add all Famous Indian dishes
-  FAMOUS_INDIAN_DISHES.forEach((item) => map.set(item.id, item));
-
-  // Add fast food & bakery dishes
-  FASTFOOD_AND_BAKERY_DISHES.forEach((item) => map.set(item.id, item));
-
-  // Also include any presets
-  INITIAL_MENU_ITEMS.forEach((item) => {
-    if (!map.has(item.id)) {
-      map.set(item.id, item);
-    }
-  });
-
+  const normalizeName = (name: string) => name.toLowerCase().replace(/\\([^)]*\\)/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const imageFor = (item: MenuItem) => item.image ||
+    (item.category.includes('Bread') ? 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=80' :
+    item.category.includes('Dessert') || item.category.includes('Beverage') ? 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&auto=format&fit=crop&q=80' :
+    item.category.includes('Street') ? 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&auto=format&fit=crop&q=80' :
+    'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&auto=format&fit=crop&q=80');
+  const addItem = (item: MenuItem) => {
+    const key = normalizeName(item.name);
+    if (!map.has(key)) map.set(key, { ...item, image: imageFor(item) });
+  };
+  PUNJABI_ALL_DISHES.forEach(addItem);
+  FAMOUS_INDIAN_DISHES.forEach(addItem);
+  FASTFOOD_AND_BAKERY_DISHES.forEach(addItem);
+  INITIAL_MENU_ITEMS.forEach(addItem);
   return Array.from(map.values());
 };
 
