@@ -559,7 +559,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
           {/* PREMIUM GENERIC DELIVERY TEMPLATES — original layouts, no third-party branding */}
           {receiptStyle === 'delivery_card' && (
-            <div className="font-sans text-stone-900 -m-4 sm:-m-5">
+            <div className="receipt-layout-delivery-card font-sans text-stone-900 -m-4 sm:-m-5">
               <div className="bg-emerald-700 text-white px-5 py-5 rounded-t-xl">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -620,7 +620,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           )}
 
           {receiptStyle === 'delivery_minimal' && (
-            <div className="font-sans text-stone-900 -m-4 sm:-m-5">
+            <div className="receipt-layout-delivery-minimal font-sans text-stone-900 -m-4 sm:-m-5">
               <div className="px-5 pt-5 pb-4 border-b-2 border-stone-900">
                 <div className="flex items-center justify-between gap-3">
                   <div className="text-[9px] tracking-[0.25em] uppercase font-black text-stone-500">Order note / demo</div>
@@ -661,7 +661,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           )}
 
           {receiptStyle === 'delivery_dark' && (
-            <div className="font-sans text-stone-100 bg-[#151a17] -m-4 sm:-m-5">
+            <div className="receipt-layout-delivery-dark font-sans text-stone-100 bg-[#151a17] -m-4 sm:-m-5">
               <div className="px-5 py-5 bg-[#202b25] border-b border-emerald-300/20 rounded-t-xl">
                 <div className="flex justify-between items-start gap-3">
                   <div><div className="text-[9px] uppercase tracking-[0.25em] text-emerald-300 font-black">Digital order receipt · demo</div><h2 className="text-xl font-black mt-2 leading-tight">{shop.name}</h2><p className="text-[10px] text-stone-400 mt-1">{shop.address}</p></div>
@@ -689,7 +689,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
           {receiptStyle === 'kfc_style' && (
-            <div className="font-receipt space-y-2 text-stone-900">
+            <div className="receipt-layout-kfc font-receipt space-y-2 text-stone-900">
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5 pb-1">
                 <div className="text-2xl sm:text-3xl font-black tracking-tighter text-black uppercase">
@@ -830,7 +830,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
           {receiptStyle === 'dominos_style' && (
-            <div className="font-receipt space-y-2 text-stone-900">
+            <div className="receipt-layout-pizzeria font-receipt space-y-2 text-stone-900">
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5">
                 <div className="text-xl sm:text-2xl font-black uppercase tracking-tight flex items-center justify-center gap-1.5">
@@ -967,7 +967,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
           {receiptStyle === 'subway_style' && (
-            <div className="font-receipt space-y-2 text-stone-900">
+            <div className="receipt-layout-deli font-receipt space-y-2 text-stone-900">
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5">
                 <div className="text-2xl font-black uppercase tracking-tight flex items-center justify-center gap-1.5">
@@ -1072,7 +1072,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* Always displays actual shop.name, never third-party brand  */}
           {/* ========================================================= */}
           {receiptStyle === 'starbucks_cafe' && (
-            <div className="space-y-2.5 text-stone-900 font-sans">
+            <div className="receipt-layout-cafe space-y-2.5 text-stone-900 font-sans">
               <div className="text-center space-y-0.5">
                 <div className="text-lg font-black uppercase tracking-wider text-stone-950 flex items-center justify-center gap-1.5">
                   <span>☕</span>
@@ -1146,7 +1146,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 5: FINE DINING ELEGANCE (Serif, Tip Guide, Sign) */}
           {/* ========================================================= */}
           {receiptStyle === 'fine_dining' && (
-            <div className="space-y-3 text-stone-900 font-serif leading-relaxed">
+            <div className="receipt-layout-fine-dining space-y-3 text-stone-900 font-serif leading-relaxed">
               <div className="text-center space-y-1 pb-2 border-b border-stone-300">
                 <div className="text-[11px] tracking-widest uppercase text-stone-500 font-sans">✦ GUEST CHECK ✦</div>
                 <h1 className="text-2xl font-bold tracking-tight text-black capitalize">
@@ -1245,7 +1245,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 6: ASIAN IZAKAYA / MINIMALIST (Clean Geometric)  */}
           {/* ========================================================= */}
           {receiptStyle === 'asian_minimal' && (
-            <div className="space-y-2.5 text-stone-900 font-sans">
+            <div className="receipt-layout-izakaya space-y-2.5 text-stone-900 font-sans">
               <div className="border-2 border-stone-900 p-2 text-center space-y-0.5">
                 <div className="text-xs uppercase tracking-widest text-stone-600">ORDER TICKET</div>
                 <div className="text-xl font-black uppercase tracking-tight text-black">{shop.name}</div>
@@ -1318,7 +1318,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 7: SUPERMARKET RETAIL (Units Tally & Savings)    */}
           {/* ========================================================= */}
           {receiptStyle === 'supermarket_retail' && (
-            <div className="font-receipt space-y-2 text-stone-900 text-[11px]">
+            <div className="receipt-layout-retail font-receipt space-y-2 text-stone-900 text-[11px]">
               <div className="text-center space-y-0.5">
                 <div className="text-xl font-black uppercase text-black">{shop.name}</div>
                 <div className="text-[10px] font-bold">SUPERMARKET & RETAIL MART</div>
@@ -1420,7 +1420,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 8: CLASSIC THERMAL (Standard Physical Thermal)   */}
           {/* ========================================================= */}
           {receiptStyle === 'classic_thermal' && (
-            <div className="font-receipt space-y-2 text-stone-900">
+            <div className="receipt-layout-classic font-receipt space-y-2 text-stone-900">
               <div className="text-center space-y-1 pb-1">
                 <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight leading-tight text-black">
                   {shop.name}
@@ -1568,7 +1568,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* ========================================================= */}
           {/* TEMPLATE 9: MODERN BISTRO — refined editorial receipt */}
           {receiptStyle === 'modern_bistro' && (
-            <div className="space-y-3.5 text-stone-900 font-sans leading-snug">
+            <div className="receipt-layout-bistro space-y-3.5 text-stone-900 font-sans leading-snug">
               <div className="border-b-2 border-stone-900 pb-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
@@ -1685,7 +1685,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 10: RETRO DOT-MATRIX (90s Impact Pin Printer)    */}
           {/* ========================================================= */}
           {receiptStyle === 'retro_dotmatrix' && (
-            <div className="font-dotmatrix text-black space-y-1.5 text-base leading-snug">
+            <div className="receipt-layout-dotmatrix font-dotmatrix text-black space-y-1.5 text-base leading-snug">
               <div className="text-center select-none text-sm">****************************************</div>
               <div className="text-center uppercase space-y-0.5">
                 <div className="text-2xl font-bold tracking-widest">{shop.name}</div>
@@ -1770,7 +1770,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 11: COMPACT EXPRESS (Fast Food Counter Ticket)   */}
           {/* ========================================================= */}
           {receiptStyle === 'compact_express' && (
-            <div className="font-receipt space-y-2 text-stone-900">
+            <div className="receipt-layout-express font-receipt space-y-2 text-stone-900">
               <div className="bg-stone-100 text-stone-900 border border-stone-200 rounded-xl p-3 text-center">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-stone-400 block">
                   ORDER TOKEN
@@ -1818,7 +1818,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {/* TEMPLATE 12: GST TAX INVOICE (Formal Commercial Bill)     */}
           {/* ========================================================= */}
           {receiptStyle === 'gst_tax_invoice' && (
-            <div className="text-[11px] font-sans text-stone-900 border-2 border-stone-900 p-2 space-y-2">
+            <div className="receipt-layout-tax-invoice text-[11px] font-sans text-stone-900 border-2 border-stone-900 p-2 space-y-2">
               <div className="text-center border-b border-stone-900 pb-1.5">
                 <div className="text-xs font-black uppercase tracking-wider text-stone-900">TAX INVOICE</div>
                 <div className="text-base font-black uppercase text-stone-950 mt-0.5">{shop.name}</div>
