@@ -111,6 +111,7 @@ export const MENU_CATEGORIES = [
   'Punjab Specials',
   'Famous Dishes of India',
   'Curries & Main Course',
+  'Rice & Biryani',
   'Tandoor & Breads',
   'Street Food & Chaat',
   'Fast Food & Burgers',
