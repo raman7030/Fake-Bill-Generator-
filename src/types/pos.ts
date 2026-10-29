@@ -2,10 +2,14 @@ export type TaxCountry = 'IN' | 'US' | 'AE' | 'GB' | 'AU' | 'OTHER';
 
 export type ReceiptStyle =
   | 'classic_thermal'    // Standard 80mm/58mm thermal paper with dashed lines
-  | 'kfc_style'          // Fastfood Franchise Layout (Bold order banner, meal breakdown, feedback survey code)
-  | 'dominos_style'      // Pizzeria Tracker Layout (Tracker ID, box count, quality guarantee)
-  | 'subway_style'       // Fresh Deli Sandwich Layout (Artisan line, customization options, loyalty tokens)
-  | 'starbucks_cafe'     // Cafe & Roastery Layout (Barista callout, beverage modifiers, loyalty stars)
+  | 'fastfood_combo'     // Bold quick-service layout with meal breakdown and order details
+  | 'kfc_style'          // Legacy saved-style identifier
+  | 'pizzeria_style'     // Pizzeria layout with order tracking and box count
+  | 'dominos_style'      // Legacy saved-style identifier
+  | 'fresh_deli'         // Fresh deli layout with customization details
+  | 'subway_style'       // Legacy saved-style identifier
+  | 'cafe_roastery'      // Cafe layout with barista and beverage details
+  | 'starbucks_cafe'     // Legacy saved-style identifier
   | 'fine_dining'        // Fine Dining / Courtyard Elegance (Classic serif, ornaments, gratuity guide)
   | 'asian_minimal'      // Asian Izakaya / Minimalist (Clean geometric lines, stamp box, compact spacing)
   | 'supermarket_retail' // Retail / Supermarket Mart (Item counts, savings banner, double barcode)
