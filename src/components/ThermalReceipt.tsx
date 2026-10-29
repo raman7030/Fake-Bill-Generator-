@@ -7,7 +7,7 @@ import {
   Check,
   Share2,
   ArrowLeft,
-  Sliders,
+
   QrCode,
   LayoutTemplate,
   BookmarkCheck,
@@ -364,9 +364,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               <LayoutTemplate className="w-4 h-4 text-rose-600" />
               <span>Choose Premium Receipt Layout / Style:</span>
             </span>
-            <span className="text-[11px] text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
-              15 Layouts · 3 Premium Delivery Styles
-            </span>
+            
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
@@ -398,29 +396,6 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
         {/* Paper Width & QR Options Row */}
         <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
-          {/* Paper Width */}
-          <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-xl">
-            <span className="text-[11px] font-bold text-stone-500 pl-2 pr-1 flex items-center gap-1">
-              <Sliders className="w-3 h-3" /> Width:
-            </span>
-            <button
-              onClick={() => onUpdateOrderDetails({ paperWidth: '58mm' })}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                paperWidth === '58mm' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              58mm (2")
-            </button>
-            <button
-              onClick={() => onUpdateOrderDetails({ paperWidth: '80mm' })}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                paperWidth === '80mm' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
-              }`}
-            >
-              80mm (3")
-            </button>
-          </div>
-
           {/* QR Code Options */}
           <div className="flex items-center gap-2">
             <button
