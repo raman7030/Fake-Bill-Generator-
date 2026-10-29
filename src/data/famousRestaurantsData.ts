@@ -790,7 +790,7 @@ export const FASTFOOD_AND_BAKERY_DISHES: MenuItem[] = [
 // Combine all items with deduplication
 const buildMasterCatalog = (): MenuItem[] => {
   const map = new Map<string, MenuItem>();
-  const normalizeName = (name: string) => name.toLowerCase().replace(/\\([^)]*\\)/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const normalizeName = (name: string) => name.toLowerCase().replace(/\([^)]*\)/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
   const imageFor = (item: MenuItem) => item.image ||
     (item.category.includes('Bread') ? 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=80' :
     item.category.includes('Dessert') || item.category.includes('Beverage') ? 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&auto=format&fit=crop&q=80' :
