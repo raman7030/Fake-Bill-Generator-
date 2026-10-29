@@ -365,7 +365,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               <span>Choose Premium Receipt Layout / Style:</span>
             </span>
             <span className="text-[11px] text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
-              12 Professional Layouts Available
+              15 Layouts · 3 Premium Delivery Styles
             </span>
           </div>
 
