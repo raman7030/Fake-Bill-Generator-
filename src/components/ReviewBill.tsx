@@ -87,34 +87,22 @@ export const ReviewBill: React.FC<ReviewBillProps> = ({
 
   const paymentModes: { id: PaymentMethod; label: string; icon: React.ReactNode; sublabel: string }[] = [
     {
-      id: 'UPI',
-      label: 'UPI / QR',
-      icon: <QrCode className="w-4 h-4 text-emerald-600" />,
-      sublabel: 'GPay, PhonePe, Paytm',
-    },
-    {
       id: 'Cash',
       label: 'Cash',
       icon: <Banknote className="w-4 h-4 text-green-600" />,
       sublabel: 'Direct Currency',
     },
     {
+      id: 'UPI',
+      label: 'UPI / QR',
+      icon: <QrCode className="w-4 h-4 text-emerald-600" />,
+      sublabel: 'GPay, PhonePe, Paytm',
+    },
+    {
       id: 'Card',
       label: 'Card (POS)',
       icon: <CreditCard className="w-4 h-4 text-blue-600" />,
       sublabel: 'Visa, Master, RuPay',
-    },
-    {
-      id: 'Net Banking',
-      label: 'Net Banking',
-      icon: <Globe2 className="w-4 h-4 text-purple-600" />,
-      sublabel: 'Direct Bank Transfer',
-    },
-    {
-      id: 'Wallet',
-      label: 'Wallet',
-      icon: <Receipt className="w-4 h-4 text-amber-600" />,
-      sublabel: 'Prepaid Food Wallet',
     },
   ];
 
@@ -434,66 +422,19 @@ export const ReviewBill: React.FC<ReviewBillProps> = ({
             {/* Country Selector */}
             <div className="space-y-3">
               <div>
-                <label className="block text-[10px] font-bold text-stone-500 mb-1">Operating Country</label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleCountryChange('IN')}
-                    className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
-                      taxSettings.country === 'IN'
-                        ? 'bg-rose-50 border-rose-500 text-rose-700 ring-1 ring-rose-500'
-                        : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                    }`}
-                  >
-                    🇮🇳 India (GST)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleCountryChange('US')}
-                    className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
-                      taxSettings.country === 'US'
-                        ? 'bg-rose-50 border-rose-500 text-rose-700 ring-1 ring-rose-500'
-                        : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                    }`}
-                  >
-                    🇺🇸 USA (Tax)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleCountryChange('AE')}
-                    className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
-                      taxSettings.country === 'AE'
-                        ? 'bg-rose-50 border-rose-500 text-rose-700 ring-1 ring-rose-500'
-                        : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                    }`}
-                  >
-                    🇦🇪 UAE (VAT)
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 gap-1.5 mt-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleCountryChange('GB')}
-                    className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
-                      taxSettings.country === 'GB'
-                        ? 'bg-rose-50 border-rose-500 text-rose-700 ring-1 ring-rose-500'
-                        : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                    }`}
-                  >
-                    🇬🇧 UK (20% VAT)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleCountryChange('AU')}
-                    className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition-all ${
-                      taxSettings.country === 'AU'
-                        ? 'bg-rose-50 border-rose-500 text-rose-700 ring-1 ring-rose-500'
-                        : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                    }`}
-                  >
-                    🇦🇺 AU (10% GST)
-                  </button>
-                </div>
+                <label htmlFor="operating-country" className="block text-[10px] font-bold text-stone-500 mb-1">Operating Country</label>
+                <select
+                  id="operating-country"
+                  value={taxSettings.country}
+                  onChange={(e) => handleCountryChange(e.target.value as TaxCountry)}
+                  className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-stone-700 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
+                >
+                  <option value="IN">🇮🇳 India (GST)</option>
+                  <option value="US">🇺🇸 USA (Tax)</option>
+                  <option value="AE">🇦🇪 UAE (VAT)</option>
+                  <option value="GB">🇬🇧 UK (20% VAT)</option>
+                  <option value="AU">🇦🇺 Australia (10% GST)</option>
+                </select>
               </div>
 
               {/* India GST Specific Options */}
