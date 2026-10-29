@@ -7,8 +7,6 @@ import {
   Check,
   Share2,
   ArrowLeft,
-
-  QrCode,
   LayoutTemplate,
   BookmarkCheck,
   Eye,
@@ -396,7 +394,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
         {/* Paper Width & QR Options Row */}
         <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
-          {/* QR Code Options */}
+          {/* QR Code visibility toggle */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => onUpdateOrderDetails({ showQrCode: !showQrCode })}
@@ -409,38 +407,6 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               {showQrCode ? <Eye className="w-3.5 h-3.5 text-rose-600" /> : <EyeOff className="w-3.5 h-3.5" />}
               <span>{showQrCode ? 'QR Code: ON' : 'QR Code: OFF (Without QR)'}</span>
             </button>
-
-            {showQrCode && (
-              <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-xs">
-                <span className="text-[10px] font-bold text-stone-500 px-1 flex items-center gap-1">
-                  <QrCode className="w-3 h-3" /> Target:
-                </span>
-                <button
-                  onClick={() => onUpdateOrderDetails({ qrCodeType: 'upi' })}
-                  className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                    qrCodeType === 'upi' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600'
-                  }`}
-                >
-                  UPI Pay
-                </button>
-                <button
-                  onClick={() => onUpdateOrderDetails({ qrCodeType: 'verify' })}
-                  className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                    qrCodeType === 'verify' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600'
-                  }`}
-                >
-                  E-Bill Verify
-                </button>
-                <button
-                  onClick={() => onUpdateOrderDetails({ qrCodeType: 'feedback' })}
-                  className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                    qrCodeType === 'feedback' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600'
-                  }`}
-                >
-                  Review / Feedback
-                </button>
-              </div>
-            )}
           </div>
         </div>
 
