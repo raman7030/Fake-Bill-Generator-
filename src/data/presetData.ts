@@ -453,7 +453,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
 
 export const INITIAL_SAVED_BILLS: SavedBill[] = [];
 
-/* Demo history examples were removed from the live default. Keep any showcase data in an explicit demo fixture instead.
+/* Demo history examples retained as commented legacy fixture only.
 /*
 export const LEGACY_INITIAL_SAVED_BILLS: SavedBill[] = [
   {
