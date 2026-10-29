@@ -44,9 +44,10 @@
     color: #000000 !important;
   }
 
-  /* Hide all UI elements except the receipt */
-  body > *:not(#print-root) {
-    display: none !important;
+  /* Keep the React root mounted for printing; hide non-receipt content
+     with visibility instead of display so the receipt can still render. */
+  #root {
+    display: block !important;
   }
 
   .no-print {
@@ -107,13 +108,23 @@ button {
   }
 }
 @media print {
-  #root > * {
-    display: none !important;
+  /* Do not set #root or its ancestors to display:none: that would also
+     suppress the receipt nested inside the React tree. */
+  body * {
+    visibility: hidden !important;
+  }
+  #thermal-receipt-printable,
+  #thermal-receipt-printable * {
+    visibility: visible !important;
   }
   #thermal-receipt-printable {
     display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
     max-width: 100% !important;
     overflow: visible !important;
+    margin: 0 !important;
   }
 }
 
