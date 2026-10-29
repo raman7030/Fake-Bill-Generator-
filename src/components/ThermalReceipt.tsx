@@ -498,22 +498,23 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
         <div
           ref={receiptRef}
           id="thermal-receipt-printable"
-          className={`transition-all text-black bg-[#fffdfa] receipt-paper-shadow border border-stone-300/70 p-4 sm:p-5 thermal-receipt-container ${
+          className={`transition-all text-black bg-[#fffdfa] receipt-paper-shadow border border-stone-300/70 p-4 sm:p-5 thermal-receipt-container receipt-style-${receiptStyle} ${
             is58mm ? 'w-[320px]' : 'w-[420px]'
           }`}
           style={{
             fontFamily:
               receiptStyle === 'retro_dotmatrix'
                 ? '"VT323", monospace'
-                : receiptStyle === 'modern_bistro' || receiptStyle === 'starbucks_cafe' || receiptStyle === 'asian_minimal'
+                : receiptStyle === 'modern_bistro' || receiptStyle === 'starbucks_cafe' || receiptStyle === 'asian_minimal' || receiptStyle === 'delivery_card' || receiptStyle === 'delivery_minimal' || receiptStyle === 'delivery_dark'
                 ? '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif'
                 : receiptStyle === 'fine_dining'
                 ? 'Georgia, Cambria, "Times New Roman", serif'
-                : '"Space Mono", "Courier New", Courier, monospace',
+                : '"Roboto Mono", "Space Mono", "Courier New", Courier, monospace',
             letterSpacing:
-              receiptStyle === 'modern_bistro' || receiptStyle === 'starbucks_cafe' || receiptStyle === 'asian_minimal'
+              receiptStyle === 'modern_bistro' || receiptStyle === 'starbucks_cafe' || receiptStyle === 'asian_minimal' || receiptStyle === 'delivery_card' || receiptStyle === 'delivery_minimal' || receiptStyle === 'delivery_dark'
                 ? 'normal'
-                : '-0.02em',
+                : '0',
+            fontVariantNumeric: 'tabular-nums lining-nums',
           }}
         >
 
