@@ -16,6 +16,8 @@ interface MenuCatalogProps {
   onToggleMasterMenu: () => void;
   onRemoveDish?: (dishId: string) => void;
   onResetMenu?: () => void;
+  menuToolsOpen: boolean;
+  onCloseMenuTools: () => void;
 }
 
 export const MenuCatalog: React.FC<MenuCatalogProps> = ({
@@ -31,11 +33,12 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
   onToggleMasterMenu,
   onRemoveDish,
   onResetMenu,
+  menuToolsOpen,
+  onCloseMenuTools,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [vegOnly, setVegOnly] = useState<boolean>(false);
-  const [menuToolsOpen, setMenuToolsOpen] = useState<boolean>(false);
 
   // Map cart items for fast lookup of current quantity
   const cartQuantityMap = useMemo(() => {
@@ -67,24 +70,12 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
 
   return (
     <div className="w-full pb-28 md:pb-20">
-      {/* Side-mounted menu tools: kept off the main page until requested */}
-      <button
-        type="button"
-        onClick={() => setMenuToolsOpen(true)}
-        aria-label="Open menu options"
-        title="Menu options"
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex items-center gap-2 rounded-l-xl border border-stone-300 border-r-0 bg-white/95 text-stone-700 shadow-lg px-2.5 py-3 hover:bg-stone-50 active:scale-[0.98] backdrop-blur"
-      >
-        <PanelRightOpen className="w-5 h-5" />
-        <span className="text-xs font-bold [writing-mode:vertical-rl] rotate-180">Menu Options</span>
-      </button>
-
       {menuToolsOpen && (
         <div className="fixed inset-0 z-50">
           <button
             type="button"
             aria-label="Close menu options"
-            onClick={() => setMenuToolsOpen(false)}
+            onClick={onCloseMenuTools}
             className="absolute inset-0 bg-black/30 backdrop-blur-[1px]"
           />
           <aside
@@ -110,21 +101,21 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
 
             <div className="space-y-3 py-4">
               <button
-                onClick={() => { onOpenAddCustom(); setMenuToolsOpen(false); }}
+                onClick={() => { onOpenAddCustom(); onCloseMenuTools(); }}
                 className="w-full flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left text-emerald-800 hover:bg-emerald-100"
               >
                 <PlusCircle className="w-5 h-5" />
                 <span><span className="block text-sm font-bold">Add Dish</span><span className="block text-xs opacity-75">Create a custom menu item</span></span>
               </button>
               <button
-                onClick={() => { onOpenMenuSelector(); setMenuToolsOpen(false); }}
+                onClick={() => { onOpenMenuSelector(); onCloseMenuTools(); }}
                 className="w-full flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-left text-rose-800 hover:bg-rose-100"
               >
                 <UtensilsCrossed className="w-5 h-5" />
                 <span><span className="block text-sm font-bold">Select Menu Style</span><span className="block text-xs opacity-75">Choose a cuisine or preset menu</span></span>
               </button>
               <button
-                onClick={() => { onToggleMasterMenu(); setMenuToolsOpen(false); }}
+                onClick={() => { onToggleMasterMenu(); onCloseMenuTools(); }}
                 className="w-full flex items-center gap-3 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-left text-stone-800 hover:bg-stone-100"
               >
                 <Layers className="w-5 h-5" />
@@ -132,7 +123,7 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
               </button>
               {onResetMenu && (
                 <button
-                  onClick={() => { onResetMenu(); setMenuToolsOpen(false); }}
+                  onClick={() => { onResetMenu(); onCloseMenuTools(); }}
                   className="w-full flex items-center gap-3 rounded-xl border border-stone-200 px-4 py-3 text-left text-stone-700 hover:bg-stone-50"
                 >
                   <RotateCcw className="w-5 h-5" />
