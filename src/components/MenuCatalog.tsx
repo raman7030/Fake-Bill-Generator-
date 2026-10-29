@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Plus, Minus, PlusCircle, Sparkles, Flame, Check, UtensilsCrossed, Layers, Trash2, RotateCcw } from 'lucide-react';
+import { Search, Plus, Minus, PlusCircle, Sparkles, Flame, Check, UtensilsCrossed, Layers, Trash2, RotateCcw, PanelRightOpen, X } from 'lucide-react';
 import { MenuItem, CartItem, ShopInfo } from '../types/pos';
 import { MENU_CATEGORIES } from '../data/presetData';
 
@@ -35,6 +35,7 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [vegOnly, setVegOnly] = useState<boolean>(false);
+  const [menuToolsOpen, setMenuToolsOpen] = useState<boolean>(false);
 
   // Map cart items for fast lookup of current quantity
   const cartQuantityMap = useMemo(() => {
@@ -66,72 +67,82 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
 
   return (
     <div className="w-full pb-28 md:pb-20">
-      {/* Restaurant Public Menu Info Banner */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-white px-3 sm:px-4 py-2.5 shadow-sm border-b border-stone-800">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-amber-400/20 text-amber-400 flex items-center justify-center shrink-0">
-              <UtensilsCrossed className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs sm:text-sm font-bold truncate">
-                  {activeMenuSourceLabel || 'All Punjab & Famous Indian Dishes'}
-                </span>
-                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  {items.length} Dishes
-                </span>
+      {/* Side-mounted menu tools: kept off the main page until requested */}
+      <button
+        type="button"
+        onClick={() => setMenuToolsOpen(true)}
+        aria-label="Open menu options"
+        title="Menu options"
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex items-center gap-2 rounded-l-xl border border-stone-300 border-r-0 bg-white/95 text-stone-700 shadow-lg px-2.5 py-3 hover:bg-stone-50 active:scale-[0.98] backdrop-blur"
+      >
+        <PanelRightOpen className="w-5 h-5" />
+        <span className="text-xs font-bold [writing-mode:vertical-rl] rotate-180">Menu Options</span>
+      </button>
+
+      {menuToolsOpen && (
+        <div className="fixed inset-0 z-50">
+          <button
+            type="button"
+            aria-label="Close menu options"
+            onClick={() => setMenuToolsOpen(false)}
+            className="absolute inset-0 bg-black/30 backdrop-blur-[1px]"
+          />
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu options"
+            className="absolute right-0 top-0 h-full w-[min(88vw,360px)] overflow-y-auto bg-white shadow-2xl border-l border-stone-200 p-5"
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-stone-200 pb-4">
+              <div>
+                <h2 className="text-base font-extrabold text-stone-900">Menu Options</h2>
+                <p className="text-xs text-stone-500 mt-1">{activeMenuSourceLabel || 'All Punjab & Famous Indian Dishes'} · {items.length} dishes</p>
               </div>
-              <p className="text-[11px] text-stone-300 truncate">
-                Serving {currentShop?.name || 'Restaurant'} • Punjab Delicacies & Pan-Indian Icons
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            <button
-              onClick={onOpenAddCustom}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
-              title="Add a new custom dish to menu"
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Add Dish</span>
-            </button>
-
-            <button
-              onClick={onOpenMenuSelector}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
-            >
-              <UtensilsCrossed className="w-3.5 h-3.5" />
-              <span>Select Menu Style</span>
-            </button>
-
-            <button
-              onClick={onToggleMasterMenu}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer border ${
-                isMasterMenuLoaded
-                  ? 'bg-amber-400 hover:bg-amber-300 text-stone-900 border-amber-300'
-                  : 'bg-white/10 hover:bg-white/20 text-stone-200 border-white/20'
-              }`}
-              title="Toggle between filtered menu and complete master menu"
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>{isMasterMenuLoaded ? 'All Dishes Active' : 'Show All Dishes'}</span>
-            </button>
-
-            {onResetMenu && (
               <button
-                onClick={onResetMenu}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white transition-all cursor-pointer border border-white/10"
-                title="Reset menu to default complete dishes catalog"
+                type="button"
+                onClick={() => setMenuToolsOpen(false)}
+                aria-label="Close menu options"
+                className="p-2 rounded-lg border border-stone-200 text-stone-500 hover:bg-stone-100"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Reset</span>
+                <X className="w-4 h-4" />
               </button>
-            )}
-          </div>
+            </div>
+
+            <div className="space-y-3 py-4">
+              <button
+                onClick={() => { onOpenAddCustom(); setMenuToolsOpen(false); }}
+                className="w-full flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-left text-emerald-800 hover:bg-emerald-100"
+              >
+                <PlusCircle className="w-5 h-5" />
+                <span><span className="block text-sm font-bold">Add Dish</span><span className="block text-xs opacity-75">Create a custom menu item</span></span>
+              </button>
+              <button
+                onClick={() => { onOpenMenuSelector(); setMenuToolsOpen(false); }}
+                className="w-full flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-left text-rose-800 hover:bg-rose-100"
+              >
+                <UtensilsCrossed className="w-5 h-5" />
+                <span><span className="block text-sm font-bold">Select Menu Style</span><span className="block text-xs opacity-75">Choose a cuisine or preset menu</span></span>
+              </button>
+              <button
+                onClick={() => { onToggleMasterMenu(); setMenuToolsOpen(false); }}
+                className="w-full flex items-center gap-3 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-left text-stone-800 hover:bg-stone-100"
+              >
+                <Layers className="w-5 h-5" />
+                <span><span className="block text-sm font-bold">{isMasterMenuLoaded ? 'All Dishes Active' : 'Show All Dishes'}</span><span className="block text-xs text-stone-500">Toggle the complete dish catalog</span></span>
+              </button>
+              {onResetMenu && (
+                <button
+                  onClick={() => { onResetMenu(); setMenuToolsOpen(false); }}
+                  className="w-full flex items-center gap-3 rounded-xl border border-stone-200 px-4 py-3 text-left text-stone-700 hover:bg-stone-50"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                  <span><span className="block text-sm font-bold">Reset Menu</span><span className="block text-xs text-stone-500">Restore the default dish catalog</span></span>
+                </button>
+              )}
+            </div>
+          </aside>
         </div>
-      </div>
+      )}
 
       {/* Search and Action Bar */}
       <div className="sticky top-0 z-30 bg-stone-50/95 backdrop-blur-md pt-3 pb-2 border-b border-stone-200/80 px-3 sm:px-4 space-y-2.5">
