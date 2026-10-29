@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
+import html2canvas from 'html2canvas';
 import {
   Download,
   Printer,
@@ -56,6 +57,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isGeneratingPng, setIsGeneratingPng] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -89,6 +91,38 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
       .then((url) => setQrCodeDataUrl(url))
       .catch((err) => console.error('Error generating QR:', err));
   }, [showQrCode, qrCodeType, shop.name, calculation.grandTotal, orderDetails.orderId, orderDetails.timestamp]);
+
+  // Save a high-resolution receipt image to the device's downloads.
+  const handleDownloadPng = async () => {
+    if (!receiptRef.current) return;
+    setIsGeneratingPng(true);
+    try {
+      const canvas = await html2canvas(receiptRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: receiptRef.current.scrollWidth,
+      });
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((value) => value ? resolve(value) : reject(new Error('Could not create PNG image')), 'image/png');
+      });
+      const url = URL.createObjectURL(blob);
+      const cleanId = orderDetails.orderId.replace(/[^a-zA-Z0-9_-]/g, '') || 'order';
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `receipt-${cleanId}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    } catch (err) {
+      console.error('Failed to save receipt PNG:', err);
+      alert('Unable to save the receipt as PNG. Please try again.');
+    } finally {
+      setIsGeneratingPng(false);
+    }
+  };
 
   // Download high-resolution thermal PDF
   const handleDownloadPdf = async () => {
@@ -339,16 +373,30 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           </button>
 
           <button
+            onClick={handleDownloadPng}
+            disabled={isGeneratingPng || isGeneratingPdf}
+            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+            title="Save receipt as a PNG image"
+          >
+            {isGeneratingPng ? (
+              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Download className="w-3.5 h-3.5" />
+            )}
+            <span>{isGeneratingPng ? 'Saving PNG...' : 'Save PNG'}</span>
+          </button>
+          <button
             onClick={handleDownloadPdf}
-            disabled={isGeneratingPdf}
-            className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+            disabled={isGeneratingPdf || isGeneratingPng}
+            className="flex items-center gap-1.5 px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+            title="Save receipt as a PDF document"
           >
             {isGeneratingPdf ? (
               <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <Download className="w-3.5 h-3.5" />
             )}
-            <span>{isGeneratingPdf ? 'Rendering PDF...' : 'Download PDF'}</span>
+            <span>{isGeneratingPdf ? 'Saving PDF...' : 'Save PDF'}</span>
           </button>
         </div>
       </div>
