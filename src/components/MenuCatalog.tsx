@@ -1,0 +1,278 @@
+import React, { useState, useMemo } from 'react';
+import { Search, Plus, Minus, PlusCircle, Sparkles, Flame, Check } from 'lucide-react';
+import { MenuItem, CartItem } from '../types/pos';
+import { MENU_CATEGORIES } from '../data/presetData';
+
+interface MenuCatalogProps {
+  items: MenuItem[];
+  cart: CartItem[];
+  currencySymbol: string;
+  onUpdateQuantity: (item: MenuItem, delta: number) => void;
+  onOpenAddCustom: () => void;
+}
+
+export const MenuCatalog: React.FC<MenuCatalogProps> = ({
+  items,
+  cart,
+  currencySymbol,
+  onUpdateQuantity,
+  onOpenAddCustom,
+}) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [vegOnly, setVegOnly] = useState<boolean>(false);
+
+  // Map cart items for fast lookup of current quantity
+  const cartQuantityMap = useMemo(() => {
+    const map = new Map<string, number>();
+    cart.forEach((c) => {
+      map.set(c.item.id, (map.get(c.item.id) || 0) + c.quantity);
+    });
+    return map;
+  }, [cart]);
+
+  // Filter items based on category, search, and veg filter
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      if (vegOnly && !item.isVeg) return false;
+      if (selectedCategory !== 'All') {
+        if (selectedCategory === 'Bestsellers' && !item.popular) return false;
+        if (selectedCategory !== 'Bestsellers' && item.category !== selectedCategory) return false;
+      }
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesName = item.name.toLowerCase().includes(query);
+        const matchesCategory = item.category.toLowerCase().includes(query);
+        const matchesDesc = item.description?.toLowerCase().includes(query);
+        return matchesName || matchesCategory || matchesDesc;
+      }
+      return true;
+    });
+  }, [items, selectedCategory, searchQuery, vegOnly]);
+
+  return (
+    <div className="w-full pb-28 md:pb-20">
+      {/* Search and Action Bar */}
+      <div className="sticky top-0 z-30 bg-stone-50/95 backdrop-blur-md pt-3 pb-2 border-b border-stone-200/80 px-3 sm:px-4 space-y-2.5">
+        <div className="flex items-center gap-2 max-w-5xl mx-auto">
+          {/* Search Box */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-3 w-4 h-4 text-stone-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search dishes (e.g. Biryani, Paneer, Naan, Burger)..."
+              className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-stone-200 bg-white text-xs sm:text-sm focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-hidden transition-all shadow-2xs"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-2.5 text-xs text-stone-400 hover:text-stone-600 px-1"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Add Custom Item Button */}
+          <button
+            onClick={onOpenAddCustom}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all shrink-0 active:scale-95"
+            title="Add unlisted custom item"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span className="hidden sm:inline">Add Custom Item</span>
+            <span className="sm:hidden">Custom</span>
+          </button>
+        </div>
+
+        {/* Filter Pills & Veg-Only Toggle */}
+        <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar max-w-5xl mx-auto pt-1">
+          {/* Category Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar shrink-0">
+            {MENU_CATEGORIES.map((cat) => {
+              const isSelected = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
+                    isSelected
+                      ? 'bg-stone-900 text-white shadow-xs'
+                      : 'bg-white text-stone-600 border border-stone-200 hover:border-stone-300 hover:bg-stone-100/50'
+                  }`}
+                >
+                  {cat === 'Bestsellers' && <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
+                  <span>{cat}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Veg Only Toggle Button (Zomato/Swiggy standard) */}
+          <button
+            onClick={() => setVegOnly(!vegOnly)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 shadow-2xs ${
+              vegOnly
+                ? 'bg-emerald-50 border-emerald-500 text-emerald-800 ring-1 ring-emerald-500'
+                : 'bg-white border-stone-200 text-stone-600 hover:border-stone-300'
+            }`}
+          >
+            <span className="w-3 h-3 border-2 border-emerald-600 rounded-xs flex items-center justify-center">
+              <span className={`w-1.5 h-1.5 rounded-full ${vegOnly ? 'bg-emerald-600 animate-pulse' : 'bg-emerald-600'}`} />
+            </span>
+            <span className="hidden sm:inline">Pure Veg Only</span>
+            <span className="sm:hidden">Veg</span>
+            {vegOnly && <Check className="w-3 h-3 text-emerald-600" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Food Items Catalog */}
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 pt-4">
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-16 px-4 bg-white rounded-2xl border border-dashed border-stone-300">
+            <Sparkles className="w-10 h-10 text-stone-300 mx-auto mb-2" />
+            <h3 className="text-base font-bold text-stone-700">No matching dishes found</h3>
+            <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto mb-4">
+              Try modifying your search or click "Add Custom Item" to insert an unlisted dish with custom price and name.
+            </p>
+            <button
+              onClick={onOpenAddCustom}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white text-xs font-bold rounded-xl hover:bg-stone-800 transition-colors"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>Add Custom Dish</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            {filteredItems.map((item) => {
+              const qty = cartQuantityMap.get(item.id) || 0;
+
+              return (
+                <div
+                  key={item.id}
+                  className={`bg-white rounded-2xl p-3.5 sm:p-4 border transition-all flex gap-3.5 group hover:shadow-md ${
+                    qty > 0 ? 'border-rose-300 ring-1 ring-rose-300/50 bg-rose-50/10' : 'border-stone-200/90'
+                  }`}
+                >
+                  {/* Left: Info & Price */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                      {/* Dietary Symbol & Badges */}
+                      <div className="flex items-center gap-2 mb-1.5">
+                        {item.isVeg ? (
+                          <span
+                            className="w-3.5 h-3.5 border-2 border-emerald-600 rounded-xs flex items-center justify-center shrink-0"
+                            title="Pure Vegetarian"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                          </span>
+                        ) : (
+                          <span
+                            className="w-3.5 h-3.5 border-2 border-rose-600 rounded-xs flex items-center justify-center shrink-0"
+                            title="Non-Vegetarian"
+                          >
+                            <span className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[6px] border-b-rose-600" />
+                          </span>
+                        )}
+
+                        {item.popular && (
+                          <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-sm flex items-center gap-0.5">
+                            <Flame className="w-2.5 h-2.5 fill-amber-500 text-amber-500" /> Bestseller
+                          </span>
+                        )}
+
+                        <span className="text-[10px] text-stone-400 font-medium truncate">{item.category}</span>
+                      </div>
+
+                      {/* Name */}
+                      <h4 className="text-sm sm:text-base font-bold text-stone-900 group-hover:text-rose-600 transition-colors leading-snug">
+                        {item.name}
+                      </h4>
+
+                      {/* Price */}
+                      <div className="text-sm sm:text-base font-extrabold text-stone-900 mt-1 flex items-baseline gap-1">
+                        <span>{currencySymbol}</span>
+                        <span>{item.price.toFixed(2)}</span>
+                      </div>
+
+                      {/* Description */}
+                      {item.description && (
+                        <p className="text-xs text-stone-500 mt-1 line-clamp-2 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Small mobile quantity counter or item tag */}
+                    <div className="pt-2">
+                      <span className="text-[11px] text-stone-400">
+                        {qty > 0 ? (
+                          <span className="font-semibold text-rose-600">
+                            {qty} in order ({currencySymbol}{(qty * item.price).toFixed(2)})
+                          </span>
+                        ) : (
+                          <span>Freshly Prepared</span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right: Food Image with Overlay Add Button */}
+                  <div className="relative w-28 sm:w-32 shrink-0 flex flex-col items-center">
+                    <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-stone-100 border border-stone-100 relative">
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300">
+                          <Sparkles className="w-6 h-6" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Quantity Pill / Add Button (Zomato/Swiggy signature placement) */}
+                    <div className="absolute -bottom-2 w-24">
+                      {qty === 0 ? (
+                        <button
+                          onClick={() => onUpdateQuantity(item, 1)}
+                          className="w-full py-1.5 px-3 bg-white text-rose-600 border border-rose-300 hover:border-rose-500 rounded-lg text-xs font-extrabold uppercase shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1 active:scale-95"
+                        >
+                          <span>ADD</span>
+                          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                        </button>
+                      ) : (
+                        <div className="w-full py-1 px-1 bg-rose-600 text-white rounded-lg text-xs font-bold shadow-md flex items-center justify-between border border-rose-700 animate-in zoom-in-95 duration-150">
+                          <button
+                            onClick={() => onUpdateQuantity(item, -1)}
+                            className="w-6 h-6 flex items-center justify-center hover:bg-rose-700 rounded-md active:scale-90 transition-colors"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="font-extrabold px-1 text-sm">{qty}</span>
+                          <button
+                            onClick={() => onUpdateQuantity(item, 1)}
+                            className="w-6 h-6 flex items-center justify-center hover:bg-rose-700 rounded-md active:scale-90 transition-colors"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

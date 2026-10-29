@@ -1,0 +1,1747 @@
+import React, { useEffect, useRef, useState } from 'react';
+import QRCode from 'qrcode';
+import {
+  Download,
+  Printer,
+  Copy,
+  Check,
+  Share2,
+  ArrowLeft,
+  Sliders,
+  QrCode,
+  LayoutTemplate,
+  BookmarkCheck,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
+import {
+  CartItem,
+  DiscountSettings,
+  OrderDetails,
+  ReceiptStyle,
+  QrCodeType,
+  ServiceChargeSettings,
+  ShopInfo,
+  TaxSettings,
+} from '../types/pos';
+import { calculateBill } from '../utils/taxCalculator';
+import { generateThermalReceiptPdf } from '../utils/pdfGenerator';
+
+interface ThermalReceiptProps {
+  shop: ShopInfo;
+  cart: CartItem[];
+  taxSettings: TaxSettings;
+  discount: DiscountSettings;
+  serviceCharge: ServiceChargeSettings;
+  orderDetails: OrderDetails;
+  onUpdateOrderDetails: (updates: Partial<OrderDetails>) => void;
+  onBackToReview: () => void;
+  onSaveToHistory?: () => void;
+}
+
+export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
+  shop,
+  cart,
+  taxSettings,
+  discount,
+  serviceCharge,
+  orderDetails,
+  onUpdateOrderDetails,
+  onBackToReview,
+  onSaveToHistory,
+}) => {
+  const receiptRef = useRef<HTMLDivElement>(null);
+  const paperWidth = orderDetails.paperWidth || '80mm';
+  const receiptStyle = orderDetails.receiptStyle || 'classic_thermal';
+  const showQrCode = orderDetails.showQrCode ?? true;
+  const qrCodeType = orderDetails.qrCodeType || 'upi';
+
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
+  const calculation = calculateBill(cart, taxSettings, discount, serviceCharge, orderDetails.roundOff);
+
+  // Generate QR Code if enabled
+  useEffect(() => {
+    if (!showQrCode) {
+      setQrCodeDataUrl('');
+      return;
+    }
+
+    let qrPayload = '';
+    if (qrCodeType === 'upi') {
+      qrPayload = `upi://pay?pa=billing@upi&pn=${encodeURIComponent(
+        shop.name
+      )}&am=${calculation.grandTotal}&cu=INR&tn=${encodeURIComponent(orderDetails.orderId)}`;
+    } else if (qrCodeType === 'feedback') {
+      qrPayload = `https://feedback.pos.bill/rate?order=${encodeURIComponent(
+        orderDetails.orderId
+      )}&shop=${encodeURIComponent(shop.name)}`;
+    } else {
+      qrPayload = `https://verify.pos.bill/invoice?id=${encodeURIComponent(
+        orderDetails.orderId
+      )}&amt=${calculation.grandTotal}&date=${encodeURIComponent(orderDetails.timestamp)}`;
+    }
+
+    QRCode.toDataURL(qrPayload, {
+      width: 150,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#ffffff',
+      },
+    })
+      .then((url) => setQrCodeDataUrl(url))
+      .catch((err) => console.error('Error generating QR:', err));
+  }, [showQrCode, qrCodeType, shop.name, calculation.grandTotal, orderDetails.orderId, orderDetails.timestamp]);
+
+  // Download high-resolution thermal PDF
+  const handleDownloadPdf = async () => {
+    if (!receiptRef.current) return;
+    setIsGeneratingPdf(true);
+    try {
+      await generateThermalReceiptPdf(receiptRef.current, orderDetails.orderId, paperWidth);
+    } catch (err) {
+      console.error('Failed to generate PDF:', err);
+      alert('Unable to generate PDF. Please try again.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleSaveBill = () => {
+    if (onSaveToHistory) {
+      onSaveToHistory();
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 2500);
+    }
+  };
+
+  const handleCopyTextReceipt = () => {
+    const divider = '------------------------------------------';
+    const lines = [
+      shop.name.toUpperCase(),
+      shop.address,
+      `Phone: ${shop.phone}`,
+      shop.taxId ? `${taxSettings.taxIdLabel}: ${shop.taxId}` : '',
+      divider,
+      `ORDER: ${orderDetails.orderId}   TABLE: ${orderDetails.tableNo || 'N/A'}`,
+      `DATE: ${orderDetails.timestamp}`,
+      `SERVER: ${orderDetails.serverName || 'Staff'}`,
+      divider,
+      `ITEM                    QTY   RATE    TOTAL`,
+      divider,
+    ];
+
+    cart.forEach((c) => {
+      const price = c.customPrice !== undefined ? c.customPrice : c.item.price;
+      const total = price * c.quantity;
+      const name = c.item.name.padEnd(20, ' ').substring(0, 20);
+      const qty = String(c.quantity).padStart(3, ' ');
+      const rate = price.toFixed(2).padStart(7, ' ');
+      const tot = total.toFixed(2).padStart(8, ' ');
+      lines.push(`${name} ${qty} ${rate} ${tot}`);
+    });
+
+    lines.push(divider);
+    lines.push(`SUBTOTAL:             ${taxSettings.currencySymbol}${calculation.subtotal.toFixed(2)}`);
+    if (calculation.discountAmount > 0) {
+      lines.push(`DISCOUNT:            -${taxSettings.currencySymbol}${calculation.discountAmount.toFixed(2)}`);
+    }
+    if (taxSettings.enabled && taxSettings.splitCgstSgst) {
+      lines.push(
+        `CGST @ ${(taxSettings.taxRate / 2).toFixed(1)}%:        +${
+          taxSettings.currencySymbol
+        }${calculation.cgstAmount.toFixed(2)}`
+      );
+      lines.push(
+        `SGST @ ${(taxSettings.taxRate / 2).toFixed(1)}%:        +${
+          taxSettings.currencySymbol
+        }${calculation.sgstAmount.toFixed(2)}`
+      );
+    } else if (taxSettings.enabled) {
+      lines.push(
+        `${taxSettings.taxLabel} (${taxSettings.taxRate}%):      +${
+          taxSettings.currencySymbol
+        }${calculation.totalTaxAmount.toFixed(2)}`
+      );
+    }
+    if (calculation.serviceChargeAmount > 0) {
+      lines.push(
+        `SERVICE CHARGE:       +${taxSettings.currencySymbol}${calculation.serviceChargeAmount.toFixed(2)}`
+      );
+    }
+    if (orderDetails.roundOff && calculation.roundOffDelta !== 0) {
+      lines.push(
+        `ROUND OFF:            ${calculation.roundOffDelta >= 0 ? '+' : ''}${
+          taxSettings.currencySymbol
+        }${calculation.roundOffDelta.toFixed(2)}`
+      );
+    }
+    lines.push(divider);
+    lines.push(`GRAND TOTAL:          ${taxSettings.currencySymbol}${calculation.grandTotal.toFixed(2)}`);
+    lines.push(divider);
+    lines.push(`PAID VIA: ${orderDetails.paymentMethod.toUpperCase()}`);
+    lines.push(`*** THANK YOU! VISIT AGAIN ***`);
+
+    navigator.clipboard.writeText(lines.filter(Boolean).join('\n'));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = encodeURIComponent(
+      `*${shop.name} - Receipt ${orderDetails.orderId}*\nTotal Amount: *${
+        taxSettings.currencySymbol
+      }${calculation.grandTotal.toFixed(2)}*\nPaid via: ${orderDetails.paymentMethod}\nDate: ${
+        orderDetails.timestamp
+      }\nThank you for dining with us!`
+    );
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
+  const is58mm = paperWidth === '58mm';
+
+  const receiptStylesList: { id: ReceiptStyle; name: string; desc: string; icon: string }[] = [
+    {
+      id: 'kfc_style',
+      name: 'Fastfood Combo',
+      desc: 'Bold franchise layout with Eat-In banner, meal sides & survey code',
+      icon: '🍟',
+    },
+    {
+      id: 'dominos_style',
+      name: 'Pizzeria & Oven',
+      desc: 'Pizza bakehouse layout with Kitchen Tracker ID & box count summary',
+      icon: '🍕',
+    },
+    {
+      id: 'subway_style',
+      name: 'Fresh Deli Subs',
+      desc: 'Deli sandwich artisan layout with bread modifiers & rewards tokens',
+      icon: '🥪',
+    },
+    {
+      id: 'starbucks_cafe',
+      name: 'Cafe & Roastery',
+      desc: 'Boutique coffeehouse format with Barista name & loyalty stars',
+      icon: '☕',
+    },
+    {
+      id: 'fine_dining',
+      name: 'Fine Dining Elegance',
+      desc: 'Serif classic layout with table seatings, ornaments & gratuity guide',
+      icon: '🍷',
+    },
+    {
+      id: 'asian_minimal',
+      name: 'Izakaya Minimalist',
+      desc: 'Clean geometric lines, compact spacing & official chop stamp box',
+      icon: '🥢',
+    },
+    {
+      id: 'supermarket_retail',
+      name: 'Supermarket Retail',
+      desc: 'Retail mart layout with item units count, savings tag & dual barcodes',
+      icon: '🛒',
+    },
+    {
+      id: 'classic_thermal',
+      name: 'Classic Dhaba / Roll',
+      desc: 'Standard physical POS roll format with Space Mono & dashed lines',
+      icon: '🧾',
+    },
+    {
+      id: 'modern_bistro',
+      name: 'Modern Bistro',
+      desc: 'Clean sans-serif typography, subtle dividers & contemporary check card',
+      icon: '🍽️',
+    },
+    {
+      id: 'retro_dotmatrix',
+      name: 'Retro Dot-Matrix',
+      desc: '90s impact pin printer style with VT323 font & starred borders',
+      icon: '📠',
+    },
+    {
+      id: 'compact_express',
+      name: 'Takeaway Express',
+      desc: 'Quick service counter with prominent order token callout',
+      icon: '⚡',
+    },
+    {
+      id: 'gst_tax_invoice',
+      name: 'GST Tax Invoice',
+      desc: 'Formal boxed invoice layout with HSN and split CGST/SGST tax grid',
+      icon: '📑',
+    },
+  ];
+
+  return (
+    <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 py-4 pb-28">
+      {/* Top Action Navigation Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-stone-200 pb-3 no-print">
+        <button
+          onClick={onBackToReview}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-100 text-xs font-bold transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Edit Bill / Taxes</span>
+        </button>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          {onSaveToHistory && (
+            <button
+              onClick={handleSaveBill}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border shadow-2xs cursor-pointer ${
+                savedSuccess
+                  ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                  : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+              }`}
+            >
+              {savedSuccess ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <BookmarkCheck className="w-3.5 h-3.5 text-stone-500" />}
+              <span>{savedSuccess ? 'Saved in History!' : 'Save Bill'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-1.5 px-3 py-2 bg-stone-800 hover:bg-stone-900 text-white rounded-xl text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
+            title="Direct thermal printing for 58mm/80mm roll printer"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Thermal Print</span>
+            <span className="sm:hidden">Print</span>
+          </button>
+
+          <button
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+          >
+            {isGeneratingPdf ? (
+              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Download className="w-3.5 h-3.5" />
+            )}
+            <span>{isGeneratingPdf ? 'Rendering PDF...' : 'Download PDF'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Style & Options Control Panel (No Print) */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-2xs mb-6 space-y-3.5 no-print">
+        {/* Template Style Selector */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+              <LayoutTemplate className="w-4 h-4 text-rose-600" />
+              <span>Choose Premium Receipt Layout / Style:</span>
+            </span>
+            <span className="text-[11px] text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+              12 Professional Layouts Available
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            {receiptStylesList.map((tpl) => {
+              const isSelected = receiptStyle === tpl.id;
+              return (
+                <button
+                  key={tpl.id}
+                  onClick={() => onUpdateOrderDetails({ receiptStyle: tpl.id })}
+                  className={`p-2 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${
+                    isSelected
+                      ? 'border-rose-500 bg-rose-50/80 ring-1 ring-rose-500 shadow-2xs'
+                      : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-lg">{tpl.icon}</span>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-rose-600" />}
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-stone-900 leading-tight">{tpl.name}</div>
+                    <div className="text-[10px] text-stone-500 line-clamp-1 mt-0.5">{tpl.desc}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Paper Width & QR Options Row */}
+        <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
+          {/* Paper Width */}
+          <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-xl">
+            <span className="text-[11px] font-bold text-stone-500 pl-2 pr-1 flex items-center gap-1">
+              <Sliders className="w-3 h-3" /> Width:
+            </span>
+            <button
+              onClick={() => onUpdateOrderDetails({ paperWidth: '58mm' })}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                paperWidth === '58mm' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              58mm (2")
+            </button>
+            <button
+              onClick={() => onUpdateOrderDetails({ paperWidth: '80mm' })}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                paperWidth === '80mm' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              80mm (3")
+            </button>
+          </div>
+
+          {/* QR Code Options */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onUpdateOrderDetails({ showQrCode: !showQrCode })}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                showQrCode
+                  ? 'bg-rose-50 border-rose-300 text-rose-700'
+                  : 'bg-stone-50 border-stone-200 text-stone-500'
+              }`}
+            >
+              {showQrCode ? <Eye className="w-3.5 h-3.5 text-rose-600" /> : <EyeOff className="w-3.5 h-3.5" />}
+              <span>{showQrCode ? 'QR Code: ON' : 'QR Code: OFF (Without QR)'}</span>
+            </button>
+
+            {showQrCode && (
+              <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-xs">
+                <span className="text-[10px] font-bold text-stone-500 px-1 flex items-center gap-1">
+                  <QrCode className="w-3 h-3" /> Target:
+                </span>
+                <button
+                  onClick={() => onUpdateOrderDetails({ qrCodeType: 'upi' })}
+                  className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    qrCodeType === 'upi' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600'
+                  }`}
+                >
+                  UPI Pay
+                </button>
+                <button
+                  onClick={() => onUpdateOrderDetails({ qrCodeType: 'verify' })}
+                  className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    qrCodeType === 'verify' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600'
+                  }`}
+                >
+                  E-Bill Verify
+                </button>
+                <button
+                  onClick={() => onUpdateOrderDetails({ qrCodeType: 'feedback' })}
+                  className={`px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    qrCodeType === 'feedback' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600'
+                  }`}
+                >
+                  Review / Feedback
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Share Buttons */}
+        <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+          <div className="text-[11px] text-stone-500">
+            Active Layout: <span className="font-bold text-stone-800 capitalize">{receiptStyle.replace('_', ' ')}</span> ({paperWidth})
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCopyTextReceipt}
+              className="flex items-center gap-1 px-3 py-1 bg-white border border-stone-200 hover:border-stone-300 text-stone-800 rounded-lg font-bold text-xs shadow-2xs transition-colors cursor-pointer"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? 'Copied Text!' : 'Copy Plaintext'}</span>
+            </button>
+            <button
+              onClick={handleWhatsAppShare}
+              className="flex items-center gap-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shadow-2xs transition-colors cursor-pointer"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>WhatsApp</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Authentic Receipt Render Container */}
+      <div className="flex justify-center">
+        <div
+          ref={receiptRef}
+          id="thermal-receipt-printable"
+          className={`transition-all text-black bg-[#fffdfa] receipt-paper-shadow border border-stone-300/70 p-4 sm:p-5 thermal-receipt-container ${
+            is58mm ? 'w-[320px]' : 'w-[420px]'
+          }`}
+          style={{
+            fontFamily:
+              receiptStyle === 'retro_dotmatrix'
+                ? '"VT323", monospace'
+                : receiptStyle === 'modern_bistro' || receiptStyle === 'starbucks_cafe' || receiptStyle === 'asian_minimal'
+                ? '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif'
+                : receiptStyle === 'fine_dining'
+                ? 'Georgia, Cambria, "Times New Roman", serif'
+                : '"Space Mono", "Courier New", Courier, monospace',
+            letterSpacing:
+              receiptStyle === 'modern_bistro' || receiptStyle === 'starbucks_cafe' || receiptStyle === 'asian_minimal'
+                ? 'normal'
+                : '-0.02em',
+          }}
+        >
+          {/* ========================================================= */}
+          {/* TEMPLATE 1: FASTFOOD COMBO STYLE (Bold Franchise Layout)  */}
+          {/* Always displays actual shop.name, never third-party brand  */}
+          {/* ========================================================= */}
+          {receiptStyle === 'kfc_style' && (
+            <div className="font-receipt space-y-2 text-stone-900">
+              {/* Actual Restaurant Header */}
+              <div className="text-center space-y-0.5 pb-1">
+                <div className="text-2xl sm:text-3xl font-black tracking-tighter text-black uppercase">
+                  {shop.name}
+                </div>
+                <div className="text-[11px] font-bold text-stone-800 uppercase">
+                  STORE #1084 • TEL: {shop.phone}
+                </div>
+                <div className="text-[10px] text-stone-600 leading-tight px-2">{shop.address}</div>
+                {taxSettings.taxIdValue && (
+                  <div className="text-[10px] font-mono font-bold text-stone-800">
+                    {taxSettings.taxIdLabel}: {taxSettings.taxIdValue}
+                  </div>
+                )}
+                {shop.tagline && <div className="text-[9px] italic text-stone-500">"{shop.tagline}"</div>}
+              </div>
+
+              {/* Bold Eat-In / Takeaway Banner */}
+              <div className="border-t-2 border-b-2 border-stone-950 py-1 text-center select-none">
+                <span className="text-base sm:text-lg font-black tracking-widest uppercase">
+                  *** {orderDetails.tableNo ? `EAT IN - ${orderDetails.tableNo.toUpperCase()}` : 'TAKE AWAY'} ***
+                </span>
+              </div>
+
+              {/* Order Meta */}
+              <div className="text-[11px] font-bold py-1 leading-snug space-y-0.5">
+                <div className="flex justify-between">
+                  <span>ORDER: {orderDetails.orderId}</span>
+                  <span>REG: 03</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>DATE: {orderDetails.timestamp}</span>
+                  <span>POS: COUNTER-1</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>CASHIER: {orderDetails.serverName || 'STAFF'}</span>
+                  <span>GUEST: {orderDetails.customerName || 'WALK-IN'}</span>
+                </div>
+              </div>
+
+              <div className="text-center font-bold text-stone-800 select-none text-xs">
+                -------------------------------------------
+              </div>
+
+              {/* Items Section with Franchise Combo Formatting */}
+              <div className="text-[11px] font-black uppercase grid grid-cols-12 py-0.5 border-b border-stone-900">
+                <div className="col-span-7">ITEM & DESCRIPTION</div>
+                <div className="col-span-2 text-center">QTY</div>
+                <div className="col-span-3 text-right">AMOUNT</div>
+              </div>
+
+              <div className="divide-y divide-dashed divide-stone-300 py-1 text-[11px] font-bold">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  const total = price * cartItem.quantity;
+                  return (
+                    <div key={cartItem.id} className="py-1">
+                      <div className="grid grid-cols-12">
+                        <span className="col-span-7 uppercase truncate">{cartItem.item.name}</span>
+                        <span className="col-span-2 text-center">{cartItem.quantity}</span>
+                        <span className="col-span-3 text-right font-black">{total.toFixed(2)}</span>
+                      </div>
+                      <div className="pl-3 text-[9px] font-normal text-stone-600 space-y-0.5 mt-0.5">
+                        <div>+ 1x FRESH INGREDIENTS & SEASONING</div>
+                        <div>+ REGULAR COMBO SIDES & DIP</div>
+                        {cartItem.notes && <div className="italic">* {cartItem.notes}</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="text-center font-bold text-stone-800 select-none text-xs">
+                -------------------------------------------
+              </div>
+
+              {/* Totals */}
+              <div className="text-[11px] space-y-1 font-bold">
+                <div className="flex justify-between">
+                  <span>NET TOTAL:</span>
+                  <span>{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {calculation.discountAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span>DISCOUNT COUPON:</span>
+                    <span>-{calculation.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {taxSettings.enabled && (
+                  <div className="flex justify-between">
+                    <span>{taxSettings.taxLabel} ({taxSettings.taxRate}%):</span>
+                    <span>+{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t-2 border-b-2 border-stone-950 py-1.5 my-1">
+                <div className="flex justify-between items-baseline text-lg font-black">
+                  <span>TOTAL DUE:</span>
+                  <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="text-[11px] font-bold space-y-0.5">
+                <div className="flex justify-between">
+                  <span>PAID VIA:</span>
+                  <span className="uppercase">{orderDetails.paymentMethod}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>AUTH CODE:</span>
+                  <span>AUTH{Math.floor(100000 + Math.random() * 900000)}</span>
+                </div>
+              </div>
+
+              {/* Authentic Customer Feedback Survey Box */}
+              <div className="border-2 border-dashed border-stone-900 p-2 my-2 text-center space-y-1 bg-stone-50">
+                <div className="text-xs font-black uppercase tracking-wide">GREAT FOOD? TELL US!</div>
+                <div className="text-[10px] font-bold text-stone-800">VISIT: WWW.GUEST-FEEDBACK.COM</div>
+                <div className="text-xs font-mono font-black tracking-widest text-black bg-white p-1 border border-stone-300">
+                  SURVEY CODE: {Math.floor(1000 + Math.random() * 9000)}-{Math.floor(1000 + Math.random() * 9000)}-{Math.floor(1000 + Math.random() * 9000)}
+                </div>
+                <div className="text-[9px] font-bold text-stone-600 uppercase">
+                  ENTER CODE FOR 15% OFF YOUR NEXT MEAL AT {shop.name.toUpperCase()}!
+                </div>
+              </div>
+
+              {/* Barcode & QR */}
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center pt-1">
+                  <img src={qrCodeDataUrl} alt="Receipt QR" className="w-22 h-22 object-contain" />
+                  <span className="text-[9px] font-bold uppercase mt-1">Scan for Survey & E-Receipt</span>
+                </div>
+              )}
+
+              <div className="text-center pt-1 text-[10px] font-bold uppercase">
+                *** THANK YOU FOR VISITING {shop.name.toUpperCase()}! ***
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 2: PIZZERIA & BAKEHOUSE (Live Tracker & Boxes)   */}
+          {/* Always displays actual shop.name, never third-party brand  */}
+          {/* ========================================================= */}
+          {receiptStyle === 'dominos_style' && (
+            <div className="font-receipt space-y-2 text-stone-900">
+              {/* Actual Restaurant Header */}
+              <div className="text-center space-y-0.5">
+                <div className="text-xl sm:text-2xl font-black uppercase tracking-tight flex items-center justify-center gap-1.5">
+                  <span>🍕</span>
+                  <span>{shop.name}</span>
+                </div>
+                <div className="text-[10px] font-bold uppercase text-stone-800">
+                  STORE #{Math.floor(1000 + Math.random() * 9000)} • TEL: {shop.phone}
+                </div>
+                <div className="text-[10px] text-stone-600 px-2 leading-tight">{shop.address}</div>
+                {taxSettings.taxIdValue && (
+                  <div className="text-[9px] font-mono font-bold text-stone-700">
+                    {taxSettings.taxIdLabel}: {taxSettings.taxIdValue}
+                  </div>
+                )}
+              </div>
+
+              {/* Order Tracker ID Callout Banner */}
+              <div className="bg-stone-900 text-white p-2.5 rounded-lg text-center space-y-0.5 my-1.5">
+                <span className="text-[9px] uppercase font-bold tracking-widest text-stone-400 block">
+                  KITCHEN ORDER TRACKER®
+                </span>
+                <span className="text-base sm:text-lg font-black tracking-tight text-white block font-mono">
+                  #TRK-{orderDetails.orderId.replace(/[^0-9]/g, '') || '94821'}
+                </span>
+                <span className="text-[10px] text-stone-300 font-semibold block">
+                  {orderDetails.tableNo ? `DINE-IN • ${orderDetails.tableNo}` : 'HOT & FRESH CARRYOUT'}
+                </span>
+              </div>
+
+              <div className="text-[10px] font-bold space-y-0.5 py-0.5">
+                <div className="flex justify-between">
+                  <span>OVEN-FRESH GUARANTEE</span>
+                  <span>EST. TIME: 15-20 MIN</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>PLACED: {orderDetails.timestamp}</span>
+                  <span>BAKER / CREW: {orderDetails.serverName || 'STAFF'}</span>
+                </div>
+              </div>
+
+              <div className="text-center font-bold text-stone-800 select-none text-xs">
+                ===========================================
+              </div>
+
+              {/* Items Section with Customization Sub-items */}
+              <div className="text-[11px] font-black uppercase py-0.5 grid grid-cols-12 border-b border-stone-900">
+                <div className="col-span-8">CRUST & MENU ITEM</div>
+                <div className="col-span-1 text-center">QTY</div>
+                <div className="col-span-3 text-right">TOTAL</div>
+              </div>
+
+              <div className="divide-y divide-dashed divide-stone-300 py-1 text-[11px] font-bold">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  const total = price * cartItem.quantity;
+                  return (
+                    <div key={cartItem.id} className="py-1">
+                      <div className="grid grid-cols-12">
+                        <span className="col-span-8 truncate uppercase">{cartItem.item.name}</span>
+                        <span className="col-span-1 text-center">{cartItem.quantity}</span>
+                        <span className="col-span-3 text-right font-black">{total.toFixed(2)}</span>
+                      </div>
+                      <div className="pl-3 text-[9px] font-normal text-stone-600 space-y-0.5 mt-0.5">
+                        <div>&gt; PREP: FRESHLY BAKED & HERB SEASONED</div>
+                        <div>&gt; SPEC: CHEESE BURST & SPECIAL HERBS</div>
+                        {cartItem.notes && <div className="italic">&gt; NOTE: {cartItem.notes}</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Total Box Count */}
+              <div className="bg-stone-100 p-1.5 rounded-md text-center text-[10px] font-bold text-stone-800 my-1">
+                TOTAL PACKS / BOXES: {cart.reduce((s, c) => s + c.quantity, 0)} ITEMS
+              </div>
+
+              <div className="text-center font-bold text-stone-800 select-none text-xs">
+                -------------------------------------------
+              </div>
+
+              {/* Financials */}
+              <div className="text-[11px] space-y-1 font-bold">
+                <div className="flex justify-between">
+                  <span>ITEM TOTAL:</span>
+                  <span>{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {calculation.discountAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span>SPECIAL PROMO:</span>
+                    <span>-{calculation.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {taxSettings.enabled && (
+                  <div className="flex justify-between">
+                    <span>TAXES ({taxSettings.taxRate}%):</span>
+                    <span>+{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {orderDetails.roundOff && calculation.roundOffDelta !== 0 && (
+                  <div className="flex justify-between">
+                    <span>ROUND OFF:</span>
+                    <span>{calculation.roundOffDelta >= 0 ? '+' : ''}{calculation.roundOffDelta.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t-2 border-b-2 border-stone-900 py-1 my-1">
+                <div className="flex justify-between items-baseline text-base sm:text-lg font-black">
+                  <span>AMOUNT PAID:</span>
+                  <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="text-[10px] font-bold flex justify-between">
+                <span>PAYMENT: {orderDetails.paymentMethod.toUpperCase()}</span>
+                <span>STATUS: PAID</span>
+              </div>
+
+              {/* Tracker QR */}
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center pt-1.5">
+                  <img src={qrCodeDataUrl} alt="Tracker QR" className="w-22 h-22 object-contain" />
+                  <span className="text-[9px] font-bold uppercase mt-1 text-stone-700">
+                    Scan to Track Oven-to-Plate Progress
+                  </span>
+                </div>
+              )}
+
+              <div className="text-center pt-1 text-[9px] text-stone-600 font-semibold uppercase">
+                *** FRESH OVEN HOT DELIVERED GUARANTEE • {shop.name.toUpperCase()} ***
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 3: FRESH DELI SANDWICH (Artisan Crew & Rewards)  */}
+          {/* Always displays actual shop.name, never third-party brand  */}
+          {/* ========================================================= */}
+          {receiptStyle === 'subway_style' && (
+            <div className="font-receipt space-y-2 text-stone-900">
+              {/* Actual Restaurant Header */}
+              <div className="text-center space-y-0.5">
+                <div className="text-2xl font-black uppercase tracking-tight flex items-center justify-center gap-1.5">
+                  <span>🥪</span>
+                  <span>{shop.name}</span>
+                </div>
+                <div className="text-[10px] text-stone-600 leading-tight px-2">{shop.address}</div>
+                <div className="text-[10px] font-bold text-stone-800">TEL: {shop.phone}</div>
+                {taxSettings.taxIdValue && (
+                  <div className="text-[9px] font-mono font-bold text-stone-700">
+                    {taxSettings.taxIdLabel}: {taxSettings.taxIdValue}
+                  </div>
+                )}
+              </div>
+
+              {/* Artisan Crew Identification Banner */}
+              <div className="border-t border-b border-stone-900 py-1 text-[11px] font-bold space-y-0.5">
+                <div className="flex justify-between">
+                  <span>SANDWICH ARTIST / CREW: {orderDetails.serverName || 'STAFF'}</span>
+                  <span>TERM: 01</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>RECEIPT: {orderDetails.orderId}</span>
+                  <span>DATE: {orderDetails.timestamp}</span>
+                </div>
+              </div>
+
+              <div className="text-[11px] font-black uppercase grid grid-cols-12 py-0.5 border-b border-stone-900">
+                <div className="col-span-7">ITEM & FRESH INGREDIENTS</div>
+                <div className="col-span-2 text-center">QTY</div>
+                <div className="col-span-3 text-right">TOTAL</div>
+              </div>
+
+              <div className="divide-y divide-dashed divide-stone-300 py-1 text-[11px] font-bold">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  return (
+                    <div key={cartItem.id} className="py-1">
+                      <div className="grid grid-cols-12">
+                        <span className="col-span-7 truncate uppercase">{cartItem.item.name}</span>
+                        <span className="col-span-2 text-center">{cartItem.quantity}</span>
+                        <span className="col-span-3 text-right font-black">{(price * cartItem.quantity).toFixed(2)}</span>
+                      </div>
+                      <div className="pl-3 text-[9px] font-normal text-stone-600 space-y-0.5 mt-0.5">
+                        <div>+ TOASTED MULTIGRAIN BREAD</div>
+                        <div>+ CHEDDAR SLICE & CRISPY GREENS</div>
+                        <div>+ SIGNATURE HOUSE SAUCE & DRESSING</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Loyalty Rewards Box for Current Shop */}
+              <div className="border-2 border-stone-900 p-2 my-1.5 bg-stone-50 space-y-1">
+                <div className="text-xs font-black uppercase text-center tracking-wider">
+                  {shop.name.toUpperCase()} REWARDS & TOKENS
+                </div>
+                <div className="flex justify-between text-[10px] font-bold text-stone-800">
+                  <span>TOKENS EARNED TODAY:</span>
+                  <span>+{Math.max(5, Math.floor(calculation.grandTotal / 10))} TOKENS</span>
+                </div>
+                <div className="flex justify-between text-[10px] font-bold text-stone-800">
+                  <span>ESTIMATED TOTAL BALANCE:</span>
+                  <span>245 TOKENS</span>
+                </div>
+                <div className="text-[9px] text-center text-stone-600 uppercase font-bold">
+                  200 TOKENS = ₹50 DISCOUNT READY TO REDEEM!
+                </div>
+              </div>
+
+              <div className="text-[11px] space-y-1 font-bold">
+                <div className="flex justify-between">
+                  <span>SUBTOTAL:</span>
+                  <span>{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {taxSettings.enabled && (
+                  <div className="flex justify-between">
+                    <span>TAXES ({taxSettings.taxRate}%):</span>
+                    <span>+{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t-2 border-b-2 border-stone-900 py-1 my-1">
+                <div className="flex justify-between items-baseline text-base sm:text-lg font-black">
+                  <span>TOTAL:</span>
+                  <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="text-[10px] font-bold flex justify-between">
+                <span>PAID: {orderDetails.paymentMethod.toUpperCase()}</span>
+                <span>CHANGE: 0.00</span>
+              </div>
+
+              <div className="text-center text-[10px] font-bold border-t border-dashed border-stone-400 pt-1 space-y-0.5">
+                <div>TELL US HOW WE DID! VISIT WWW.MYFEEDBACK.PAGE</div>
+                <div className="text-[9px] text-stone-600 font-mono">TRANSACTION ID: #TXN-{Math.floor(100000 + Math.random() * 900000)}</div>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center pt-1">
+                  <img src={qrCodeDataUrl} alt="Deli QR" className="w-20 h-20 object-contain" />
+                  <span className="text-[9px] font-bold uppercase mt-0.5 text-stone-600">Scan for Feedback & Free Treat</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 4: ARTISAN CAFE & ROASTERY (Barista & Stars)     */}
+          {/* Always displays actual shop.name, never third-party brand  */}
+          {/* ========================================================= */}
+          {receiptStyle === 'starbucks_cafe' && (
+            <div className="space-y-2.5 text-stone-900 font-sans">
+              <div className="text-center space-y-0.5">
+                <div className="text-lg font-black uppercase tracking-wider text-stone-950 flex items-center justify-center gap-1.5">
+                  <span>☕</span>
+                  <span>{shop.name}</span>
+                </div>
+                <div className="text-[11px] font-semibold text-stone-600">ARTISANAL COFFEE & BAKEHOUSE</div>
+                <div className="text-[10px] text-stone-500 px-2 leading-tight">{shop.address}</div>
+                <div className="text-[10px] text-stone-600">Tel: {shop.phone}</div>
+              </div>
+
+              <div className="bg-stone-100 p-2 rounded-lg flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-[9px] uppercase font-bold text-stone-400 block">Check</span>
+                  <span className="font-extrabold text-stone-900">{orderDetails.orderId}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-[9px] uppercase font-bold text-stone-400 block">Barista</span>
+                  <span className="font-semibold text-stone-800">{orderDetails.serverName || 'Priya'}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[9px] uppercase font-bold text-stone-400 block">Register</span>
+                  <span className="font-semibold text-stone-800">POS-01</span>
+                </div>
+              </div>
+
+              {/* Coffee Customization Items */}
+              <div className="space-y-1.5 py-1">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  return (
+                    <div key={cartItem.id} className="text-xs">
+                      <div className="flex justify-between font-bold text-stone-900">
+                        <span>{cartItem.quantity}x {cartItem.item.name}</span>
+                        <span>{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</span>
+                      </div>
+                      <div className="pl-3 text-[10px] text-stone-500 font-medium space-y-0.5">
+                        <div>* Freshly Brewed / Custom Temp</div>
+                        <div>* House Blend Extraction</div>
+                        {cartItem.notes && <div>* {cartItem.notes}</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Coffeehouse Stars Loyalty Card */}
+              <div className="bg-stone-900 text-stone-100 p-2.5 rounded-xl space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-wider text-amber-300">★ {shop.name.toUpperCase()} REWARDS</span>
+                  <span className="text-[10px] bg-amber-500 text-stone-900 px-1.5 py-0.5 rounded font-black">VIP GUEST</span>
+                </div>
+                <div className="flex justify-between text-xs font-bold text-white">
+                  <span>Stars Earned Today:</span>
+                  <span className="text-amber-300">★ +{Math.max(2, Math.floor(calculation.grandTotal / 50))} Stars</span>
+                </div>
+                <p className="text-[9px] text-stone-400">Redeem complimentary beverage or dessert at 100 Stars!</p>
+              </div>
+
+              <div className="border-t border-stone-200 pt-2 space-y-1 text-xs font-semibold">
+                <div className="flex justify-between text-stone-600">
+                  <span>Subtotal</span>
+                  <span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {taxSettings.enabled && (
+                  <div className="flex justify-between text-stone-600">
+                    <span>Tax ({taxSettings.taxRate}%)</span>
+                    <span>+{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="border-t border-stone-300 pt-1 flex justify-between text-base font-extrabold text-stone-900">
+                  <span>Total Amount Paid</span>
+                  <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center pt-1">
+                  <img src={qrCodeDataUrl} alt="Cafe QR" className="w-18 h-18 object-contain" />
+                  <span className="text-[9px] font-bold text-stone-500 uppercase mt-0.5">Scan to Collect Rewards</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 5: FINE DINING ELEGANCE (Serif, Tip Guide, Sign) */}
+          {/* ========================================================= */}
+          {receiptStyle === 'fine_dining' && (
+            <div className="space-y-3 text-stone-900 font-serif leading-relaxed">
+              <div className="text-center space-y-1 pb-2 border-b border-stone-300">
+                <div className="text-[11px] tracking-widest uppercase text-stone-500 font-sans">✦ GUEST CHECK ✦</div>
+                <h1 className="text-2xl font-bold tracking-tight text-black capitalize">
+                  {shop.name}
+                </h1>
+                <p className="text-xs text-stone-700 italic px-2">{shop.address}</p>
+                <p className="text-xs font-sans text-stone-600">Reservations & Enquiries: {shop.phone}</p>
+                {taxSettings.taxIdValue && (
+                  <p className="text-[10px] font-mono text-stone-500">
+                    {taxSettings.taxIdLabel}: {taxSettings.taxIdValue}
+                  </p>
+                )}
+              </div>
+
+              <div className="font-sans text-xs flex justify-between border-b border-dashed border-stone-300 pb-2">
+                <div>
+                  <span className="font-bold text-stone-900 block">Table: {orderDetails.tableNo || 'Main Salon'}</span>
+                  <span className="text-stone-500">Server: {orderDetails.serverName || 'Captain'}</span>
+                </div>
+                <div className="text-right">
+                  <span className="font-bold text-stone-900 block">Bill #{orderDetails.orderId}</span>
+                  <span className="text-stone-500">{orderDetails.timestamp}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 py-1 font-sans text-xs">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  return (
+                    <div key={cartItem.id} className="flex justify-between items-baseline">
+                      <span className="font-semibold text-stone-900">
+                        {cartItem.quantity} × {cartItem.item.name}
+                      </span>
+                      <span className="font-bold text-stone-900 font-serif">
+                        {taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-stone-300 pt-2 space-y-1 font-sans text-xs">
+                <div className="flex justify-between text-stone-600">
+                  <span>Subtotal</span>
+                  <span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {taxSettings.enabled && (
+                  <div className="flex justify-between text-stone-600">
+                    <span>Tax ({taxSettings.taxRate}%)</span>
+                    <span>+{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {calculation.serviceChargeAmount > 0 && (
+                  <div className="flex justify-between text-stone-600">
+                    <span>Service Gratuity</span>
+                    <span>+{taxSettings.currencySymbol}{calculation.serviceChargeAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="border-t-2 border-stone-900 pt-1.5 flex justify-between text-base font-bold font-serif text-black">
+                  <span>TOTAL BILLED:</span>
+                  <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Tip Suggestion Guide */}
+              <div className="bg-stone-50 p-2 rounded border border-stone-200 text-center font-sans text-[10px] space-y-0.5">
+                <span className="font-bold uppercase text-stone-600 block">Suggested Gratuity Guide:</span>
+                <div className="flex justify-around font-semibold text-stone-800 pt-0.5">
+                  <span>10%: {taxSettings.currencySymbol}{(calculation.grandTotal * 0.10).toFixed(2)}</span>
+                  <span>15%: {taxSettings.currencySymbol}{(calculation.grandTotal * 0.15).toFixed(2)}</span>
+                  <span>18%: {taxSettings.currencySymbol}{(calculation.grandTotal * 0.18).toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="pt-3 font-sans text-xs space-y-3">
+                <div className="border-b border-stone-400 pb-1 flex justify-between text-stone-600">
+                  <span>Guest Signature:</span>
+                  <span className="text-stone-300">________________________</span>
+                </div>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center pt-1 font-sans">
+                  <img src={qrCodeDataUrl} alt="Elegance QR" className="w-18 h-18 object-contain" />
+                  <span className="text-[9px] text-stone-500 uppercase mt-0.5">Digital Check Verification</span>
+                </div>
+              )}
+
+              <div className="text-center pt-1 text-xs italic text-stone-600">
+                It was our pleasure hosting you at {shop.name}.
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 6: ASIAN IZAKAYA / MINIMALIST (Clean Geometric)  */}
+          {/* ========================================================= */}
+          {receiptStyle === 'asian_minimal' && (
+            <div className="space-y-2.5 text-stone-900 font-sans">
+              <div className="border-2 border-stone-900 p-2 text-center space-y-0.5">
+                <div className="text-xs uppercase tracking-widest text-stone-600">ORDER TICKET</div>
+                <div className="text-xl font-black uppercase tracking-tight text-black">{shop.name}</div>
+                <div className="text-[10px] text-stone-600">{shop.address}</div>
+                <div className="text-[10px] font-mono">TEL: {shop.phone}</div>
+              </div>
+
+              <div className="grid grid-cols-2 text-[10px] font-mono border-b border-stone-900 pb-1">
+                <div>CHECK: {orderDetails.orderId}</div>
+                <div className="text-right">SEAT: {orderDetails.tableNo || 'COUNTER'}</div>
+                <div>STAFF: {orderDetails.serverName || '01'}</div>
+                <div className="text-right">{orderDetails.timestamp}</div>
+              </div>
+
+              {/* Minimal items list */}
+              <div className="space-y-1 text-xs py-1">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  return (
+                    <div key={cartItem.id} className="flex justify-between border-b border-stone-100 pb-1">
+                      <span className="font-bold">
+                        {cartItem.quantity} × {cartItem.item.name}
+                      </span>
+                      <span className="font-mono font-bold">
+                        {(price * cartItem.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="border-t-2 border-stone-900 pt-1.5 space-y-0.5 font-mono text-xs">
+                <div className="flex justify-between text-stone-600">
+                  <span>SUBTOTAL</span>
+                  <span>{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {taxSettings.enabled && (
+                  <div className="flex justify-between text-stone-600">
+                    <span>TAX ({taxSettings.taxRate}%)</span>
+                    <span>+{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-base font-black text-black pt-1 border-t border-stone-900">
+                  <span>TOTAL DUE</span>
+                  <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Japanese/Asian Hanko/Stamp Box */}
+              <div className="flex items-center justify-between border border-stone-900 p-2 my-2 bg-stone-50">
+                <div className="text-[10px] font-mono space-y-0.5">
+                  <span className="font-bold block">PAID VIA: {orderDetails.paymentMethod.toUpperCase()}</span>
+                  <span className="text-stone-500">THANK YOU / ありがとうございました</span>
+                </div>
+                <div className="w-10 h-10 border-2 border-rose-600 rounded text-rose-600 flex flex-col items-center justify-center font-black text-[9px] uppercase leading-none">
+                  <span>領収</span>
+                  <span>PAID</span>
+                </div>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center pt-1">
+                  <img src={qrCodeDataUrl} alt="Asian QR" className="w-16 h-16 object-contain" />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 7: SUPERMARKET RETAIL (Units Tally & Savings)    */}
+          {/* ========================================================= */}
+          {receiptStyle === 'supermarket_retail' && (
+            <div className="font-receipt space-y-2 text-stone-900 text-[11px]">
+              <div className="text-center space-y-0.5">
+                <div className="text-xl font-black uppercase text-black">{shop.name}</div>
+                <div className="text-[10px] font-bold">SUPERMARKET & RETAIL MART</div>
+                <div className="text-[9px] text-stone-600">{shop.address}</div>
+                <div className="text-[9px] font-mono">GSTIN/TIN: {taxSettings.taxIdValue || '07AAAAA0000A1Z5'}</div>
+              </div>
+
+              <div className="border-t border-b border-stone-800 py-1 font-bold space-y-0.5 text-[10px]">
+                <div className="flex justify-between">
+                  <span>TAX INVOICE: {orderDetails.orderId}</span>
+                  <span>POS: REG 04</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>CASHIER: {orderDetails.serverName || 'STAFF'}</span>
+                  <span>DATE: {orderDetails.timestamp}</span>
+                </div>
+              </div>
+
+              {/* Items grid */}
+              <div className="border-b border-stone-900 py-0.5 font-black uppercase grid grid-cols-12">
+                <span className="col-span-6">ITEM DESCRIPTION</span>
+                <span className="col-span-2 text-center">QTY</span>
+                <span className="col-span-2 text-right">RATE</span>
+                <span className="col-span-2 text-right">TOTAL</span>
+              </div>
+
+              <div className="divide-y divide-dotted divide-stone-300 py-1 font-bold">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  return (
+                    <div key={cartItem.id} className="grid grid-cols-12 py-0.5">
+                      <span className="col-span-6 truncate uppercase">{cartItem.item.name}</span>
+                      <span className="col-span-2 text-center">{cartItem.quantity} EA</span>
+                      <span className="col-span-2 text-right">{price.toFixed(2)}</span>
+                      <span className="col-span-2 text-right font-black">{(price * cartItem.quantity).toFixed(2)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Total Units Badge */}
+              <div className="flex justify-between font-bold text-[10px] bg-stone-100 p-1 rounded">
+                <span>TOTAL ITEM COUNT: {cart.length}</span>
+                <span>TOTAL UNITS: {cart.reduce((s, c) => s + c.quantity, 0)} PCS</span>
+              </div>
+
+              <div className="space-y-0.5 font-bold pt-1">
+                <div className="flex justify-between">
+                  <span>SUBTOTAL:</span>
+                  <span>{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {taxSettings.enabled && (
+                  <div className="flex justify-between">
+                    <span>TAXES APPLIED ({taxSettings.taxRate}%):</span>
+                    <span>+{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {calculation.discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-800">
+                    <span>SAVINGS / STORE DISCOUNT:</span>
+                    <span>-{calculation.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t-2 border-b-2 border-stone-900 py-1 flex justify-between items-baseline text-base font-black">
+                <span>TOTAL AMOUNT:</span>
+                <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+              </div>
+
+              <div className="text-[10px] font-bold flex justify-between">
+                <span>PAID: {orderDetails.paymentMethod.toUpperCase()}</span>
+                <span>STATUS: COMPLETED</span>
+              </div>
+
+              {/* Barcode */}
+              <div className="flex flex-col items-center pt-2">
+                <div className="flex items-center justify-center gap-[2px] h-8 w-4/5 overflow-hidden">
+                  {[2, 1, 3, 1, 4, 2, 1, 3, 2, 1, 2, 4, 1, 2, 3, 1, 2, 4, 2, 1, 3, 1, 2, 4].map((w, i) => (
+                    <div key={i} className="h-full bg-black" style={{ width: `${w * 1.5}px` }} />
+                  ))}
+                </div>
+                <span className="text-[8px] font-bold font-mono tracking-widest mt-0.5">*{orderDetails.orderId}*</span>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center pt-1">
+                  <img src={qrCodeDataUrl} alt="Retail QR" className="w-18 h-18 object-contain" />
+                </div>
+              )}
+
+              <div className="text-center pt-1 text-[9px] font-bold uppercase">
+                *** THANK YOU FOR SHOPPING AT {shop.name.toUpperCase()} ***
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 8: CLASSIC THERMAL (Standard Physical Thermal)   */}
+          {/* ========================================================= */}
+          {receiptStyle === 'classic_thermal' && (
+            <div className="font-receipt space-y-2 text-stone-900">
+              <div className="text-center space-y-1 pb-1">
+                <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight leading-tight text-black">
+                  {shop.name}
+                </h1>
+                <p className="text-[11px] sm:text-xs leading-snug px-1 text-stone-800 font-medium">{shop.address}</p>
+                <p className="text-[11px] sm:text-xs font-bold text-stone-900">Tel: {shop.phone}</p>
+                {shop.tagline && <p className="text-[10px] italic text-stone-600">"{shop.tagline}"</p>}
+                <div className="text-[10px] font-bold text-stone-800 pt-0.5 space-y-0.5">
+                  {taxSettings.taxIdValue && <div>{taxSettings.taxIdLabel}: {taxSettings.taxIdValue}</div>}
+                  {shop.fssaiNumber && <div>FSSAI Lic No: {shop.fssaiNumber}</div>}
+                </div>
+              </div>
+
+              <div className="text-center font-bold text-stone-800 select-none text-xs">
+                ===========================================
+              </div>
+
+              <div className="text-[11px] leading-tight space-y-1 font-bold">
+                <div className="flex justify-between">
+                  <span>ORDER: {orderDetails.orderId}</span>
+                  <span>TABLE: {orderDetails.tableNo || 'WALK-IN'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>DATE: {orderDetails.timestamp}</span>
+                  <span>TYPE: DINE-IN</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>SERVER: {orderDetails.serverName || 'Staff'}</span>
+                  <span>POS: TERM-01</span>
+                </div>
+              </div>
+
+              <div className="text-center font-bold text-stone-800 select-none text-xs">
+                -------------------------------------------
+              </div>
+
+              <div className="text-[11px] font-black uppercase py-0.5 grid grid-cols-12 gap-1 border-b border-stone-900">
+                <div className="col-span-6">ITEM</div>
+                <div className="col-span-2 text-center">QTY</div>
+                <div className="col-span-2 text-right">RATE</div>
+                <div className="col-span-2 text-right">AMT</div>
+              </div>
+
+              <div className="divide-y divide-dashed divide-stone-300 py-1 text-[11px]">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  const total = price * cartItem.quantity;
+                  return (
+                    <div key={cartItem.id} className="py-1 grid grid-cols-12 gap-1 font-bold">
+                      <div className="col-span-6 leading-tight break-words">
+                        <span>{cartItem.item.name}</span>
+                        {cartItem.notes && <span className="block text-[9px] font-normal italic text-stone-600">* {cartItem.notes}</span>}
+                      </div>
+                      <div className="col-span-2 text-center">{cartItem.quantity}</div>
+                      <div className="col-span-2 text-right">{price.toFixed(2)}</div>
+                      <div className="col-span-2 text-right font-black">{total.toFixed(2)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="text-center font-bold text-stone-800 select-none text-xs">
+                -------------------------------------------
+              </div>
+
+              <div className="text-[11px] space-y-1 font-bold">
+                <div className="flex justify-between">
+                  <span>SUBTOTAL:</span>
+                  <span>{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {calculation.discountAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span>DISCOUNT ({discount.type === 'percentage' ? `${discount.value}%` : 'FLAT'}):</span>
+                    <span>-{calculation.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {taxSettings.enabled && taxSettings.splitCgstSgst && (
+                  <>
+                    <div className="flex justify-between">
+                      <span>CGST @ {(taxSettings.taxRate / 2).toFixed(1)}%:</span>
+                      <span>+{calculation.cgstAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>SGST @ {(taxSettings.taxRate / 2).toFixed(1)}%:</span>
+                      <span>+{calculation.sgstAmount.toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
+                {taxSettings.enabled && !taxSettings.splitCgstSgst && (
+                  <div className="flex justify-between">
+                    <span>{taxSettings.taxLabel.toUpperCase()} ({taxSettings.taxRate}%):</span>
+                    <span>+{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {calculation.serviceChargeAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span>SERVICE CHARGE:</span>
+                    <span>+{calculation.serviceChargeAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {orderDetails.roundOff && calculation.roundOffDelta !== 0 && (
+                  <div className="flex justify-between">
+                    <span>ROUND OFF:</span>
+                    <span>{calculation.roundOffDelta >= 0 ? '+' : ''}{calculation.roundOffDelta.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t-2 border-b-2 border-stone-900 py-1.5 my-1.5">
+                <div className="flex justify-between items-baseline text-base sm:text-lg font-black tracking-tight">
+                  <span>TOTAL DUE:</span>
+                  <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="text-[11px] font-bold py-1 space-y-0.5">
+                <div className="flex justify-between">
+                  <span>PAID VIA:</span>
+                  <span className="uppercase">{orderDetails.paymentMethod}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>PAYMENT STATUS:</span>
+                  <span>{orderDetails.paymentStatus}</span>
+                </div>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center justify-center my-2 text-center pt-1">
+                  <div className="p-1 border border-stone-900 bg-white inline-block">
+                    <img src={qrCodeDataUrl} alt="Receipt QR Code" className="w-24 h-24 sm:w-28 sm:h-28 object-contain" />
+                  </div>
+                  <span className="text-[9px] font-bold uppercase mt-1 text-stone-700">
+                    {qrCodeType === 'upi' ? 'Scan to Pay via UPI' : qrCodeType === 'feedback' ? 'Scan to Leave Review' : 'Scan to Verify E-Invoice'}
+                  </span>
+                </div>
+              )}
+
+              <div className="text-center pt-2 pb-1 space-y-1 text-[10px] leading-tight">
+                <div className="font-black text-xs uppercase tracking-wide">*** THANK YOU! VISIT AGAIN ***</div>
+                <p className="text-stone-700 font-medium">Goods once sold will not be returned or exchanged.</p>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 9: MODERN BISTRO (Contemporary Elegant Cafe)     */}
+          {/* ========================================================= */}
+          {receiptStyle === 'modern_bistro' && (
+            <div className="space-y-3 text-stone-900">
+              <div className="border-b border-stone-300 pb-3">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-stone-950">
+                    {shop.name}
+                  </h1>
+                  <span className="text-[10px] font-bold bg-stone-900 text-white px-2 py-0.5 rounded-sm">
+                    {orderDetails.tableNo || 'BISTRO'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-stone-600 mt-1 leading-snug">{shop.address}</p>
+                <div className="flex items-center justify-between text-[11px] text-stone-700 font-medium mt-1">
+                  <span>Ph: {shop.phone}</span>
+                  {taxSettings.taxIdValue && <span>{taxSettings.taxIdLabel}: {taxSettings.taxIdValue}</span>}
+                </div>
+              </div>
+
+              <div className="bg-stone-100 p-2.5 rounded-lg flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block">Check No</span>
+                  <span className="font-extrabold text-stone-900">{orderDetails.orderId}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block">Server</span>
+                  <span className="font-semibold text-stone-800">{orderDetails.serverName || 'Host'}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block">Time</span>
+                  <span className="font-semibold text-stone-800">{orderDetails.timestamp}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 py-1">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  const total = price * cartItem.quantity;
+                  return (
+                    <div key={cartItem.id} className="flex items-start justify-between text-xs">
+                      <div className="flex-1 pr-3">
+                        <span className="font-bold text-stone-900">
+                          {cartItem.quantity}x {cartItem.item.name}
+                        </span>
+                        {cartItem.notes && <span className="block text-[10px] text-stone-500 italic">{cartItem.notes}</span>}
+                      </div>
+                      <div className="font-bold text-stone-900 shrink-0">
+                        {taxSettings.currencySymbol}{total.toFixed(2)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-stone-200 pt-2.5 space-y-1.5 text-xs">
+                <div className="flex justify-between text-stone-600 font-medium">
+                  <span>Subtotal</span>
+                  <span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {calculation.discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-700 font-semibold">
+                    <span>Discount</span>
+                    <span>-{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {taxSettings.enabled && taxSettings.splitCgstSgst && (
+                  <>
+                    <div className="flex justify-between text-stone-600 font-medium">
+                      <span>CGST ({(taxSettings.taxRate / 2).toFixed(1)}%)</span>
+                      <span>+{taxSettings.currencySymbol}{calculation.cgstAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-stone-600 font-medium">
+                      <span>SGST ({(taxSettings.taxRate / 2).toFixed(1)}%)</span>
+                      <span>+{taxSettings.currencySymbol}{calculation.sgstAmount.toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
+                {taxSettings.enabled && !taxSettings.splitCgstSgst && (
+                  <div className="flex justify-between text-stone-600 font-medium">
+                    <span>{taxSettings.taxLabel} ({taxSettings.taxRate}%):</span>
+                    <span>+{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+
+                <div className="bg-stone-900 text-white p-3 rounded-xl flex items-baseline justify-between mt-2">
+                  <div>
+                    <span className="text-xs uppercase font-extrabold tracking-wider block text-stone-300">Total Payable</span>
+                    <span className="text-[10px] text-stone-400">Settled via {orderDetails.paymentMethod}</span>
+                  </div>
+                  <span className="text-xl font-black text-white">
+                    {taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex items-center justify-between bg-stone-50 p-2.5 rounded-xl border border-stone-200 mt-2">
+                  <div className="text-left">
+                    <span className="text-xs font-bold text-stone-900 block">Digital Receipt</span>
+                    <span className="text-[10px] text-stone-500">Scan with your smartphone camera</span>
+                  </div>
+                  <img src={qrCodeDataUrl} alt="Bistro QR Code" className="w-16 h-16 object-contain" />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 10: RETRO DOT-MATRIX (90s Impact Pin Printer)    */}
+          {/* ========================================================= */}
+          {receiptStyle === 'retro_dotmatrix' && (
+            <div className="font-dotmatrix text-black space-y-1.5 text-base leading-snug">
+              <div className="text-center select-none text-sm">****************************************</div>
+              <div className="text-center uppercase space-y-0.5">
+                <div className="text-2xl font-bold tracking-widest">{shop.name}</div>
+                <div className="text-sm">{shop.address}</div>
+                <div className="text-sm">PHONE: {shop.phone}</div>
+                {taxSettings.taxIdValue && <div className="text-sm">{taxSettings.taxIdLabel}: {taxSettings.taxIdValue}</div>}
+              </div>
+              <div className="text-center select-none text-sm">****************************************</div>
+
+              <div className="text-sm space-y-0.5">
+                <div className="flex justify-between">
+                  <span>BILL NO: {orderDetails.orderId}</span>
+                  <span>TBL: {orderDetails.tableNo || '00'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>DATE: {orderDetails.timestamp}</span>
+                  <span>STAFF: {orderDetails.serverName || '01'}</span>
+                </div>
+              </div>
+
+              <div className="text-center select-none text-sm">----------------------------------------</div>
+
+              <div className="text-sm uppercase font-bold grid grid-cols-12 gap-1">
+                <div className="col-span-6">DESCRIPTION</div>
+                <div className="col-span-2 text-center">QTY</div>
+                <div className="col-span-2 text-right">PRICE</div>
+                <div className="col-span-2 text-right">TOTAL</div>
+              </div>
+
+              <div className="text-sm uppercase space-y-0.5">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  const total = price * cartItem.quantity;
+                  return (
+                    <div key={cartItem.id} className="grid grid-cols-12 gap-1">
+                      <div className="col-span-6 truncate">{cartItem.item.name}</div>
+                      <div className="col-span-2 text-center">{cartItem.quantity}</div>
+                      <div className="col-span-2 text-right">{price.toFixed(2)}</div>
+                      <div className="col-span-2 text-right">{total.toFixed(2)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="text-center select-none text-sm">----------------------------------------</div>
+
+              <div className="text-sm space-y-0.5 uppercase">
+                <div className="flex justify-between">
+                  <span>SUBTOTAL:</span>
+                  <span>{calculation.subtotal.toFixed(2)}</span>
+                </div>
+                {taxSettings.enabled && (
+                  <div className="flex justify-between">
+                    <span>TAX ({taxSettings.taxRate}%):</span>
+                    <span>+{calculation.totalTaxAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="text-center select-none text-sm">========================================</div>
+
+              <div className="flex justify-between text-2xl font-bold uppercase">
+                <span>NET PAYABLE:</span>
+                <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+              </div>
+
+              <div className="text-center uppercase text-sm pt-1">
+                <div>PAID BY: {orderDetails.paymentMethod}</div>
+                <div>*** PLEASE VISIT AGAIN ***</div>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center justify-center pt-2">
+                  <img src={qrCodeDataUrl} alt="Dot Matrix QR" className="w-24 h-24 object-contain filter contrast-200" />
+                  <span className="text-xs uppercase mt-1">SCAN FOR E-RECEIPT</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 11: COMPACT EXPRESS (Fast Food Counter Ticket)   */}
+          {/* ========================================================= */}
+          {receiptStyle === 'compact_express' && (
+            <div className="font-receipt space-y-2 text-stone-900">
+              <div className="bg-stone-900 text-white rounded-lg p-3 text-center">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-stone-400 block">
+                  ORDER TOKEN
+                </span>
+                <span className="text-3xl font-black tracking-tight text-white block">
+                  #{orderDetails.orderId.replace('#ORD-', '') || '42'}
+                </span>
+                <span className="text-[10px] text-stone-300 font-medium">
+                  {orderDetails.tableNo || 'TAKEAWAY EXPRESS'} • {orderDetails.timestamp}
+                </span>
+              </div>
+
+              <div className="text-center py-1">
+                <h3 className="font-black text-sm uppercase text-black">{shop.name}</h3>
+                <p className="text-[10px] text-stone-600">{shop.address}</p>
+              </div>
+
+              <div className="border-t border-b border-stone-800 py-1 space-y-1 text-xs">
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  return (
+                    <div key={cartItem.id} className="flex justify-between font-bold">
+                      <span>{cartItem.quantity}x {cartItem.item.name}</span>
+                      <span>{(price * cartItem.quantity).toFixed(2)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex justify-between items-baseline font-black text-base pt-1">
+                <span>PAID:</span>
+                <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex flex-col items-center pt-2">
+                  <img src={qrCodeDataUrl} alt="Express QR" className="w-20 h-20 object-contain" />
+                  <span className="text-[9px] font-bold text-stone-600 uppercase mt-0.5">Scan to Track Order</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TEMPLATE 12: GST TAX INVOICE (Formal Commercial Bill)     */}
+          {/* ========================================================= */}
+          {receiptStyle === 'gst_tax_invoice' && (
+            <div className="text-[11px] font-sans text-stone-900 border-2 border-stone-900 p-2 space-y-2">
+              <div className="text-center border-b border-stone-900 pb-1.5">
+                <div className="text-xs font-black uppercase tracking-wider text-stone-900">TAX INVOICE</div>
+                <div className="text-base font-black uppercase text-stone-950 mt-0.5">{shop.name}</div>
+                <div className="text-[10px] leading-tight text-stone-700">{shop.address}</div>
+                <div className="text-[10px] font-bold text-stone-900 mt-0.5">
+                  GSTIN: {taxSettings.taxIdValue || '07AAAAA0000A1Z5'} | TEL: {shop.phone}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-[10px] border-b border-stone-900 pb-1.5">
+                <div>
+                  <span className="font-bold block">INVOICE NO: {orderDetails.orderId}</span>
+                  <span>DATE: {orderDetails.timestamp}</span>
+                </div>
+                <div className="text-right">
+                  <span className="font-bold block">TABLE / PLACE: {orderDetails.tableNo || 'DINE-IN'}</span>
+                  <span>STATE: 07 - DELHI / UT</span>
+                </div>
+              </div>
+
+              <div className="border border-stone-900">
+                <div className="grid grid-cols-12 text-[10px] font-black uppercase bg-stone-100 p-1 border-b border-stone-900">
+                  <div className="col-span-6">ITEM & HSN</div>
+                  <div className="col-span-2 text-center">QTY</div>
+                  <div className="col-span-2 text-right">RATE</div>
+                  <div className="col-span-2 text-right">TOTAL</div>
+                </div>
+                <div className="divide-y divide-stone-200">
+                  {cart.map((cartItem) => {
+                    const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                    return (
+                      <div key={cartItem.id} className="grid grid-cols-12 p-1 text-[10px] font-medium">
+                        <div className="col-span-6 font-semibold">
+                          {cartItem.item.name}
+                          <span className="block text-[8px] text-stone-500">HSN: 996331</span>
+                        </div>
+                        <div className="col-span-2 text-center">{cartItem.quantity}</div>
+                        <div className="col-span-2 text-right">{price.toFixed(2)}</div>
+                        <div className="col-span-2 text-right font-bold">{(price * cartItem.quantity).toFixed(2)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="border border-stone-900 p-1.5 space-y-1 text-[10px]">
+                <div className="flex justify-between">
+                  <span>TAXABLE VALUE:</span>
+                  <span className="font-bold">{calculation.taxableAmount.toFixed(2)}</span>
+                </div>
+                {taxSettings.splitCgstSgst && (
+                  <>
+                    <div className="flex justify-between">
+                      <span>CENTRAL TAX (CGST @ {(taxSettings.taxRate / 2).toFixed(1)}%):</span>
+                      <span className="font-bold">{calculation.cgstAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>STATE TAX (SGST @ {(taxSettings.taxRate / 2).toFixed(1)}%):</span>
+                      <span className="font-bold">{calculation.sgstAmount.toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
+                <div className="border-t border-stone-900 pt-1 flex justify-between font-black text-xs">
+                  <span>TOTAL INVOICE VALUE:</span>
+                  <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {showQrCode && qrCodeDataUrl && (
+                <div className="flex items-center justify-between border-t border-stone-900 pt-1.5">
+                  <div className="text-[9px]">
+                    <span className="font-bold block">IRN / DIGITAL SIGNATURE</span>
+                    <span>Valid under Section 31 of CGST Act</span>
+                  </div>
+                  <img src={qrCodeDataUrl} alt="GST QR" className="w-14 h-14 object-contain" />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

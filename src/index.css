@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-receipt {
+    font-family: 'Space Mono', 'Courier New', Courier, monospace;
+  }
+  .font-dotmatrix {
+    font-family: 'VT323', monospace;
+  }
+}
+
+/* Authentic Thermal Perforated Jagged Edge */
+.receipt-tear-top {
+  background: radial-gradient(circle, transparent, transparent 4px, #ffffff 4px, #ffffff);
+  background-size: 10px 10px;
+  background-position: -5px -5px;
+}
+
+.receipt-tear-bottom {
+  background: radial-gradient(circle, transparent, transparent 4px, #ffffff 4px, #ffffff);
+  background-size: 10px 10px;
+  background-position: -5px 5px;
+}
+
+/* Thermal receipt paper realistic subtle roll shadow & texture */
+.receipt-paper-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08),
+              0 20px 25px -5px rgba(0, 0, 0, 0.06),
+              0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* Print Styles for 58mm and 80mm Direct Thermal Printers */
+@media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
+  body {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #000000 !important;
+  }
+
+  /* Hide all UI elements except the receipt */
+  body > *:not(#print-root) {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .thermal-receipt-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 4mm 2mm !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
