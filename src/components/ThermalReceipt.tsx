@@ -516,6 +516,130 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 : '-0.02em',
           }}
         >
+
+          {/* PREMIUM GENERIC DELIVERY TEMPLATES — original layouts, no third-party branding */}
+          {receiptStyle === 'delivery_card' && (
+            <div className="font-sans text-stone-900 -m-4 sm:-m-5">
+              <div className="bg-emerald-700 text-white px-5 py-5 rounded-t-xl">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.22em] text-emerald-100 font-bold">Order confirmed · Demo</div>
+                    <h2 className="text-xl font-black tracking-tight mt-1">{shop.name}</h2>
+                    <p className="text-[10px] text-emerald-50 mt-1 leading-relaxed">{shop.address}</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/15 border border-white/25 p-2 text-2xl">✦</div>
+                </div>
+                <div className="mt-4 inline-flex rounded-full bg-white text-emerald-800 px-3 py-1 text-[10px] font-extrabold tracking-wide">ORDER {orderDetails.orderId}</div>
+              </div>
+              <div className="bg-white px-5 py-4 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl bg-stone-50 border border-stone-100 p-3">
+                    <span className="block text-[9px] uppercase tracking-widest text-stone-500 font-bold">Placed at</span>
+                    <span className="mt-1 block text-xs font-bold">{orderDetails.timestamp}</span>
+                  </div>
+                  <div className="rounded-xl bg-stone-50 border border-stone-100 p-3">
+                    <span className="block text-[9px] uppercase tracking-widest text-stone-500 font-bold">Fulfilment</span>
+                    <span className="mt-1 block text-xs font-bold">{orderDetails.tableNo || 'Pickup / Delivery'}</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between border-b border-stone-200 pb-2 mb-1">
+                    <h3 className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-stone-500">Your order</h3>
+                    <span className="text-[10px] text-stone-500">{cart.reduce((s, item) => s + item.quantity, 0)} items</span>
+                  </div>
+                  {cart.map((cartItem) => {
+                    const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                    return (
+                      <div key={cartItem.id} className="flex items-start justify-between gap-3 py-2.5 border-b border-dashed border-stone-200">
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold leading-snug">{cartItem.item.name}</div>
+                          <div className="text-[10px] text-stone-500 mt-0.5">Qty {cartItem.quantity} × {taxSettings.currencySymbol}{price.toFixed(2)}</div>
+                          {cartItem.notes && <div className="text-[10px] text-stone-500 italic mt-1">{cartItem.notes}</div>}
+                        </div>
+                        <div className="text-xs font-extrabold tabular-nums whitespace-nowrap">{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="rounded-xl bg-stone-50 border border-stone-200 p-3 space-y-2 text-[11px]">
+                  <div className="flex justify-between"><span className="text-stone-600">Item subtotal</span><span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span></div>
+                  {calculation.discountAmount > 0 && <div className="flex justify-between text-emerald-700"><span>Discount</span><span>−{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span></div>}
+                  {taxSettings.enabled && <div className="flex justify-between"><span className="text-stone-600">{taxSettings.taxLabel} ({taxSettings.taxRate}%)</span><span>{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>}
+                  {calculation.serviceChargeAmount > 0 && <div className="flex justify-between"><span className="text-stone-600">Service / delivery fee</span><span>{taxSettings.currencySymbol}{calculation.serviceChargeAmount.toFixed(2)}</span></div>}
+                  {orderDetails.roundOff && calculation.roundOffDelta !== 0 && <div className="flex justify-between"><span className="text-stone-600">Rounding</span><span>{calculation.roundOffDelta >= 0 ? '+' : '−'}{taxSettings.currencySymbol}{Math.abs(calculation.roundOffDelta).toFixed(2)}</span></div>}
+                  <div className="border-t border-stone-300 pt-3 mt-1 flex justify-between items-baseline"><span className="font-extrabold text-xs">Total</span><span className="font-black text-xl tracking-tight">{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span></div>
+                  <div className="flex justify-between text-[10px] text-stone-500"><span>Payment method</span><span>{orderDetails.paymentMethod}</span></div>
+                  <div className="flex justify-between text-[10px] font-bold"><span>Payment status</span><span>{orderDetails.paymentStatus}</span></div>
+                </div>
+                <div className="text-center border-t border-stone-200 pt-3">
+                  <div className="text-xs font-extrabold">{orderDetails.footerNote || 'Thanks for ordering'}</div>
+                  <div className="text-[9px] text-stone-400 mt-1 uppercase tracking-[0.18em]">Illustrative delivery receipt</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {receiptStyle === 'delivery_minimal' && (
+            <div className="font-sans text-stone-900 -m-4 sm:-m-5">
+              <div className="px-5 pt-5 pb-4 border-b-2 border-stone-900">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[9px] tracking-[0.25em] uppercase font-black text-stone-500">Order note / demo</div>
+                  <div className="text-[10px] font-bold border border-stone-300 rounded-full px-2 py-1">{orderDetails.orderId}</div>
+                </div>
+                <h2 className="text-2xl font-black tracking-[-0.06em] leading-tight mt-4">{shop.name}</h2>
+                <p className="text-[10px] text-stone-500 mt-1">{shop.address}</p>
+                <div className="grid grid-cols-2 gap-3 mt-4 text-[10px]">
+                  <div><span className="block text-stone-400 uppercase tracking-wider">Order date</span><span className="font-bold mt-1 block">{orderDetails.timestamp}</span></div>
+                  <div><span className="block text-stone-400 uppercase tracking-wider">Guest</span><span className="font-bold mt-1 block">{orderDetails.customerName || 'Walk-in customer'}</span></div>
+                </div>
+              </div>
+              <div className="px-5 py-4">
+                <div className="text-[9px] uppercase tracking-[0.2em] font-black text-stone-400 mb-3">Items</div>
+                {cart.map((cartItem) => {
+                  const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price;
+                  return (
+                    <div key={cartItem.id} className="flex justify-between gap-3 py-2 border-b border-stone-100">
+                      <div className="text-xs min-w-0"><span className="font-black mr-2">{String(cartItem.quantity).padStart(2, '0')}</span><span className="font-semibold">{cartItem.item.name}</span>{cartItem.notes && <div className="text-[10px] text-stone-500 pl-7 mt-1">{cartItem.notes}</div>}</div>
+                      <div className="font-bold text-xs whitespace-nowrap">{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</div>
+                    </div>
+                  );
+                })}
+                <div className="space-y-2 mt-4 text-[11px]">
+                  <div className="flex justify-between"><span className="text-stone-500">Subtotal</span><span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span></div>
+                  {calculation.discountAmount > 0 && <div className="flex justify-between"><span className="text-stone-500">Offer / discount</span><span>−{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span></div>}
+                  {taxSettings.enabled && <div className="flex justify-between"><span className="text-stone-500">{taxSettings.taxLabel}</span><span>{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>}
+                  {calculation.serviceChargeAmount > 0 && <div className="flex justify-between"><span className="text-stone-500">Delivery / service</span><span>{taxSettings.currencySymbol}{calculation.serviceChargeAmount.toFixed(2)}</span></div>}
+                </div>
+                <div className="mt-4 pt-3 border-t-2 border-stone-900">
+                  <div className="flex justify-between items-end"><span className="text-[10px] font-black uppercase tracking-widest">Amount due</span><span className="text-2xl font-black tracking-tight">{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span></div>
+                  {orderDetails.roundOff && calculation.roundOffDelta !== 0 && <div className="text-right text-[10px] text-stone-500 mt-1">Includes rounding {calculation.roundOffDelta >= 0 ? '+' : '−'}{taxSettings.currencySymbol}{Math.abs(calculation.roundOffDelta).toFixed(2)}</div>}
+                </div>
+                <div className="mt-5 flex justify-between items-center border-t border-stone-200 pt-3 text-[10px]"><span className="uppercase tracking-wider font-bold text-stone-500">Paid / pending</span><span className="font-black">{orderDetails.paymentStatus} · {orderDetails.paymentMethod}</span></div>
+                <div className="text-center pt-4 text-[10px] text-stone-400">THANK YOU · MADE FOR DEMONSTRATION</div>
+              </div>
+            </div>
+          )}
+
+          {receiptStyle === 'delivery_dark' && (
+            <div className="font-sans text-stone-100 bg-[#151a17] -m-4 sm:-m-5">
+              <div className="px-5 py-5 bg-[#202b25] border-b border-emerald-300/20 rounded-t-xl">
+                <div className="flex justify-between items-start gap-3">
+                  <div><div className="text-[9px] uppercase tracking-[0.25em] text-emerald-300 font-black">Digital order receipt · demo</div><h2 className="text-xl font-black mt-2 leading-tight">{shop.name}</h2><p className="text-[10px] text-stone-400 mt-1">{shop.address}</p></div>
+                  <span className="text-xl">◈</span>
+                </div>
+                <div className="mt-4 flex items-center justify-between border border-white/10 rounded-xl bg-black/20 p-3"><span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Order ID</span><span className="font-mono font-bold text-xs">{orderDetails.orderId}</span></div>
+              </div>
+              <div className="px-5 py-4 space-y-4">
+                <div className="flex justify-between gap-3 text-[10px] text-stone-400"><span>{orderDetails.timestamp}</span><span>{orderDetails.tableNo || 'Delivery order'}</span></div>
+                <div><h3 className="text-[9px] uppercase tracking-[0.22em] text-emerald-300 font-black mb-2">Order details</h3>
+                  {cart.map((cartItem) => { const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price; return <div key={cartItem.id} className="flex justify-between gap-3 py-2 border-b border-white/10"><div className="min-w-0"><div className="text-xs font-semibold">{cartItem.quantity} × {cartItem.item.name}</div>{cartItem.notes && <div className="text-[10px] text-stone-400 mt-1">{cartItem.notes}</div>}</div><span className="text-xs font-bold whitespace-nowrap">{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</span></div>; })}
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3 space-y-2 text-[11px]"><div className="flex justify-between"><span className="text-stone-400">Subtotal</span><span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span></div>{calculation.discountAmount > 0 && <div className="flex justify-between text-emerald-300"><span>Discount</span><span>−{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span></div>}{taxSettings.enabled && <div className="flex justify-between"><span className="text-stone-400">{taxSettings.taxLabel} ({taxSettings.taxRate}%)</span><span>{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>}{calculation.serviceChargeAmount > 0 && <div className="flex justify-between"><span className="text-stone-400">Delivery / service</span><span>{taxSettings.currencySymbol}{calculation.serviceChargeAmount.toFixed(2)}</span></div>}<div className="border-t border-white/15 pt-3 flex justify-between items-baseline"><span className="font-bold">TOTAL</span><span className="text-2xl font-black text-white">{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span></div><div className="flex justify-between text-[10px] text-stone-400"><span>{orderDetails.paymentMethod}</span><span className="text-emerald-300 font-bold">{orderDetails.paymentStatus}</span></div></div>
+                <div className="border-t border-white/10 pt-3 text-center"><div className="text-xs font-bold">{orderDetails.footerNote || 'Thank you for your order'}</div><div className="text-[9px] uppercase tracking-[0.2em] text-stone-500 mt-2">Sample only · not a proof of payment</div></div>
+              </div>
+            </div>
+          )}
+
           {/* ========================================================= */}
           {/* TEMPLATE 1: FASTFOOD COMBO STYLE (Bold Franchise Layout)  */}
           {/* Always displays actual shop.name, never third-party brand  */}
