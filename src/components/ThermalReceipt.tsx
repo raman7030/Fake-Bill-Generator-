@@ -402,13 +402,13 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
       </div>
 
       {/* Style & Options Control Panel (No Print) */}
-      <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-2xs mb-6 space-y-3.5 no-print">
+      <div className="bg-white rounded-2xl p-3 sm:p-4 border border-stone-200 shadow-sm mb-4 space-y-3 no-print">
         {/* Template Style Selector */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
               <LayoutTemplate className="w-4 h-4 text-rose-600" />
-              <span>Choose Premium Receipt Layout / Style:</span>
+              <span>Receipt layout</span>
             </span>
             
           </div>
@@ -420,7 +420,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 <button
                   key={tpl.id}
                   onClick={() => onUpdateOrderDetails({ receiptStyle: tpl.id })}
-                  className={`p-2 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${
+                  className={`min-h-[88px] p-2 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${
                     isSelected
                       ? 'border-rose-500 bg-rose-50/80 ring-1 ring-rose-500 shadow-2xs'
                       : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
@@ -432,7 +432,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   </div>
                   <div>
                     <div className="text-xs font-bold text-stone-900 leading-tight">{tpl.name}</div>
-                    <div className="text-[10px] text-stone-500 line-clamp-1 mt-0.5">{tpl.desc}</div>
+                    <div className="hidden sm:block text-[10px] text-stone-500 line-clamp-1 mt-0.5">{tpl.desc}</div>
                   </div>
                 </button>
               );
@@ -441,51 +441,57 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
         </div>
 
         {/* Paper Width & QR Options Row */}
-        <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
+        <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center gap-2">
           {/* QR Code visibility toggle */}
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => onUpdateOrderDetails({ showQrCode: !showQrCode })}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              aria-pressed={showQrCode}
+              className={`min-h-10 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                 showQrCode
                   ? 'bg-rose-50 border-rose-300 text-rose-700'
                   : 'bg-stone-50 border-stone-200 text-stone-500'
               }`}
             >
               {showQrCode ? <Eye className="w-3.5 h-3.5 text-rose-600" /> : <EyeOff className="w-3.5 h-3.5" />}
-              <span>{showQrCode ? 'QR Code: ON' : 'QR Code: OFF (Without QR)'}</span>
+              <span>{showQrCode ? 'QR code on' : 'QR code off'}</span>
             </button>
           </div>
         </div>
 
-        {/* Tagline and promotional box controls */}
-        <div className="mt-3 border-t border-stone-100 pt-3 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <div className="text-xs font-bold text-stone-800">Restaurant tagline / slogan</div>
-              <div className="text-[10px] text-stone-500">Show or hide the slogan printed under the restaurant name.</div>
+        {/* Compact optional receipt settings */}
+        <div className="border-t border-stone-100 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2.5">
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-stone-800">Restaurant tagline</div>
+              <div className="text-[10px] text-stone-500">Print slogan under name</div>
             </div>
             <button
               type="button"
               role="switch"
               aria-checked={orderDetails.showTagline}
               onClick={() => onUpdateOrderDetails({ showTagline: !orderDetails.showTagline })}
-              className={`rounded-full px-3 py-1.5 text-xs font-bold border ${orderDetails.showTagline ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-stone-100 border-stone-200 text-stone-600'}`}
-            >{orderDetails.showTagline ? 'Tagline: ON' : 'Tagline: OFF'}</button>
+              className={`min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors ${orderDetails.showTagline ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-stone-200 text-stone-600'}`}
+            >{orderDetails.showTagline ? 'On' : 'Off'}</button>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
+
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2.5">
+            <div className="min-w-0">
               <div className="text-xs font-bold text-stone-800">Promotional box</div>
-              <div className="text-[10px] text-stone-500">Optional editable message box on supported templates.</div>
+              <div className="text-[10px] text-stone-500">Optional receipt message</div>
             </div>
             <button
               type="button"
               role="switch"
               aria-checked={orderDetails.showPromotionalBoxes}
               onClick={() => onUpdateOrderDetails({ showPromotionalBoxes: !orderDetails.showPromotionalBoxes })}
-              className={`rounded-full px-3 py-1.5 text-xs font-bold border ${orderDetails.showPromotionalBoxes ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-stone-100 border-stone-200 text-stone-600'}`}
-            >{orderDetails.showPromotionalBoxes ? 'Promotional box: ON' : 'Promotional box: OFF'}</button>
+              className={`min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors ${orderDetails.showPromotionalBoxes ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-stone-200 text-stone-600'}`}
+            >{orderDetails.showPromotionalBoxes ? 'On' : 'Off'}</button>
           </div>
+        </div>
+
+        {orderDetails.showPromotionalBoxes && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <label className="block text-[11px] font-semibold text-stone-600">
               Box heading
@@ -493,7 +499,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 value={orderDetails.promotionalTitle}
                 onChange={(e) => onUpdateOrderDetails({ promotionalTitle: e.target.value })}
                 maxLength={80}
-                className="mt-1 w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs text-stone-900 outline-none focus:border-rose-400"
+                className="mt-1 w-full min-h-10 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:border-rose-400"
                 placeholder="Promotional heading"
               />
             </label>
@@ -503,29 +509,29 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 value={orderDetails.promotionalMessage}
                 onChange={(e) => onUpdateOrderDetails({ promotionalMessage: e.target.value })}
                 maxLength={180}
-                className="mt-1 w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs text-stone-900 outline-none focus:border-rose-400"
+                className="mt-1 w-full min-h-10 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:border-rose-400"
                 placeholder="Short promotional message"
               />
             </label>
           </div>
-        </div>
+        )}
 
         {/* Quick Share Buttons */}
-        <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-          <div className="text-[11px] text-stone-500">
+        <div className="pt-3 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs">
+          <div className="text-[11px] text-stone-500 min-w-0">
             Active Layout: <span className="font-bold text-stone-800 capitalize">{receiptStyle.replace('_', ' ')}</span> ({paperWidth})
           </div>
-          <div className="flex items-center gap-2">
+          <div className="grid grid-cols-2 sm:flex items-center gap-2">
             <button
               onClick={handleCopyTextReceipt}
-              className="flex items-center gap-1 px-3 py-1 bg-white border border-stone-200 hover:border-stone-300 text-stone-800 rounded-lg font-bold text-xs shadow-2xs transition-colors cursor-pointer"
+              className="min-h-10 flex items-center justify-center gap-1 px-3 py-2 bg-white border border-stone-200 hover:border-stone-300 text-stone-800 rounded-lg font-bold text-xs shadow-2xs transition-colors cursor-pointer"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied Text!' : 'Copy Plaintext'}</span>
             </button>
             <button
               onClick={handleWhatsAppShare}
-              className="flex items-center gap-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shadow-2xs transition-colors cursor-pointer"
+              className="min-h-10 flex items-center justify-center gap-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shadow-2xs transition-colors cursor-pointer"
             >
               <Share2 className="w-3.5 h-3.5" />
               <span>WhatsApp</span>
