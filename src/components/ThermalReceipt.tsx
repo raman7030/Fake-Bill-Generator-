@@ -419,75 +419,67 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               return (
                 <button
                   key={tpl.id}
+                  type="button"
+                  aria-pressed={isSelected}
                   onClick={() => onUpdateOrderDetails({ receiptStyle: tpl.id })}
-                  className={`min-h-[88px] p-2 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${
+                  className={`min-h-[60px] sm:min-h-[68px] p-2.5 rounded-xl border text-left transition-all flex items-center gap-2 cursor-pointer ${
                     isSelected
                       ? 'border-rose-500 bg-rose-50/80 ring-1 ring-rose-500 shadow-2xs'
                       : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-lg">{tpl.icon}</span>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-rose-600" />}
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-stone-900 leading-tight">{tpl.name}</div>
-                    <div className="hidden sm:block text-[10px] text-stone-500 line-clamp-1 mt-0.5">{tpl.desc}</div>
-                  </div>
+                  <span className="text-xl shrink-0">{tpl.icon}</span>
+                  <span className="min-w-0 flex-1 text-xs sm:text-sm font-bold text-stone-900 leading-tight">{tpl.name}</span>
+                  {isSelected && <Check className="w-4 h-4 text-rose-600 shrink-0" />}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Paper Width & QR Options Row */}
-        <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center gap-2">
-          {/* QR Code visibility toggle */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onUpdateOrderDetails({ showQrCode: !showQrCode })}
-              aria-pressed={showQrCode}
-              className={`min-h-10 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                showQrCode
-                  ? 'bg-rose-50 border-rose-300 text-rose-700'
-                  : 'bg-stone-50 border-stone-200 text-stone-500'
-              }`}
-            >
-              {showQrCode ? <Eye className="w-3.5 h-3.5 text-rose-600" /> : <EyeOff className="w-3.5 h-3.5" />}
-              <span>{showQrCode ? 'QR code on' : 'QR code off'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Compact optional receipt settings */}
-        <div className="border-t border-stone-100 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2.5">
-            <div className="min-w-0">
-              <div className="text-xs font-bold text-stone-800">Restaurant tagline</div>
-              <div className="text-[10px] text-stone-500">Print slogan under name</div>
+        {/* Compact receipt options */}
+        <div className="pt-3 border-t border-stone-100 space-y-2">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Receipt options</div>
+          <div className="rounded-xl border border-stone-200 divide-y divide-stone-100 overflow-hidden">
+            <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+              <div className="flex items-center gap-2 min-w-0">
+                {showQrCode ? <Eye className="w-4 h-4 text-rose-600 shrink-0" /> : <EyeOff className="w-4 h-4 text-stone-400 shrink-0" />}
+                <span className="text-xs font-semibold text-stone-800">QR code</span>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={showQrCode}
+                onClick={() => onUpdateOrderDetails({ showQrCode: !showQrCode })}
+                className={`min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors ${showQrCode ? 'bg-rose-50 border-rose-300 text-rose-700' : 'bg-white border-stone-200 text-stone-600'}`}
+              >{showQrCode ? 'On' : 'Off'}</button>
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={orderDetails.showTagline}
-              onClick={() => onUpdateOrderDetails({ showTagline: !orderDetails.showTagline })}
-              className={`min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors ${orderDetails.showTagline ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-stone-200 text-stone-600'}`}
-            >{orderDetails.showTagline ? 'On' : 'Off'}</button>
-          </div>
-
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50/70 px-3 py-2.5">
-            <div className="min-w-0">
-              <div className="text-xs font-bold text-stone-800">Promotional box</div>
-              <div className="text-[10px] text-stone-500">Optional receipt message</div>
+            <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold text-stone-800">Restaurant tagline</div>
+                <div className="text-[10px] text-stone-500">Print slogan under name</div>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={orderDetails.showTagline}
+                onClick={() => onUpdateOrderDetails({ showTagline: !orderDetails.showTagline })}
+                className={`min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors ${orderDetails.showTagline ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-stone-200 text-stone-600'}`}
+              >{orderDetails.showTagline ? 'On' : 'Off'}</button>
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={orderDetails.showPromotionalBoxes}
-              onClick={() => onUpdateOrderDetails({ showPromotionalBoxes: !orderDetails.showPromotionalBoxes })}
-              className={`min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors ${orderDetails.showPromotionalBoxes ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-stone-200 text-stone-600'}`}
-            >{orderDetails.showPromotionalBoxes ? 'On' : 'Off'}</button>
+            <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold text-stone-800">Promotional box</div>
+                <div className="text-[10px] text-stone-500">Optional receipt message</div>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={orderDetails.showPromotionalBoxes}
+                onClick={() => onUpdateOrderDetails({ showPromotionalBoxes: !orderDetails.showPromotionalBoxes })}
+                className={`min-h-9 shrink-0 rounded-full px-3 py-1.5 text-xs font-bold border transition-colors ${orderDetails.showPromotionalBoxes ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-stone-200 text-stone-600'}`}
+              >{orderDetails.showPromotionalBoxes ? 'On' : 'Off'}</button>
+            </div>
           </div>
         </div>
 
