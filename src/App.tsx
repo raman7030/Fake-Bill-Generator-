@@ -38,8 +38,7 @@ import {
   FamousRestaurantProfile,
 } from './data/famousRestaurantsData';
 
-const GOOGLE_MAPS_API_KEY =
-  import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCBC0NXeISq-dnDOPq3CFNXZskZIPaGkPg';
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
 const STORAGE_KEY_BILLS = 'zestypos_saved_bills_v2';
 
@@ -73,7 +72,7 @@ export default function App() {
     } catch (e) {
       console.error('Error loading bills from localStorage:', e);
     }
-    return INITIAL_SAVED_BILLS;
+    return [];
   });
 
   // Save to localStorage on change
@@ -85,24 +84,8 @@ export default function App() {
     }
   }, [savedBills]);
 
-  // Initial Cart (Preloaded with Punjabi Dhaba sample items for instant receipt testing)
-  const [cart, setCart] = useState<CartItem[]>([
-    {
-      id: 'cart-1',
-      item: INITIAL_MENU_ITEMS[0], // Amritsari Chur Chur Kulcha with Chole
-      quantity: 2,
-    },
-    {
-      id: 'cart-2',
-      item: INITIAL_MENU_ITEMS[7], // Patiala Shahi Lassi
-      quantity: 2,
-    },
-    {
-      id: 'cart-3',
-      item: INITIAL_MENU_ITEMS[2], // Dal Tadka Punjabi
-      quantity: 1,
-    },
-  ]);
+  // Start with an empty cart so a newly opened session doesn't imply a real order.
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   // Tax Engine Settings (Default: India with GST 5% CGST/SGST split)
   const [taxSettings, setTaxSettings] = useState<TaxSettings>(COUNTRY_TAX_PRESETS.IN);
