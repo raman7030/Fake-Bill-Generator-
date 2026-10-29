@@ -2,7 +2,8 @@
 
 @layer utilities {
   .font-receipt {
-    font-family: 'Space Mono', 'Courier New', Courier, monospace;
+    font-family: 'Roboto Mono', 'Courier New', Courier, monospace;
+    font-variant-numeric: tabular-nums lining-nums;
   }
   .font-dotmatrix {
     font-family: 'VT323', monospace;
@@ -113,5 +114,48 @@ button {
     display: block !important;
     max-width: 100% !important;
     overflow: visible !important;
+  }
+}
+
+
+/* Receipt typography refinements based on common thermal/POS print constraints.
+   Keep the item/amount columns tabular and preserve clear hierarchy when printed. */
+.thermal-receipt-container {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  text-rendering: geometricPrecision;
+  overflow-wrap: anywhere;
+}
+
+.thermal-receipt-container img {
+  image-rendering: auto;
+}
+
+@media print {
+  html, body, #root {
+    min-width: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+  }
+
+  #thermal-receipt-printable {
+    box-sizing: border-box !important;
+    padding: 2mm !important;
+    font-size: 10pt !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0 !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  #thermal-receipt-printable * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  #thermal-receipt-printable img {
+    max-width: 100% !important;
   }
 }
