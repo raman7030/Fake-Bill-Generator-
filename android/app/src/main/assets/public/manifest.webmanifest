@@ -1,0 +1,20 @@
+{
+  "name": "Raman Bill Generator",
+  "short_name": "Raman Bill",
+  "description": "Fast, secure, privacy-first POS and thermal bill generator designed and developed by Raman (v1.0).",
+  "version": "1.0",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e11d48",
+  "orientation": "portrait-primary",
+  "categories": ["business", "finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

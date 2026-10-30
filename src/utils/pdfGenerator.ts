@@ -1,11 +1,12 @@
 import html2canvas from 'html2canvas-pro';
 import { jsPDF } from 'jspdf';
+import { isNativeMobile, shareOrSaveReceiptFile } from './mobileNative';
 
-export async function generateThermalReceiptPdf(
+export async function generateThermalReceiptPdfBlob(
   element: HTMLElement,
   orderId: string,
   paperWidth: '58mm' | '80mm' = '80mm'
-): Promise<void> {
+): Promise<{ blob: Blob; filename: string }> {
   const widthMm = paperWidth === '58mm' ? 58 : 80;
 
   // Render element to canvas with high DPI for crisp receipt fonts & barcodes
@@ -32,6 +33,36 @@ export async function generateThermalReceiptPdf(
   });
 
   pdf.addImage(imgData, 'PNG', 0, 0, widthMm, heightMm);
-  const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '');
-  pdf.save(`receipt-${cleanId || 'order'}-${paperWidth}.pdf`);
+  const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '') || 'order';
+  const filename = `receipt-${cleanId}-${paperWidth}.pdf`;
+  const blob = pdf.output('blob');
+
+  return { blob, filename };
+}
+
+export async function generateThermalReceiptPdf(
+  element: HTMLElement,
+  orderId: string,
+  paperWidth: '58mm' | '80mm' = '80mm'
+): Promise<void> {
+  const { blob, filename } = await generateThermalReceiptPdfBlob(element, orderId, paperWidth);
+
+  if (isNativeMobile()) {
+    await shareOrSaveReceiptFile({
+      blob,
+      filename,
+      title: `Thermal Receipt ${orderId}`,
+      text: `Receipt for Order ${orderId}`,
+    });
+  } else {
+    // Web browser direct download
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
 }

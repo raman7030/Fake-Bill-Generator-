@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Raman Bill Generator</string>
+    <string name="title_activity_main">Raman Bill Generator</string>
+    <string name="package_name">com.raman.billgenerator</string>
+    <string name="custom_url_scheme">com.raman.billgenerator</string>
+</resources>

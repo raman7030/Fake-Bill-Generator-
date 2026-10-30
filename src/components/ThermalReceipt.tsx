@@ -24,7 +24,8 @@ import {
   TaxSettings,
 } from '../types/pos';
 import { calculateBill } from '../utils/taxCalculator';
-import { generateThermalReceiptPdf } from '../utils/pdfGenerator';
+import { generateThermalReceiptPdf, generateThermalReceiptPdfBlob } from '../utils/pdfGenerator';
+import { isNativeMobile, shareOrSaveReceiptFile, triggerHaptic } from '../utils/mobileNative';
 
 interface ThermalReceiptProps {
   shop: ShopInfo;
@@ -114,16 +115,16 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((value) => value ? resolve(value) : reject(new Error('Could not create PNG image')), 'image/png');
       });
-      const url = URL.createObjectURL(blob);
       const cleanId = orderDetails.orderId.replace(/[^a-zA-Z0-9_-]/g, '') || 'order';
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `receipt-${cleanId}.png`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
-      showToast('Receipt PNG saved successfully!');
+      const filename = `receipt-${cleanId}.png`;
+
+      await shareOrSaveReceiptFile({
+        blob,
+        filename,
+        title: `Receipt ${orderDetails.orderId}`,
+        text: `${shop.name} - Receipt ${orderDetails.orderId}`,
+      });
+      showToast(isNativeMobile() ? 'Receipt PNG ready to share/save!' : 'Receipt PNG saved successfully!');
     } catch (err) {
       console.error('Failed to save receipt PNG:', err);
       showToast('Unable to save receipt as PNG. Please try again.');
@@ -136,9 +137,10 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
   const handleDownloadPdf = async () => {
     if (!receiptRef.current) return;
     setIsGeneratingPdf(true);
+    triggerHaptic();
     try {
       await generateThermalReceiptPdf(receiptRef.current, orderDetails.orderId, paperWidth);
-      showToast('Thermal PDF downloaded successfully!');
+      showToast(isNativeMobile() ? 'Thermal PDF ready to share/save!' : 'Thermal PDF downloaded successfully!');
     } catch (err) {
       console.error('Failed to generate PDF:', err);
       showToast('Unable to generate PDF. Please try again.');

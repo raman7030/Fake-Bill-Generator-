@@ -39,6 +39,8 @@ import {
   MASTER_ALL_MENU_ITEMS,
   FamousRestaurantProfile,
 } from './data/famousRestaurantsData';
+import { App as CapacitorApp } from '@capacitor/app';
+import { isNativeMobile, initializeNativeMobileApp, triggerHaptic } from './utils/mobileNative';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
@@ -88,6 +90,72 @@ export default function App() {
       console.error('Error saving bills to localStorage:', e);
     }
   }, [savedBills]);
+
+  // Native Android Mobile Initialization & Hardware Back Button Handling
+  useEffect(() => {
+    void initializeNativeMobileApp();
+
+    let backListenerHandle: { remove: () => Promise<void> } | undefined;
+
+    if (isNativeMobile()) {
+      void CapacitorApp.addListener('backButton', () => {
+        // Priority 1: Close any active modal
+        if (isTrustModalOpen) {
+          setIsTrustModalOpen(false);
+          return;
+        }
+        if (isMenuSelectorOpen) {
+          setIsMenuSelectorOpen(false);
+          return;
+        }
+        if (isPlaceSearchOpen) {
+          setIsPlaceSearchOpen(false);
+          return;
+        }
+        if (isEditShopOpen) {
+          setIsEditShopOpen(false);
+          return;
+        }
+        if (isAddCustomOpen) {
+          setIsAddCustomOpen(false);
+          return;
+        }
+        if (menuToolsOpen) {
+          setMenuToolsOpen(false);
+          return;
+        }
+
+        // Priority 2: Navigate back through views
+        if (currentView === 'receipt') {
+          setCurrentView('review');
+          return;
+        }
+        if (currentView === 'review' || currentView === 'history') {
+          setCurrentView('menu');
+          return;
+        }
+
+        // Priority 3: On root menu with nothing open, exit app safely
+        void CapacitorApp.exitApp();
+      }).then((handle) => {
+        backListenerHandle = handle;
+      });
+    }
+
+    return () => {
+      if (backListenerHandle) {
+        void backListenerHandle.remove();
+      }
+    };
+  }, [
+    isTrustModalOpen,
+    isMenuSelectorOpen,
+    isPlaceSearchOpen,
+    isEditShopOpen,
+    isAddCustomOpen,
+    menuToolsOpen,
+    currentView,
+  ]);
 
   // Start with an empty cart so a newly opened session doesn't imply a real order.
   const [cart, setCart] = useState<CartItem[]>([]);
