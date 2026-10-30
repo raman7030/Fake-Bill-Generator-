@@ -1,5 +1,6 @@
 import { MenuItem, ShopInfo } from '../types/pos';
 import { INITIAL_MENU_ITEMS } from './presetData';
+import { getDishImageUrl } from '../utils/dishImageHelper';
 
 export interface FamousRestaurantProfile {
   shop: ShopInfo;
@@ -791,11 +792,8 @@ export const FASTFOOD_AND_BAKERY_DISHES: MenuItem[] = [
 const buildMasterCatalog = (): MenuItem[] => {
   const map = new Map<string, MenuItem>();
   const normalizeName = (name: string) => name.toLowerCase().replace(/\([^)]*\)/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
-  const imageFor = (item: MenuItem) => item.image ||
-    (item.category.includes('Bread') ? 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=80' :
-    item.category.includes('Dessert') || item.category.includes('Beverage') ? 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&auto=format&fit=crop&q=80' :
-    item.category.includes('Street') ? 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&auto=format&fit=crop&q=80' :
-    'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&auto=format&fit=crop&q=80');
+  const imageFor = (item: MenuItem) =>
+    getDishImageUrl(item.name, item.category, item.isVeg, item.image);
   const addItem = (item: MenuItem) => {
     const key = normalizeName(item.name);
     if (!map.has(key)) map.set(key, { ...item, image: imageFor(item) });

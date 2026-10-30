@@ -30,6 +30,7 @@ import {
 } from '../types/pos';
 import { calculateBill } from '../utils/taxCalculator';
 import { COUNTRY_TAX_PRESETS } from '../data/presetData';
+import { getDishImageUrl } from '../utils/dishImageHelper';
 
 interface ReviewBillProps {
   shop: ShopInfo;
@@ -295,8 +296,16 @@ export const ReviewBill: React.FC<ReviewBillProps> = ({
 
                     return (
                       <div key={cartItem.id} className="grid grid-cols-12 gap-2 py-2 items-center group">
-                        {/* Name Input */}
-                        <div className="col-span-5 sm:col-span-6 flex items-center gap-1.5">
+                        {/* Name Input & Thumbnail */}
+                        <div className="col-span-5 sm:col-span-6 flex items-center gap-2">
+                          <img
+                            src={getDishImageUrl(cartItem.item.name, cartItem.item.category, cartItem.item.isVeg, cartItem.item.image)}
+                            alt={cartItem.item.name}
+                            className="w-7 h-7 rounded-md object-cover border border-stone-200 shrink-0"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = getDishImageUrl(cartItem.item.name, cartItem.item.category, cartItem.item.isVeg);
+                            }}
+                          />
                           <span
                             className={`w-2 h-2 rounded-full shrink-0 ${
                               cartItem.item.isVeg ? 'bg-emerald-500' : 'bg-rose-500'

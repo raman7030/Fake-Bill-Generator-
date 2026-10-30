@@ -18,6 +18,7 @@ import {
   MASTER_ALL_MENU_ITEMS,
   FamousRestaurantProfile,
 } from '../data/famousRestaurantsData';
+import { getDishImageUrl } from '../utils/dishImageHelper';
 
 interface MenuSelectorModalProps {
   isOpen: boolean;
@@ -206,14 +207,20 @@ export const MenuSelectorModal: React.FC<MenuSelectorModalProps> = ({
                         <span className="truncate">{prof.shop.address}</span>
                       </div>
 
-                      {/* Dishes Quick Badges */}
+                      {/* Dishes Quick Badges with Mini Thumbnails */}
                       <div className="flex flex-wrap gap-1 mt-2">
                         {prof.dishes.slice(0, 6).map((d) => (
                           <span
                             key={d.id}
-                            className="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md font-medium"
+                            className="inline-flex items-center gap-1 text-[10px] bg-stone-100 text-stone-700 pl-1 pr-2 py-0.5 rounded-md font-medium"
                           >
-                            {d.name}
+                            <img
+                              src={getDishImageUrl(d.name, d.category, d.isVeg, d.image)}
+                              alt=""
+                              className="w-3.5 h-3.5 rounded-full object-cover shrink-0"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                            />
+                            <span>{d.name}</span>
                           </span>
                         ))}
                         {prof.dishes.length > 6 && (

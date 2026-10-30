@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Plus, Utensils, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { MenuItem } from '../types/pos';
 import { MENU_CATEGORIES } from '../data/presetData';
+import { getDishImageUrl } from '../utils/dishImageHelper';
 
 interface AddCustomItemModalProps {
   isOpen: boolean;
@@ -73,9 +74,7 @@ export const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
       isVeg,
       description: description.trim() || 'Freshly prepared specialty dish',
       popular: false,
-      image: imageUrl.trim() || (isVeg
-        ? 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&auto=format&fit=crop&q=80'
-        : 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&auto=format&fit=crop&q=80'),
+      image: imageUrl.trim() || getDishImageUrl(name.trim(), category, isVeg),
     };
 
     const addQty = actionType === 'menu_and_cart' ? quantity : 0;
