@@ -34,7 +34,7 @@ export const PlaceSearchModal: React.FC<PlaceSearchModalProps> = ({
     source: 'custom',
   });
 
-  const { suggestions, isLoading, resetSession } = usePlacesAutocomplete(searchTerm);
+  const { suggestions, isLoading, error: searchError, resetSession } = usePlacesAutocomplete(searchTerm);
 
   if (!isOpen) return null;
 
@@ -208,9 +208,9 @@ export const PlaceSearchModal: React.FC<PlaceSearchModalProps> = ({
                 </div>
               )}
 
-              {fetchError && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700">
-                  {fetchError}
+              {(fetchError || searchError) && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                  {fetchError || searchError}
                 </div>
               )}
 
