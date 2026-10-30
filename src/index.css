@@ -172,6 +172,29 @@ button {
 }
 
 
+/* Monochrome output for every receipt template: avoid colour ink/ribbons and
+   preserve dark text, rules and QR modules on white thermal paper. */
+.thermal-receipt-container {
+  filter: grayscale(1);
+  background: #fff !important;
+  color: #000 !important;
+}
+.thermal-receipt-container * {
+  text-shadow: none !important;
+}
+@media print {
+  .thermal-receipt-container,
+  .thermal-receipt-container * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .thermal-receipt-container {
+    filter: grayscale(1) contrast(1.12) !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+}
+
 /* Each receipt has its own visual language. Keep these scoped to the selected
    layout so styling never leaks into another template or the POS controls. */
 .receipt-layout-fastfood { border-top: 5px solid #b91c1c; }
