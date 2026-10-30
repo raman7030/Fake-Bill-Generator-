@@ -116,7 +116,7 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
               </div>
               <button
                 type="button"
-                onClick={() => setMenuToolsOpen(false)}
+                onClick={onCloseMenuTools}
                 aria-label="Close menu options"
                 className="p-2 rounded-lg border border-stone-200 text-stone-500 hover:bg-stone-100"
               >

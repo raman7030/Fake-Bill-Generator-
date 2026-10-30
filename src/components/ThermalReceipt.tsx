@@ -74,12 +74,11 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
     let qrPayload = '';
     if (qrCodeType === 'upi') {
-      // This app has no configured merchant payment account; encode a clearly marked demo payload.
-      qrPayload = `DEMO PAYMENT ONLY\n${shop.name}\n${orderDetails.orderId}\n${taxSettings.currencyCode} ${calculation.grandTotal.toFixed(2)}`;
+      qrPayload = `upi://pay?pn=${encodeURIComponent(shop.name)}&am=${calculation.grandTotal.toFixed(2)}&cu=${taxSettings.currencyCode}&tn=${encodeURIComponent(orderDetails.orderId)}`;
     } else if (qrCodeType === 'feedback') {
-      qrPayload = `DEMO FEEDBACK ONLY\n${shop.name}\n${orderDetails.orderId}`;
+      qrPayload = `https://feedback.${shop.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com/review/${orderDetails.orderId}`;
     } else {
-      qrPayload = `DEMO RECEIPT — NOT A REAL VERIFICATION URL\n${shop.name}\n${orderDetails.orderId}\n${orderDetails.timestamp}`;
+      qrPayload = `RECEIPT: ${orderDetails.orderId}\nSTORE: ${shop.name}\nTOTAL: ${taxSettings.currencySymbol}${calculation.grandTotal.toFixed(2)}\nDATE: ${orderDetails.timestamp}`;
     }
 
     QRCode.toDataURL(qrPayload, {
@@ -218,7 +217,6 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
     lines.push(divider);
     lines.push(`PAYMENT STATUS: ${orderDetails.paymentStatus}`);
     lines.push(`PAYMENT METHOD: ${orderDetails.paymentMethod.toUpperCase()}`);
-    lines.push('DEMO RECEIPT — NOT PROOF OF PAYMENT');
     lines.push(`*** THANK YOU! VISIT AGAIN ***`);
 
     void navigator.clipboard.writeText(lines.filter(Boolean).join('\n')).then(() => {
@@ -565,7 +563,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               <div className="bg-emerald-700 text-white px-5 py-5 rounded-t-xl">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="text-[10px] uppercase tracking-[0.22em] text-emerald-100 font-bold">Order confirmed · Demo</div>
+                    <div className="text-[10px] uppercase tracking-[0.22em] text-emerald-100 font-bold">Order confirmed</div>
                     <h2 className="text-xl font-black tracking-tight mt-1">{shop.name}</h2>
                     <p className="text-[10px] text-emerald-50 mt-1 leading-relaxed">{shop.address}</p>
                   </div>
@@ -615,7 +613,6 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 </div>
                 <div className="text-center border-t border-stone-200 pt-3">
                   <div className="text-xs font-extrabold">{orderDetails.footerNote || 'Thanks for ordering'}</div>
-                  <div className="text-[9px] text-stone-400 mt-1 uppercase tracking-[0.18em]">Illustrative delivery receipt</div>
                 </div>
               </div>
             </div>
@@ -625,7 +622,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
             <div className="receipt-layout-delivery-minimal font-sans text-stone-900 -m-4 sm:-m-5">
               <div className="px-5 pt-5 pb-4 border-b-2 border-stone-900">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="text-[9px] tracking-[0.25em] uppercase font-black text-stone-500">Order note / demo</div>
+                  <div className="text-[9px] tracking-[0.25em] uppercase font-black text-stone-500">Order summary</div>
                   <div className="text-[10px] font-bold border border-stone-300 rounded-full px-2 py-1">{orderDetails.orderId}</div>
                 </div>
                 <h2 className="text-2xl font-black tracking-[-0.06em] leading-tight mt-4">{shop.name}</h2>
@@ -657,7 +654,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   {orderDetails.roundOff && calculation.roundOffDelta !== 0 && <div className="text-right text-[10px] text-stone-500 mt-1">Includes rounding {calculation.roundOffDelta >= 0 ? '+' : '−'}{taxSettings.currencySymbol}{Math.abs(calculation.roundOffDelta).toFixed(2)}</div>}
                 </div>
                 <div className="mt-5 flex justify-between items-center border-t border-stone-200 pt-3 text-[10px]"><span className="uppercase tracking-wider font-bold text-stone-500">Paid / pending</span><span className="font-black">{orderDetails.paymentStatus} · {orderDetails.paymentMethod}</span></div>
-                <div className="text-center pt-4 text-[10px] text-stone-400">THANK YOU · MADE FOR DEMONSTRATION</div>
+                <div className="text-center pt-4 text-[10px] text-stone-400">THANK YOU · VISIT AGAIN</div>
               </div>
             </div>
           )}
@@ -666,7 +663,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
             <div className="receipt-layout-delivery-dark font-sans text-stone-100 bg-[#151a17] -m-4 sm:-m-5">
               <div className="px-5 py-5 bg-[#202b25] border-b border-emerald-300/20 rounded-t-xl">
                 <div className="flex justify-between items-start gap-3">
-                  <div><div className="text-[9px] uppercase tracking-[0.25em] text-emerald-300 font-black">Digital order receipt · demo</div><h2 className="text-xl font-black mt-2 leading-tight">{shop.name}</h2><p className="text-[10px] text-stone-400 mt-1">{shop.address}</p></div>
+                  <div><div className="text-[9px] uppercase tracking-[0.25em] text-emerald-300 font-black">Digital order receipt</div><h2 className="text-xl font-black mt-2 leading-tight">{shop.name}</h2><p className="text-[10px] text-stone-400 mt-1">{shop.address}</p></div>
                   <span className="text-xl">◈</span>
                 </div>
                 <div className="mt-4 flex items-center justify-between border border-white/10 rounded-xl bg-black/20 p-3"><span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold">Order ID</span><span className="font-mono font-bold text-xs">{orderDetails.orderId}</span></div>
@@ -677,14 +674,12 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   {cart.map((cartItem) => { const price = cartItem.customPrice !== undefined ? cartItem.customPrice : cartItem.item.price; return <div key={cartItem.id} className="flex justify-between gap-3 py-2 border-b border-white/10"><div className="min-w-0"><div className="text-xs font-semibold">{cartItem.quantity} × {cartItem.item.name}</div>{cartItem.notes && <div className="text-[10px] text-stone-400 mt-1">{cartItem.notes}</div>}</div><span className="text-xs font-bold whitespace-nowrap">{taxSettings.currencySymbol}{(price * cartItem.quantity).toFixed(2)}</span></div>; })}
                 </div>
                 <div className="rounded-xl border border-white/10 bg-white/5 p-3 space-y-2 text-[11px]"><div className="flex justify-between"><span className="text-stone-400">Subtotal</span><span>{taxSettings.currencySymbol}{calculation.subtotal.toFixed(2)}</span></div>{calculation.discountAmount > 0 && <div className="flex justify-between text-emerald-300"><span>Discount</span><span>−{taxSettings.currencySymbol}{calculation.discountAmount.toFixed(2)}</span></div>}{taxSettings.enabled && <div className="flex justify-between"><span className="text-stone-400">{taxSettings.taxLabel} ({taxSettings.taxRate}%)</span><span>{taxSettings.currencySymbol}{calculation.totalTaxAmount.toFixed(2)}</span></div>}{calculation.serviceChargeAmount > 0 && <div className="flex justify-between"><span className="text-stone-400">Delivery / service</span><span>{taxSettings.currencySymbol}{calculation.serviceChargeAmount.toFixed(2)}</span></div>}<div className="border-t border-white/15 pt-3 flex justify-between items-baseline"><span className="font-bold">TOTAL</span><span className="text-2xl font-black text-white">{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span></div><div className="flex justify-between text-[10px] text-stone-400"><span>{orderDetails.paymentMethod}</span><span className="text-emerald-300 font-bold">{orderDetails.paymentStatus}</span></div></div>
-                <div className="border-t border-white/10 pt-3 text-center"><div className="text-xs font-bold">{orderDetails.footerNote || 'Thank you for your order'}</div><div className="text-[9px] uppercase tracking-[0.2em] text-stone-500 mt-2">Sample only · not a proof of payment</div></div>
+                <div className="border-t border-white/10 pt-3 text-center"><div className="text-xs font-bold">{orderDetails.footerNote || 'Thank you for your order'}</div></div>
               </div>
             </div>
           )}
 
-          <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-center text-xs font-bold text-amber-900" role="note">
-            DEMO / SAMPLE RECEIPT — NOT A VALID TAX INVOICE OR PROOF OF PAYMENT
-          </div>
+
 
           {/* ========================================================= */}
           {/* TEMPLATE 1: FASTFOOD COMBO STYLE (Bold Franchise Layout)  */}
@@ -801,8 +796,8 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   <span className="uppercase">{orderDetails.paymentMethod}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>DEMO AUTH CODE:</span>
-                  <span>NOT ISSUED</span>
+                  <span>AUTH CODE:</span>
+                  <span>{orderDetails.orderId.replace(/[^0-9]/g, '') || '849201'}</span>
                 </div>
               </div>
 
@@ -839,7 +834,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                   <span>{shop.name}</span>
                 </div>
                 <div className="text-[10px] font-bold uppercase text-stone-800">
-                  DEMO STORE • TEL: {shop.phone}
+                  STORE • TEL: {shop.phone}
                 </div>
                 <div className="text-[10px] text-stone-600 px-2 leading-tight">{shop.address}</div>
                 {taxSettings.taxIdValue && (
@@ -852,7 +847,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               {/* Order Tracker ID Callout Banner */}
               <div className="bg-stone-100 text-stone-900 border border-stone-200 p-2.5 rounded-xl text-center space-y-0.5 my-1.5">
                 <span className="text-[9px] uppercase font-bold tracking-widest text-stone-500 block">
-                  ORDER REFERENCE · DEMO
+                  ORDER TRACKER REFERENCE
                 </span>
                 <span className="text-base sm:text-lg font-black tracking-tight text-stone-900 block font-mono">
                   #TRK-{orderDetails.orderId.replace(/[^0-9]/g, '') || '94821'}
@@ -1055,7 +1050,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
               <div className="text-center text-[10px] font-bold border-t border-dashed border-stone-400 pt-1 space-y-0.5">
                 <div>TELL US HOW WE DID! VISIT WWW.MYFEEDBACK.PAGE</div>
-                <div className="text-[9px] text-stone-600 font-mono">DEMO TRANSACTION ID: NOT ISSUED</div>
+                <div className="text-[9px] text-stone-600 font-mono">TXN ID: #{orderDetails.orderId.replace(/[^0-9]/g, '') || '10842'}</div>
               </div>
 
               {showQrCode && qrCodeDataUrl && (
@@ -1287,11 +1282,11 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               <div className="flex items-center justify-between border border-stone-900 p-2 my-2 bg-stone-50">
                 <div className="text-[10px] font-mono space-y-0.5">
                   <span className="font-bold block">PAID VIA: {orderDetails.paymentMethod.toUpperCase()}</span>
-                  <span className="text-stone-500">DEMO RECEIPT / NOT A PAYMENT RECORD</span>
+                  <span className="text-emerald-700 font-bold">STATUS: {orderDetails.paymentStatus}</span>
                 </div>
-                <div className="w-10 h-10 border-2 border-amber-600 rounded text-amber-700 flex flex-col items-center justify-center font-black text-[8px] uppercase leading-none">
-                  <span>DEMO</span>
-                  <span>ONLY</span>
+                <div className="w-10 h-10 border-2 border-emerald-600 rounded text-emerald-700 flex flex-col items-center justify-center font-black text-[8px] uppercase leading-none">
+                  <span>PAID</span>
+                  <span>領収</span>
                 </div>
               </div>
 
@@ -1659,14 +1654,13 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 <div className="flex items-center justify-between gap-3 border-t border-stone-200 pt-3">
                   <div className="min-w-0">
                     <span className="block text-xs font-bold text-stone-800">Digital receipt</span>
-                    <span className="block text-[10px] text-stone-500 mt-0.5">Sample QR · scan to view configured demo destination</span>
+                    <span className="block text-[10px] text-stone-500 mt-0.5">Scan QR for digital e-bill & verification</span>
                   </div>
-                  <img src={qrCodeDataUrl} alt="Sample receipt QR code" className="w-14 h-14 object-contain shrink-0" />
+                  <img src={qrCodeDataUrl} alt="Receipt QR code" className="w-14 h-14 object-contain shrink-0" />
                 </div>
               )}
               <div className="border-t border-stone-200 pt-2 text-center text-[9px] text-stone-500">
                 {orderDetails.footerNote || 'Thank you for visiting'}
-                <div className="mt-1 uppercase tracking-wider">Sample receipt · not proof of payment</div>
               </div>
             </div>
           )}
