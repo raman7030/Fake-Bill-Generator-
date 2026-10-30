@@ -119,6 +119,10 @@ export const MENU_CATEGORIES = [
   'Fresh Juices',
   'Fast Food & Burgers',
   'Beverages & Desserts',
+  'South Indian',
+  'Chinese & Asian',
+  'Seafood & Grill',
+  'Desserts & Sweets',
 ];
 
 export const INITIAL_MENU_ITEMS: MenuItem[] = [
@@ -509,6 +513,76 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
   { id: 'drink-sweet-lassi', name: 'Sweet Lassi', category: 'Beverages & Desserts', price: 60, description: 'Chilled sweet yogurt drink.', isVeg: true },
   { id: 'drink-salted-lassi', name: 'Salted Lassi', category: 'Beverages & Desserts', price: 55, description: 'Traditional salted yogurt drink with roasted cumin.', isVeg: true },
   { id: 'drink-nimbu-pani', name: 'Nimbu Pani', category: 'Beverages & Desserts', price: 35, description: 'Fresh lemon water with a hint of black salt.', isVeg: true },
+
+  // --- SOUTH INDIAN FAVOURITES ---
+  { id: 'south-idli', name: 'Steamed Idli (2 pcs)', category: 'South Indian', price: 55, description: 'Soft steamed rice and lentil cakes served with sambar and coconut chutney.', isVeg: true, popular: true },
+  { id: 'south-vada', name: 'Medu Vada (2 pcs)', category: 'South Indian', price: 65, description: 'Crisp golden lentil doughnuts with sambar and coconut chutney.', isVeg: true },
+  { id: 'south-masala-dosa', name: 'Masala Dosa', category: 'South Indian', price: 110, description: 'Crisp fermented rice crepe filled with spiced potato masala.', isVeg: true, popular: true },
+  { id: 'south-mysore-dosa', name: 'Mysore Masala Dosa', category: 'South Indian', price: 135, description: 'Golden dosa layered with spicy red chutney and potato filling.', isVeg: true },
+  { id: 'south-rava-dosa', name: 'Onion Rava Dosa', category: 'South Indian', price: 125, description: 'Thin, crisp semolina dosa topped with onion, cumin and green chilli.', isVeg: true },
+  { id: 'south-uttapam', name: 'Mixed Veg Uttapam', category: 'South Indian', price: 115, description: 'Thick fermented rice pancake topped with onion, tomato and capsicum.', isVeg: true },
+  { id: 'south-pongal', name: 'Ven Pongal', category: 'South Indian', price: 95, description: 'Comforting rice and moong dal preparation with pepper, cumin and ghee.', isVeg: true },
+  { id: 'south-lemon-rice', name: 'Lemon Rice', category: 'South Indian', price: 90, description: 'Tempered rice with lemon, curry leaves, peanuts and mustard seeds.', isVeg: true },
+  { id: 'south-curd-rice', name: 'Curd Rice', category: 'South Indian', price: 85, description: 'Cooling rice mixed with yogurt and a mild South Indian tempering.', isVeg: true },
+  { id: 'south-filter-meals', name: 'South Indian Mini Meals', category: 'South Indian', price: 180, description: 'A balanced platter of rice, sambar, rasam, poriyal, curd and pickle.', isVeg: true },
+
+  // --- CHINESE & ASIAN ---
+  { id: 'asian-veg-manchurian', name: 'Veg Manchurian Gravy', category: 'Chinese & Asian', price: 180, description: 'Vegetable dumplings tossed in a tangy garlic, soy and chilli gravy.', isVeg: true },
+  { id: 'asian-gobi-manchurian', name: 'Gobi Manchurian Dry', category: 'Chinese & Asian', price: 170, description: 'Crisp cauliflower florets coated in a spicy Indo-Chinese sauce.', isVeg: true },
+  { id: 'asian-chilli-chicken', name: 'Chilli Chicken Dry', category: 'Chinese & Asian', price: 240, description: 'Chicken bites wok-tossed with peppers, onion, garlic and green chilli.', isVeg: false, popular: true },
+  { id: 'asian-chicken-noodles', name: 'Chicken Hakka Noodles', category: 'Chinese & Asian', price: 190, description: 'Wok-fried noodles with chicken, vegetables and savoury sauces.', isVeg: false },
+  { id: 'asian-schezwan-rice', name: 'Schezwan Fried Rice', category: 'Chinese & Asian', price: 175, description: 'Wok-tossed rice with vegetables and fiery Schezwan chilli sauce.', isVeg: true },
+  { id: 'asian-chicken-fried-rice', name: 'Chicken Fried Rice', category: 'Chinese & Asian', price: 200, description: 'Fragrant rice stir-fried with egg, chicken and spring onion.', isVeg: false },
+  { id: 'asian-paneer-chilli', name: 'Chilli Paneer Gravy', category: 'Chinese & Asian', price: 220, description: 'Paneer cubes in a glossy Indo-Chinese chilli and garlic sauce.', isVeg: true },
+  { id: 'asian-spring-roll-chicken', name: 'Chicken Spring Rolls (4 pcs)', category: 'Chinese & Asian', price: 160, description: 'Crisp pastry rolls filled with seasoned chicken and vegetables.', isVeg: false },
+  { id: 'asian-thukpa', name: 'Veg Thukpa', category: 'Chinese & Asian', price: 150, description: 'Himalayan noodle soup with vegetables, herbs and warming spices.', isVeg: true },
+  { id: 'asian-momos-chicken', name: 'Chicken Steamed Momos (8 pcs)', category: 'Chinese & Asian', price: 160, description: 'Juicy chicken dumplings served with red chilli chutney.', isVeg: false, popular: true },
+
+  // --- SEAFOOD & GRILL ---
+  { id: 'seafood-fish-fry', name: 'Amritsari Fish Fry', category: 'Seafood & Grill', price: 280, description: 'Boneless fish pieces marinated with ajwain and spices, fried crisp.', isVeg: false, popular: true },
+  { id: 'seafood-fish-curry', name: 'Fish Curry', category: 'Seafood & Grill', price: 300, description: 'Fish simmered in a homestyle onion, tomato and spice gravy.', isVeg: false },
+  { id: 'seafood-tandoori-fish', name: 'Tandoori Fish Tikka', category: 'Seafood & Grill', price: 340, description: 'Fish fillet marinated in yogurt and spices, roasted in a clay oven.', isVeg: false },
+  { id: 'seafood-prawn-masala', name: 'Prawn Masala', category: 'Seafood & Grill', price: 360, description: 'Prawns cooked in a coastal-style onion, tomato and coconut masala.', isVeg: false },
+  { id: 'seafood-grilled-chicken', name: 'Grilled Chicken Half', category: 'Seafood & Grill', price: 260, description: 'Half chicken marinated with herbs and spices, char-grilled.', isVeg: false },
+  { id: 'seafood-chicken-seekh', name: 'Chicken Seekh Kebab (6 pcs)', category: 'Seafood & Grill', price: 260, description: 'Minced chicken skewers seasoned with herbs and tandoori spices.', isVeg: false },
+  { id: 'seafood-malai-tikka', name: 'Chicken Malai Tikka', category: 'Seafood & Grill', price: 290, description: 'Tender chicken pieces in a creamy cheese, yogurt and mild spice marinade.', isVeg: false },
+  { id: 'seafood-paneer-tikka', name: 'Paneer Tikka', category: 'Seafood & Grill', price: 230, description: 'Char-grilled paneer cubes with peppers and tandoori seasoning.', isVeg: true },
+
+  // --- DESSERTS & SWEETS ---
+  { id: 'sweet-kheer', name: 'Rice Kheer', category: 'Desserts & Sweets', price: 80, description: 'Slow-cooked rice pudding flavoured with cardamom and nuts.', isVeg: true },
+  { id: 'sweet-rabri', name: 'Rabri', category: 'Desserts & Sweets', price: 110, description: 'Rich reduced milk dessert garnished with pistachio and saffron.', isVeg: true },
+  { id: 'sweet-jalebi', name: 'Hot Jalebi (100 g)', category: 'Desserts & Sweets', price: 70, description: 'Crisp fermented batter spirals soaked in fragrant sugar syrup.', isVeg: true },
+  { id: 'sweet-rasmalai', name: 'Rasmalai (2 pcs)', category: 'Desserts & Sweets', price: 100, description: 'Soft cottage cheese patties in chilled saffron-cardamom milk.', isVeg: true },
+  { id: 'sweet-gajar-halwa', name: 'Gajar Ka Halwa', category: 'Desserts & Sweets', price: 120, description: 'Slow-cooked carrot pudding with milk, ghee and nuts.', isVeg: true, popular: true },
+  { id: 'sweet-moong-halwa', name: 'Moong Dal Halwa', category: 'Desserts & Sweets', price: 140, description: 'Rich roasted lentil dessert finished with ghee and dry fruits.', isVeg: true },
+  { id: 'sweet-kulfi', name: 'Matka Kulfi', category: 'Desserts & Sweets', price: 70, description: 'Traditional slow-frozen creamy milk dessert served in a clay cup.', isVeg: true },
+  { id: 'sweet-brownie', name: 'Chocolate Brownie with Ice Cream', category: 'Desserts & Sweets', price: 160, description: 'Warm chocolate brownie served with a scoop of vanilla ice cream.', isVeg: true },
+  { id: 'sweet-cheesecake', name: 'Baked Cheesecake Slice', category: 'Desserts & Sweets', price: 190, description: 'Creamy baked cheesecake with a buttery biscuit base.', isVeg: true },
+  { id: 'sweet-fruit-cream', name: 'Seasonal Fruit Cream', category: 'Desserts & Sweets', price: 120, description: 'Chilled seasonal fruit folded through lightly sweetened cream.', isVeg: true },
+
+  // --- MORE INDIAN MAINS & EVERYDAY FAVOURITES ---
+  { id: 'main-rajma', name: 'Rajma Masala', category: 'Curries & Main Course', price: 170, description: 'Red kidney beans slow-cooked in a Punjabi onion-tomato masala.', isVeg: true, popular: true },
+  { id: 'main-chana-masala', name: 'Chana Masala', category: 'Curries & Main Course', price: 160, description: 'Chickpeas simmered in a tangy tomato and roasted spice gravy.', isVeg: true },
+  { id: 'main-mix-veg', name: 'Mix Vegetable Curry', category: 'Curries & Main Course', price: 190, description: 'Seasonal vegetables cooked with a homestyle North Indian masala.', isVeg: true },
+  { id: 'main-malai-kofta', name: 'Malai Kofta', category: 'Curries & Main Course', price: 260, description: 'Soft vegetable and paneer dumplings in a creamy cashew gravy.', isVeg: true },
+  { id: 'main-egg-curry', name: 'Egg Curry (2 eggs)', category: 'Curries & Main Course', price: 190, description: 'Boiled eggs simmered in a spiced onion and tomato gravy.', isVeg: false },
+  { id: 'main-kadai-chicken', name: 'Kadai Chicken', category: 'Curries & Main Course', price: 320, description: 'Chicken cooked with capsicum and freshly ground kadai masala.', isVeg: false },
+  { id: 'main-mutton-rogan', name: 'Mutton Rogan Josh', category: 'Curries & Main Course', price: 390, description: 'Slow-braised mutton in an aromatic Kashmiri-style gravy.', isVeg: false },
+  { id: 'rice-jeera', name: 'Jeera Rice', category: 'Rice & Biryani', price: 100, description: 'Steamed basmati rice tempered with cumin and ghee.', isVeg: true },
+  { id: 'rice-peas', name: 'Matar Pulao', category: 'Rice & Biryani', price: 130, description: 'Basmati rice cooked with green peas and whole spices.', isVeg: true },
+  { id: 'rice-veg-biryani', name: 'Veg Dum Biryani', category: 'Rice & Biryani', price: 220, description: 'Layered basmati rice with vegetables, herbs and biryani masala.', isVeg: true, popular: true },
+  { id: 'rice-egg-biryani', name: 'Egg Biryani', category: 'Rice & Biryani', price: 210, description: 'Fragrant biryani rice layered with masala-coated boiled eggs.', isVeg: false },
+  { id: 'rice-mutton-biryani', name: 'Mutton Dum Biryani', category: 'Rice & Biryani', price: 380, description: 'Slow-cooked mutton and basmati rice layered with aromatic spices.', isVeg: false },
+  { id: 'snack-dahi-bhalla', name: 'Dahi Bhalla', category: 'Street Food & Chaat', price: 100, description: 'Soft lentil dumplings topped with chilled yogurt and chutneys.', isVeg: true },
+  { id: 'snack-sev-puri', name: 'Sev Puri', category: 'Street Food & Chaat', price: 80, description: 'Crisp puris topped with potato, chutneys, onion and sev.', isVeg: true },
+  { id: 'snack-bhel-puri', name: 'Bhel Puri', category: 'Street Food & Chaat', price: 75, description: 'Puffed rice tossed with chutneys, vegetables and crunchy sev.', isVeg: true },
+  { id: 'snack-kachori', name: 'Moong Dal Kachori', category: 'Snacks & Pakora', price: 35, description: 'Flaky pastry filled with spiced moong dal.', isVeg: true },
+  { id: 'snack-paneer-tikka-roll', name: 'Paneer Tikka Roll', category: 'Fast Food & Burgers', price: 150, description: 'Tandoori paneer, onions and chutney wrapped in a soft rumali roti.', isVeg: true },
+  { id: 'snack-chicken-roll', name: 'Chicken Kathi Roll', category: 'Fast Food & Burgers', price: 180, description: 'Spiced chicken, onions and chutney wrapped in a flaky paratha.', isVeg: false },
+  { id: 'drink-mango-shake', name: 'Mango Shake', category: 'Beverages & Desserts', price: 100, description: 'Chilled milkshake blended with ripe mango pulp.', isVeg: true },
+  { id: 'drink-banana-shake', name: 'Banana Shake', category: 'Beverages & Desserts', price: 80, description: 'Creamy banana milkshake served chilled.', isVeg: true },
+  { id: 'drink-chocolate-shake', name: 'Chocolate Milkshake', category: 'Beverages & Desserts', price: 110, description: 'Thick chocolate shake topped with cocoa.', isVeg: true },
+  { id: 'drink-falooda', name: 'Royal Falooda', category: 'Beverages & Desserts', price: 140, description: 'Layered chilled dessert drink with vermicelli, basil seeds and ice cream.', isVeg: true },
 
 ];
 
