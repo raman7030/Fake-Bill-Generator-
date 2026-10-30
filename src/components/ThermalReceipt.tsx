@@ -270,7 +270,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
     {
       id: 'fine_dining',
       name: 'Fine Dining Elegance',
-      desc: 'Serif classic layout with table seatings, ornaments & gratuity guide',
+      desc: 'Refined monochrome dining check with crisp type and clean spacing',
       icon: '🍷',
     },
     {
@@ -549,7 +549,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 : receiptStyle === 'modern_bistro' || receiptStyle === 'cafe_roastery' || receiptStyle === 'asian_minimal' || receiptStyle === 'delivery_card' || receiptStyle === 'delivery_minimal' || receiptStyle === 'delivery_dark'
                 ? '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif'
                 : receiptStyle === 'fine_dining'
-                ? 'Georgia, Cambria, "Times New Roman", serif'
+                ? 'Arial, Helvetica, sans-serif'
                 : '"Roboto Mono", "Space Mono", "Courier New", Courier, monospace',
             letterSpacing:
               receiptStyle === 'modern_bistro' || receiptStyle === 'cafe_roastery' || receiptStyle === 'asian_minimal' || receiptStyle === 'delivery_card' || receiptStyle === 'delivery_minimal' || receiptStyle === 'delivery_dark'
@@ -1210,16 +1210,6 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                 <div className="border-t-2 border-stone-900 pt-1.5 flex justify-between text-base font-bold font-serif text-black">
                   <span>TOTAL BILLED:</span>
                   <span>{taxSettings.currencySymbol}{calculation.grandTotal.toFixed(2)}</span>
-                </div>
-              </div>
-
-              {/* Tip Suggestion Guide */}
-              <div className="bg-stone-50 p-2 rounded border border-stone-200 text-center font-sans text-[10px] space-y-0.5">
-                <span className="font-bold uppercase text-stone-600 block">Suggested Gratuity Guide:</span>
-                <div className="flex justify-around font-semibold text-stone-800 pt-0.5">
-                  <span>10%: {taxSettings.currencySymbol}{(calculation.grandTotal * 0.10).toFixed(2)}</span>
-                  <span>15%: {taxSettings.currencySymbol}{(calculation.grandTotal * 0.15).toFixed(2)}</span>
-                  <span>18%: {taxSettings.currencySymbol}{(calculation.grandTotal * 0.18).toFixed(2)}</span>
                 </div>
               </div>
 
