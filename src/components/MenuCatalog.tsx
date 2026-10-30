@@ -3,6 +3,28 @@ import { Search, Plus, Minus, PlusCircle, Sparkles, Flame, Check, UtensilsCrosse
 import { MenuItem, CartItem, ShopInfo } from '../types/pos';
 import { MENU_CATEGORIES } from '../data/presetData';
 
+// Stable Unsplash CDN thumbnails used as category fallbacks when a dish has
+// no image or its saved image URL fails to load.
+const DISH_IMAGE_FALLBACKS: Record<string, string> = {
+  'Punjab Specials': 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&auto=format&fit=crop&q=80',
+  'Curries & Main Course': 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&auto=format&fit=crop&q=80',
+  'Rice & Biryani': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&auto=format&fit=crop&q=80',
+  'Tandoor & Breads': 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=80',
+  'Street Food & Chaat': 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&auto=format&fit=crop&q=80',
+  'Snacks & Pakora': 'https://images.unsplash.com/photo-1625398407797-00c2a233b8b1?w=400&auto=format&fit=crop&q=80',
+  'Hot Drinks': 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&auto=format&fit=crop&q=80',
+  'Fresh Juices': 'https://images.unsplash.com/photo-1546173159-315724a31696?w=400&auto=format&fit=crop&q=80',
+  'Fast Food & Burgers': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&auto=format&fit=crop&q=80',
+  'Beverages & Desserts': 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&auto=format&fit=crop&q=80',
+  'South Indian': 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400&auto=format&fit=crop&q=80',
+  'Chinese & Asian': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&auto=format&fit=crop&q=80',
+  'Seafood & Grill': 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400&auto=format&fit=crop&q=80',
+  'Desserts & Sweets': 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=400&auto=format&fit=crop&q=80',
+};
+
+const getDishFallbackImage = (item: MenuItem): string =>
+  DISH_IMAGE_FALLBACKS[item.category] || DISH_IMAGE_FALLBACKS['Curries & Main Course'];
+
 interface MenuCatalogProps {
   items: MenuItem[];
   cart: CartItem[];
@@ -39,6 +61,9 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [vegOnly, setVegOnly] = useState<boolean>(false);
+  // 0 = original URL, 1 = category fallback, 2 = final placeholder.
+  const [imageLoadState, setImageLoadState] = useState<Record<string, number>>({});
+
 
   // Map cart items for fast lookup of current quantity
   const cartQuantityMap = useMemo(() => {
@@ -334,16 +359,21 @@ export const MenuCatalog: React.FC<MenuCatalogProps> = ({
                   {/* Right: Food Image with Overlay Add Button */}
                   <div className="relative w-28 sm:w-32 shrink-0 flex flex-col items-center">
                     <div className="w-full h-24 sm:h-28 rounded-xl overflow-hidden bg-stone-100 border border-stone-100 relative">
-                      {item.image ? (
+                      {(imageLoadState[item.id] ?? (item.image ? 0 : 1)) < 2 ? (
                         <img
-                          src={item.image}
+                          src={(imageLoadState[item.id] ?? (item.image ? 0 : 1)) === 0 ? item.image : getDishFallbackImage(item)}
                           alt={item.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           loading="lazy"
+                          onError={() => setImageLoadState((current) => {
+                            const state = current[item.id] ?? (item.image ? 0 : 1);
+                            return { ...current, [item.id]: state === 0 ? 1 : 2 };
+                          })}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300">
-                          <Sparkles className="w-6 h-6" />
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-1 bg-stone-100 text-stone-400">
+                          <UtensilsCrossed className="w-6 h-6" />
+                          <span className="text-[9px] font-semibold text-center px-1">Image unavailable</span>
                         </div>
                       )}
                     </div>
