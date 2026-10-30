@@ -12,13 +12,21 @@ export interface AutocompleteResultItem {
 
 export function usePlacesAutocomplete(inputString: string) {
   const placesLib = useMapsLibrary('places');
+  const apiKeyConfigured = Boolean(import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const [suggestions, setSuggestions] = useState<AutocompleteResultItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!placesLib) return;
+    if (!placesLib) {
+      if (inputString.trim() && !apiKeyConfigured) {
+        setSuggestions([]);
+        setIsLoading(false);
+        setError('Google Places search is not configured. Add the VITE_GOOGLE_MAPS_API_KEY GitHub Actions secret and enable Places API (New) and Maps JavaScript API in Google Cloud.');
+      }
+      return;
+    }
 
     if (!inputString.trim()) {
       setSuggestions([]);
@@ -73,7 +81,7 @@ export function usePlacesAutocomplete(inputString: string) {
       isMounted = false;
       clearTimeout(debounceTimer);
     };
-  }, [placesLib, inputString]);
+  }, [placesLib, inputString, apiKeyConfigured]);
 
   const resetSession = useCallback(() => {
     sessionTokenRef.current = null;
