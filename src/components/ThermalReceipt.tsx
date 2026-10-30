@@ -569,7 +569,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
                     <h2 className="text-xl font-black tracking-tight mt-1">{shop.name}</h2>
                     <p className="text-[10px] text-emerald-50 mt-1 leading-relaxed">{shop.address}</p>
                   </div>
-                  <div className="rounded-2xl bg-white/15 border border-white/25 p-2 text-2xl">✦</div>
+                  
                 </div>
                 <div className="mt-4 inline-flex rounded-full bg-white text-emerald-800 px-3 py-1 text-[10px] font-extrabold tracking-wide">ORDER {orderDetails.orderId}</div>
               </div>
@@ -836,7 +836,6 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5">
                 <div className="text-xl sm:text-2xl font-black uppercase tracking-tight flex items-center justify-center gap-1.5">
-                  <span>🍕</span>
                   <span>{shop.name}</span>
                 </div>
                 <div className="text-[10px] font-bold uppercase text-stone-800">
@@ -973,7 +972,6 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
               {/* Actual Restaurant Header */}
               <div className="text-center space-y-0.5">
                 <div className="text-2xl font-black uppercase tracking-tight flex items-center justify-center gap-1.5">
-                  <span>🥪</span>
                   <span>{shop.name}</span>
                 </div>
                 <div className="text-[10px] text-stone-600 leading-tight px-2">{shop.address}</div>
@@ -1077,7 +1075,6 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
             <div className="receipt-layout-cafe space-y-2.5 text-stone-900 font-sans">
               <div className="text-center space-y-0.5">
                 <div className="text-lg font-black uppercase tracking-wider text-stone-950 flex items-center justify-center gap-1.5">
-                  <span>☕</span>
                   <span>{shop.name}</span>
                 </div>
                 <div className="text-[11px] font-semibold text-stone-600">ARTISANAL COFFEE & BAKEHOUSE</div>
@@ -1150,7 +1147,7 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
           {receiptStyle === 'fine_dining' && (
             <div className="receipt-layout-fine-dining space-y-3 text-stone-900 font-serif leading-relaxed">
               <div className="text-center space-y-1 pb-2 border-b border-stone-300">
-                <div className="text-[11px] tracking-widest uppercase text-stone-500 font-sans">✦ GUEST CHECK ✦</div>
+                <div className="text-[11px] tracking-widest uppercase text-stone-500 font-sans">GUEST CHECK</div>
                 <h1 className="text-2xl font-bold tracking-tight text-black capitalize">
                   {shop.name}
                 </h1>
