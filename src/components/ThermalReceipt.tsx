@@ -62,6 +62,12 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
   const [isGeneratingPng, setIsGeneratingPng] = useState(false);
   const [copied, setCopied] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [statusToast, setStatusToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setStatusToast(msg);
+    window.setTimeout(() => setStatusToast(null), 3000);
+  };
 
   const calculation = calculateBill(cart, taxSettings, discount, serviceCharge, orderDetails.roundOff);
 
@@ -117,9 +123,10 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
       link.click();
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+      showToast('Receipt PNG saved successfully!');
     } catch (err) {
       console.error('Failed to save receipt PNG:', err);
-      alert('Unable to save the receipt as PNG. Please try again.');
+      showToast('Unable to save receipt as PNG. Please try again.');
     } finally {
       setIsGeneratingPng(false);
     }
@@ -131,9 +138,10 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
     setIsGeneratingPdf(true);
     try {
       await generateThermalReceiptPdf(receiptRef.current, orderDetails.orderId, paperWidth);
+      showToast('Thermal PDF downloaded successfully!');
     } catch (err) {
       console.error('Failed to generate PDF:', err);
-      alert('Unable to generate PDF. Please try again.');
+      showToast('Unable to generate PDF. Please try again.');
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -221,9 +229,10 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
     void navigator.clipboard.writeText(lines.filter(Boolean).join('\n')).then(() => {
       setCopied(true);
+      showToast('Receipt text copied to clipboard!');
       window.setTimeout(() => setCopied(false), 2000);
     }).catch(() => {
-      window.alert('Clipboard access was blocked. Please copy the receipt text manually.');
+      showToast('Clipboard access was blocked. Please copy text manually.');
     });
   };
 
@@ -235,7 +244,14 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
         orderDetails.timestamp
       }\nThank you for dining with us!`
     );
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    const link = document.createElement('a');
+    link.href = `https://wa.me/?text=${text}`;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    showToast('Opening WhatsApp to share bill...');
   };
 
   const is58mm = paperWidth === '58mm';
@@ -336,6 +352,13 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({
 
   return (
     <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 py-4 pb-28">
+      {statusToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-stone-900/95 backdrop-blur-xs text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl border border-stone-700 flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-2">
+          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{statusToast}</span>
+        </div>
+      )}
+
       {/* Top Action Navigation Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-stone-200 pb-3 no-print">
         <button

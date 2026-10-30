@@ -1,6 +1,6 @@
 {
-  "name": "ZestyPOS - Smart POS & Thermal Receipt Generator",
-  "description": "Mobile-responsive POS and dynamic thermal receipt generator with Google Places integration, food delivery-style menu, multi-country tax engine, and pixel-perfect 58mm/80mm thermal receipt PDFs.",
+  "name": "Raman Bill Generator",
+  "description": "Raman Bill Generator (v1.0) - Fast, secure, and privacy-first POS & thermal receipt studio designed and developed by Raman. 100% client-side, zero tracking.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
