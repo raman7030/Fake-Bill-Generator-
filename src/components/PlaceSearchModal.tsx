@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Phone, Star, Building2, PlusCircle, Check, Sparkles, X, Store } from 'lucide-react';
-import { usePlacesAutocomplete, AutocompleteResultItem } from '../hooks/usePlacesAutocomplete';
 import { ShopInfo } from '../types/pos';
 import { PRESET_SHOPS } from '../data/presetData';
 import { ALL_FAMOUS_RESTAURANTS } from '../data/famousRestaurantsData';
@@ -12,6 +11,8 @@ interface PlaceSearchModalProps {
   onSelectShop: (shop: ShopInfo) => void;
 }
 
+interface OnlinePlaceResult { place_id: number; name?: string; display_name: string; lat: string; lon: string; extratags?: Record<string, string>; }
+
 export const PlaceSearchModal: React.FC<PlaceSearchModalProps> = ({
   isOpen,
   onClose,
@@ -22,6 +23,8 @@ export const PlaceSearchModal: React.FC<PlaceSearchModalProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [isFetchingDetails, setIsFetchingDetails] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [onlinePlaces, setOnlinePlaces] = useState<OnlinePlaceResult[]>([]);
+  const [onlineLoading, setOnlineLoading] = useState(false);
 
   // Custom shop form state
   const [customForm, setCustomForm] = useState<ShopInfo>({
@@ -34,7 +37,39 @@ export const PlaceSearchModal: React.FC<PlaceSearchModalProps> = ({
     source: 'custom',
   });
 
-  const { suggestions, isLoading, error: searchError, resetSession } = usePlacesAutocomplete(searchTerm);
+
+  const searchOnlinePlaces = async () => {
+    const query = searchTerm.trim();
+    if (!query) return;
+    setOnlineLoading(true); setFetchError(null); setOnlinePlaces([]);
+    try {
+      const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&extratags=1&namedetails=1&limit=12&q=' + encodeURIComponent(query);
+      const response = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error('Place search service returned ' + response.status);
+      const data = await response.json() as OnlinePlaceResult[];
+      setOnlinePlaces(data);
+      if (!data.length) setFetchError('No matching places found. Add the city or area to your search.');
+    } catch (error) {
+      setFetchError('Online search failed: ' + (error instanceof Error ? error.message : String(error)));
+    } finally { setOnlineLoading(false); }
+  };
+  const openInGoogleMaps = (query: string) => {
+    window.location.href = 'geo:0,0?q=' + encodeURIComponent(query);
+  };
+  const selectOnlinePlace = (place: OnlinePlaceResult) => {
+    const tags = place.extratags || {};
+    onSelectShop({
+      name: place.name || tags.name || searchTerm.trim() || 'Selected Business',
+      address: place.display_name || '',
+      phone: tags.phone || tags['contact:phone'] || '',
+      taxId: currentShop.taxId || '',
+      tagline: tags.cuisine ? tags.cuisine + ' cuisine' : (tags.website || tags['contact:website'] || 'Business listing'),
+      source: 'custom',
+      placeId: 'osm:' + place.place_id,
+    });
+    onClose();
+  };
+
 
   if (!isOpen) return null;
 
@@ -175,107 +210,34 @@ export const PlaceSearchModal: React.FC<PlaceSearchModalProps> = ({
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-5">
+
           {activeTab === 'search' && (
             <div className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-stone-400" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search restaurant, dhaba, hotel, cafe or shop..."
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-stone-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 text-sm outline-hidden transition-all bg-white"
-                  autoFocus
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => {
-                      setSearchTerm('');
-                      resetSession();
-                    }}
-                    className="absolute right-3 top-3 text-stone-400 hover:text-stone-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
+              <p className="text-xs text-stone-600 bg-blue-50 border border-blue-100 rounded-xl p-3">Search online business listings. Available details may include address, phone, website, cuisine and opening hours. Google Maps opens separately for navigation. Data is from OpenStreetMap, not extracted from Google Maps.</p>
+              <div className="flex gap-2">
+                <input type="search" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void searchOnlinePlaces(); }} placeholder="Business + city/area" className="min-w-0 flex-1 px-3 py-2.5 rounded-xl border border-stone-200 text-sm" autoFocus />
+                <button type="button" disabled={!searchTerm.trim() || onlineLoading} onClick={() => void searchOnlinePlaces()} className="px-4 rounded-xl bg-rose-600 text-white text-xs font-bold disabled:opacity-50">{onlineLoading ? 'Searching…' : 'Search'}</button>
               </div>
-
-              {/* Status / Loader */}
-              {(isLoading || isFetchingDetails) && (
-                <div className="flex items-center justify-center py-8 gap-2 text-stone-500 text-xs">
-                  <div className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
-                  <span>{isFetchingDetails ? 'Fetching restaurant details...' : 'Searching Google Places...'}</span>
-                </div>
-              )}
-
-              {(fetchError || searchError) && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-                  {fetchError || searchError}
-                </div>
-              )}
-
-              {/* Autocomplete Results */}
-              {!isLoading && suggestions.length > 0 && (
-                <div className="space-y-2">
-                  <div className="text-[11px] uppercase font-bold tracking-wider text-stone-400 px-1">
-                    Matching Places
+              <button type="button" disabled={!searchTerm.trim()} onClick={() => openInGoogleMaps(searchTerm)} className="w-full border border-stone-200 rounded-xl py-2.5 text-xs font-bold">Open search in Google Maps app</button>
+              {onlineLoading && <p className="text-center py-4 text-xs text-stone-500">Searching online listings…</p>}
+              {fetchError && <p className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">{fetchError}</p>}
+              {onlinePlaces.map((place) => {
+                const tags = place.extratags || {};
+                const phone = tags.phone || tags['contact:phone'] || '';
+                const website = tags.website || tags['contact:website'] || '';
+                return <div key={place.place_id} className="border border-stone-200 rounded-xl p-3 space-y-1.5">
+                  <div className="font-bold text-sm">{place.name || tags.name || 'Unnamed place'}</div>
+                  <div className="text-xs text-stone-600">{place.display_name}</div>
+                  <div className="text-[11px] text-stone-500">{phone ? 'Phone: ' + phone : 'Phone not listed'} {tags.cuisine ? ' · Cuisine: ' + tags.cuisine : ''} {tags.opening_hours ? ' · Hours: ' + tags.opening_hours : ''} {website ? ' · Website: ' + website : ''}</div>
+                  <div className="flex gap-2 pt-1">
+                    <button type="button" onClick={() => selectOnlinePlace(place)} className="flex-1 rounded-lg bg-rose-600 text-white py-2 text-xs font-bold">Use this business</button>
+                    <button type="button" onClick={() => openInGoogleMaps(place.display_name)} className="rounded-lg border px-3 py-2 text-xs">View map</button>
                   </div>
-                  <div className="divide-y divide-stone-100 border border-stone-200 rounded-xl overflow-hidden bg-white">
-                    {suggestions.map((suggestion) => (
-                      <button
-                        key={suggestion.placeId}
-                        onClick={() => handleSelectSuggestion(suggestion)}
-                        className="w-full text-left p-3.5 hover:bg-rose-50/50 transition-colors flex items-start gap-3 group"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-stone-100 group-hover:bg-rose-100 text-stone-600 group-hover:text-rose-600 flex items-center justify-center shrink-0 mt-0.5 transition-colors">
-                          <Building2 className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold text-stone-900 group-hover:text-rose-600 transition-colors truncate">
-                            {suggestion.mainText}
-                          </div>
-                          <div className="text-xs text-stone-500 truncate flex items-center gap-1 mt-0.5">
-                            <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
-                            <span>{suggestion.secondaryText || suggestion.fullText}</span>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {!isLoading && !searchTerm && (
-                <div className="text-center py-6 px-4 bg-stone-50 rounded-xl border border-dashed border-stone-200">
-                  <MapPin className="w-8 h-8 text-rose-500/50 mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-stone-700">Type any venue name</p>
-                  <p className="text-xs text-stone-500 max-w-xs mx-auto mt-1">
-                    e.g. "Haldiram", "Murthal Dhaba", "Karim's Delhi", "Starbucks Connaught Place", or your local shop.
-                  </p>
-                </div>
-              )}
-
-              {!isLoading && searchTerm && suggestions.length === 0 && (
-                <div className="text-center py-8 px-4 bg-stone-50 rounded-xl border border-stone-200">
-                  <p className="text-sm font-semibold text-stone-700">No places found for "{searchTerm}"</p>
-                  <p className="text-xs text-stone-500 mt-1 mb-4">
-                    Would you like to manually enter your shop and restaurant details instead?
-                  </p>
-                  <button
-                    onClick={() => {
-                      setCustomForm((prev) => ({ ...prev, name: searchTerm }));
-                      setActiveTab('custom');
-                    }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700 shadow-xs transition-colors"
-                  >
-                    <PlusCircle className="w-3.5 h-3.5" />
-                    <span>Create "{searchTerm}" as Custom Shop</span>
-                  </button>
-                </div>
-              )}
+                </div>;
+              })}
+              {!onlinePlaces.length && !onlineLoading && !fetchError && <div className="text-center py-6 text-xs text-stone-500">Try “restaurants in Ludhiana” or a business name with its city.</div>}
             </div>
           )}
-
           {activeTab === 'presets' && (
             <div className="space-y-4">
               {/* Section 1: Chandigarh & Ludhiana Famous */}
