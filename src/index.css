@@ -198,10 +198,66 @@ button {
 .receipt-layout-cafe > div:first-child * { color: #fff !important; }
 .receipt-layout-cafe > div:nth-child(2) { border: 1px solid #cbd5c0; border-radius: 2px; padding: 9px; }
 
-.receipt-layout-fine-dining { border: 3px double #a78b55; padding: 15px; background: #fffdf7; }
-.receipt-layout-fine-dining > div:first-child { border-bottom: 1px solid #a78b55 !important; padding-bottom: 14px; }
-.receipt-layout-fine-dining h1 { font-weight: 500 !important; letter-spacing: .04em !important; }
-.receipt-layout-fine-dining > div:last-child { border-top: 1px solid #a78b55; padding-top: 10px; }
+/* Fine Dining Elegance: high-contrast monochrome, tuned for thermal output. */
+.receipt-layout-fine-dining {
+  border: 2px solid #111 !important;
+  padding: 13px;
+  background: #fff !important;
+  color: #111 !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.receipt-layout-fine-dining,
+.receipt-layout-fine-dining * {
+  color: #111 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+.receipt-layout-fine-dining > div:first-child {
+  border-bottom: 1.5px solid #111 !important;
+  padding-bottom: 12px;
+}
+.receipt-layout-fine-dining h1 {
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 23px !important;
+  line-height: 1.18 !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em !important;
+  text-transform: none;
+}
+.receipt-layout-fine-dining p {
+  font-style: normal !important;
+  line-height: 1.4 !important;
+}
+.receipt-layout-fine-dining > div:nth-child(2) {
+  border-bottom: 1px dashed #555 !important;
+}
+.receipt-layout-fine-dining > div:nth-child(3) {
+  font-size: 12px;
+  line-height: 1.45;
+}
+.receipt-layout-fine-dining > div:nth-child(4) {
+  border-top: 1.5px solid #111 !important;
+}
+.receipt-layout-fine-dining > div:nth-child(4) > div:last-child {
+  border-top: 2px solid #111 !important;
+  font-size: 15px !important;
+  line-height: 1.3;
+}
+.receipt-layout-fine-dining > div:last-child {
+  border-top: 1px solid #111 !important;
+  padding-top: 10px;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 12px;
+  font-weight: 600;
+  font-style: italic;
+}
+@media print {
+  .receipt-layout-fine-dining {
+    border-color: #000 !important;
+    background: #fff !important;
+  }
+}
 
 .receipt-layout-izakaya { border: 2px solid #262626; padding: 10px; }
 .receipt-layout-izakaya > div:first-child { background: #262626; color: #fff; padding: 10px; }
